@@ -71,6 +71,9 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
 button.primary { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.scale .label { min-width: 132px; }
+.scale .seg button { min-width: 44px; min-height: 36px; }
+.scale #btn-rec { font-size: 13px; color: var(--muted); }
 .seg button { font-family: var(--font-mono); font-size: 13.5px; font-variant-numeric: tabular-nums; }
 .u { text-transform: none; letter-spacing: 0; }
 .pats { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -160,7 +163,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 @media (min-width: 861px) {
   /* workshop: keep the screen in view while the case card scrolls */
   body.ws-on .grid > .col:first-child { position: sticky; top: 12px; }
-  body.ws-on .screen { max-width: max(260px, calc(100vh - 300px)); margin: 0 auto; }
+  body.ws-on .screen { max-width: max(260px, calc(100vh - 390px)); margin: 0 auto; }
 }
 [hidden] { display: none !important; }
 </style>
@@ -204,6 +207,8 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     <div class="col">
       <div class="card">
         <div class="screen"><canvas id="scope" width="720" height="720" role="img" aria-label="Süpüren EMG trasesi"></canvas></div>
+        <div class="row scale"><span class="label" id="lbl-gain">Kazanç <span class="u">µV/kare</span></span><div class="seg" role="group" aria-labelledby="lbl-gain" id="seg-gain"></div></div>
+        <div class="row scale"><span class="label" id="lbl-sweep">Süpürme <span class="u">ms/kare</span></span><div class="seg" role="group" aria-labelledby="lbl-sweep" id="seg-sweep"></div><button id="btn-rec" type="button" title="Bu patern için önerilen kazanç ve süpürmeye dön">Önerilen ayar</button></div>
         <div class="row">
           <button id="btn-run" class="primary" type="button">Dondur</button>
           <button id="btn-trig" type="button" aria-pressed="false">Tetik</button>
@@ -273,11 +278,6 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
         <fieldset><legend>Şematik tek MÜP (kitap görünümü)</legend><div class="pats" id="pat-mup"></div></fieldset>
         <fieldset><legend>Artan kası: rekrutman</legend><div class="pats" id="pat-rek"></div></fieldset>
         <label class="check" for="chk-keep"><input type="checkbox" id="chk-keep"> Patern değişince kazanç ve süpürme ayarımı koru</label>
-      </div>
-      <div class="card">
-        <fieldset><legend>Kazanç (<span class="u">µV/kare</span>)</legend><div class="seg" id="seg-gain"></div></fieldset>
-        <fieldset><legend>Süpürme (<span class="u">ms/kare</span>)</legend><div class="seg" id="seg-sweep"></div></fieldset>
-        <button id="btn-rec" type="button">Bu patern için önerilen ayara dön</button>
       </div>
       <p class="note">Traseler matematiksel olarak üretilir; hasta kaydı değildir. Ekran 10 × 10 karedir, negatif yukarıdır. Fibrilasyon dereceleri yerleşik 0–4+ tanımıdır. MÜP dereceleri için yayımlanmış sayısal eşik yoktur; buradaki basamaklar çalışma ölçeğidir, laboratuvarınızın alışkanlığına göre ayarlanmalıdır.</p>
     </div>
