@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<title>EMG Trase Simülatörü</title>
+<title>EMG Laboratuvarı ve Simülatörü</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -115,6 +115,18 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 #ws-fb td { white-space: normal; text-align: left; font-family: var(--font-body); }
 #ws-fb th { text-align: left; }
 #ws-cur { display: flex; flex-direction: column; gap: 6px; }
+.tab-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 980px) { .tab-grid { grid-template-columns: minmax(0, 1fr); } }
+.myo { border-collapse: collapse; width: 100%; font-size: 14px; }
+.myo caption { text-align: left; font-family: var(--font-display); font-weight: 600; font-size: 17px; padding-bottom: 6px; }
+.myo th, .myo td { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+.myo th { font-size: 12.5px; color: var(--muted); font-weight: 600; background: var(--accent-soft); }
+.myo td.s { color: var(--muted); font-size: 12.5px; }
+.myo th.r, .myo td.r { text-align: center; width: 34px; padding: 5px 2px; border-left: 1px solid var(--line); }
+.myo tr:nth-child(even) td { background: color-mix(in srgb, var(--accent-soft) 35%, transparent); }
+.myo i { display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--accent); vertical-align: middle; }
+.myo i.d { background: var(--accent); }
+.wscat { margin-top: 2px; }
 .lab-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 860px) { .lab-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (min-width: 861px) { .lab-side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; } }
@@ -133,10 +145,17 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 .labfl .chip { font-size: 13px; padding: 4px 9px; border-radius: 999px; }
 .labhead { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.15; }
 .labbars { display: flex; flex-direction: column; gap: 5px; }
-.labbar { display: grid; grid-template-columns: 74px minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 13px; }
+.labbar { display: grid; grid-template-columns: minmax(74px, 128px) 50px minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 13px; }
 .labbar .bt { height: 10px; background: var(--accent-soft); border-radius: 5px; overflow: hidden; display: block; }
 .labbar .bt span { display: block; height: 100%; background: var(--accent); border-radius: 5px; }
 .labbar .bv { text-align: right; color: var(--muted); }
+.labbar .bn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.labbar .bk { color: var(--muted); font-size: 11.5px; }
+.labbtn .inf { font-size: 12.5px; color: var(--muted); padding: 6px 8px; }
+.labbtn .inf[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); font-weight: 400; }
+.labsite { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 3px; font-size: 13.5px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; }
+.labsite a { color: var(--accent); }
+@media (max-width: 520px) { .labrow { grid-template-columns: minmax(0, 1fr); } }
 #lab-rap { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; resize: vertical; }
 @media (min-width: 861px) {
   /* workshop: keep the screen in view while the case card scrolls */
@@ -149,16 +168,23 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 <body>
 <div class="wrap">
   <header>
-    <h1>EMG Trase Simülatörü</h1>
-    <p>Trase gerçek cihazdaki gibi soldan sağa süpürür. Gerçekçi kayıtlarda birçok ünite birlikte ateşler; fibrilasyon ve MÜP dereceleri, maksimum kasıdaki interferans paternleri ve nörojen tutulumun evreleri karşılaştırılabilir; radikülopati atölyesinde gizli bir vakada kas kas iğne EMG yapılır; ayrıca 27 şematik patern vardır. Kazancı 100, 200 ve 500 µV/kare arasında değiştirip kareleri sayın. <a href="https://claude.ai/artifact/Kkmwnp7ge1g6Nf6KUUHW8y">Kurs dokümanı</a></p>
+    <h1>EMG Laboratuvarı</h1>
+    <p id="sim-intro">Eğitim simülatörü: trase gerçek cihazdaki gibi soldan sağa süpürür. Gerçekçi kayıtlarda birçok ünite birlikte ateşler; fibrilasyon ve MÜP dereceleri, maksimum kasıdaki interferans paternleri ve nörojen tutulumun evreleri karşılaştırılabilir; radikülopati atölyesinde gizli bir vakada kas kas iğne EMG yapılır; ayrıca 27 şematik patern vardır. Kazancı 100, 200 ve 500 µV/kare arasında değiştirip kareleri sayın. <a href="https://claude.ai/artifact/Kkmwnp7ge1g6Nf6KUUHW8y">Kurs dokümanı</a></p>
   </header>
-  <div class="row"><div class="seg" role="group" aria-label="Bölüm" id="seg-mode"><button type="button" aria-pressed="true">Simülatör</button><button type="button" aria-pressed="false">Kök bulucu (laboratuvar)</button></div></div>
+  <div class="row"><div class="seg" role="group" aria-label="Bölüm" id="seg-mode"><button type="button" aria-pressed="true">Laboratuvar: tahmin ve rapor</button><button type="button" aria-pressed="false">Eğitim: simülatör ve atölye</button><button type="button" aria-pressed="false">Miyotom tablosu</button></div></div>
+
+  <div class="card" id="tab-card" hidden>
+    <div class="read"><div class="grp">Başvuru</div><h2>Miyotom tablosu</h2></div>
+    <p class="note">● baskın kök, ○ katkı veren kök. Kaynaklar arasında fark vardır ve bireysel varyasyon sıktır; baskın kökler cerrahi olarak doğrulanmış tek kök lezyonu serilerine göre işaretlidir (Levin 1996, Tsao 2003). Kök bulucu ve atölye bu tabloyu kullanır.</p>
+    <div class="tab-grid"><div id="tab-up"></div><div id="tab-lo"></div></div>
+  </div>
 
   <div class="card" id="lab-card" hidden>
-    <div class="read"><div class="grp">Laboratuvar aracı</div><h2>Kök bulucu</h2></div>
-    <p class="note">Baktığınız her kası Anormal ya da Normal olarak işaretleyin; sağdaki analiz her dokunuşta güncellenir. Hasta bilgisi girilmez, hiçbir şey kaydedilmez; sayfa kapanınca işaretler silinir.</p>
+    <div class="read"><div class="grp">Sinir iletimi ve iğne EMG</div><h2>Laboratuvar: tahmin ve rapor</h2></div>
+    <p class="note">Önce sinir iletimi sonuçlarını, sonra baktığınız kasları işaretleyin; sağdaki tahmin her dokunuşta güncellenir. Kök, pleksus, tek sinir ve polinöropati birlikte değerlendirilir. Hasta bilgisi girilmez, hiçbir şey kaydedilmez; sayfa kapanınca işaretler silinir.</p>
     <div class="row">
       <div class="seg" role="group" aria-label="Ekstremite" id="seg-limb"><button type="button">Üst ekstremite</button><button type="button">Alt ekstremite</button></div>
+      <div class="seg" role="group" aria-label="Bölüm" id="seg-pane"><button type="button">1 Sinir iletimi</button><button type="button">2 İğne EMG</button></div>
       <button id="lab-clear" type="button">Temizle</button>
     </div>
     <div class="lab-grid">
@@ -169,7 +195,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
           <textarea id="lab-rap" rows="6" readonly aria-label="Rapor taslağı"></textarea>
           <div class="row"><button id="lab-copy" type="button">Kopyala</button><span class="note" id="lab-copied"></span></div>
         </fieldset>
-        <p class="note">Bu bir karar desteğidir, tanı koymaz. Puan = açıklanan anormal kasların miyotom ağırlığı − açıklanmayan anormal kaslar − 0,4 × beklenip normal bulunan kaslar; iki düzey birlikte önerilirse 1 puan düşülür. Ölçüt: aynı kökten, en az iki ayrı periferik sinirden iki anormal kas. Ağırlıklar kurs dokümanındaki miyotom tablosundandır; puanlama kuralı doğrulanmış bir yöntem değildir. Sinir iletimi, klinik ve görüntüleme ile birlikte yorumlayın.</p>
+<p class="note">Bu bir karar desteğidir, tanı koymaz. Her aday lezyon için puan: açıklanan anormal kasların ağırlığı − açıklanmayan anormal kaslar − 0,4 × beklenip normal bulunan kaslar. Kök için ilgili SNAP normalse +0,5, düşükse −1, paraspinal anormalse +0,75. Pleksus ve sinir için beklenen SNAP düşükse +1, normalse −1, paraspinal anormalse −2, fokal iletim bulgusu +1,5. Ölçütü karşılayan aday +0,5 alır. Ağırlıklar kurs dokümanındaki miyotom tablosundandır; puanlama kuralı doğrulanmış bir yöntem değildir. İğne giriş yeri metinleri kısa hatırlatmadır; fotoğraflı atlas bağlantıları dış kaynaktır. Klinik ve görüntüleme ile birlikte yorumlayın.</p>
       </div>
     </div>
   </div>
@@ -223,9 +249,11 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       <div class="card" id="ws-card" hidden>
         <div class="read"><div class="grp">Radikülopati atölyesi</div><h2 id="ws-title"></h2></div>
         <p id="ws-vig" style="margin:0"></p>
+        <div class="row"><button id="ws-ncs" type="button">Sinir iletimi sonucunu göster</button></div>
+        <p class="note" id="ws-ncs-out" hidden></p>
         <div class="ws-fig" id="ws-fig"></div>
         <div id="ws-cur"></div>
-        <fieldset><legend>Tanınız</legend><div class="pats" id="ws-dx"></div></fieldset>
+        <fieldset><legend>Tanınız</legend><div id="ws-dx" style="display:flex;flex-direction:column;gap:6px"></div></fieldset>
         <fieldset><legend>Evre</legend><div class="pats" id="ws-sg"></div></fieldset>
         <div class="row"><button id="ws-submit" class="primary" type="button">Yanıtla</button></div>
         <div id="ws-fb" hidden></div>
@@ -723,11 +751,16 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
           amp = bA[0] + (bA[1] - bA[0]) * Math.random(); dur = 16 + 6 * Math.random(); cls = 0;
           if (Math.random() < ec.poly) { tpl = "chronicB"; nom = 18; }
         }
-        var bl = [0, 0.3 + 0.2 * Math.random()][cls], df2 = [0.85 + 0.15 * Math.random(), 0.45 + 0.3 * Math.random()][cls];
+        if (ec.mup === "myo" && (ec.frac == null || hit)) {
+          tpl = Math.random() < 0.5 ? "myo" : "myoB"; nom = 3.2; dur = 3 + 2 * Math.random(); amp = 0.15 + 0.3 * Math.random(); cls = ri(0, 1);
+        }
+        var bl = [0, 0.3 + 0.2 * Math.random()][cls] * (ec.mup === "myo" ? 0.4 : 1), df2 = [0.85 + 0.15 * Math.random(), 0.45 + 0.3 * Math.random()][cls];
         units.push({ mode: "vol", s: variant(tpl, dur / nom, bl), a: amp * df2, th: th, rmax: 24 + 4 * Math.random(), cv: 0.09 + 0.04 * Math.random(), cvA: 0.05,
                      cls: cls, extra: extra, next: simT + 150 + Math.random() * 150 });
       });
-      st.site = { kind: r.kind, n: ec.nS, pool: 8, good: true, cnt: fc, nP: fP, fMax: fMax };
+      if (ec.fasc) for (i = ri(1, 2); i > 0; i--)                 // fasciculations: whole motor units firing at rest, slowly and irregularly
+        units.push({ s: ["normal", "poly", "chronic"], a: 1.5 + 2.5 * Math.random(), mode: "poisson", mean: 1400, min: 400, cvA: 0.2, next: simT + 300 + Math.random() * 1500 });
+      st.site = { myo: ec.mup === "myo", kind: r.kind, n: ec.nS, pool: 8, good: true, cnt: fc, nP: fP, fMax: fMax };
       return;
     }
     if (r.kind === "fib") {
@@ -1151,95 +1184,190 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       { id: "tp", ad: "Tibialis posterior", k: "Tib. post.", sinir: "Tibial", r: { L5: 1, S1: 0.5 }, x: 268, y: 296, s: -1 }
     ]
   };
+  // parts: root lesions (one or two levels). w: explicit muscle weights for nerve, plexus and diffuse lesions.
+  // cat: k root, s nerve or plexus, y diffuse. nost: no stage is asked. ncs: what nerve conduction would show.
+  var WS_RAD_NCS = "Duysal yanıtlar (SNAP) normal. Motor yanıtlar normal ya da tutulan kasta hafif düşük.";
   var WS_LES = {
     up: [
-      { id: "C5", btn: "C5", ad: "C5 radikülopatisi", root: ["C5"], anc: ["del", "inf"],
+      { id: "C5", cat: "k", btn: "C5", ad: "C5 radikülopatisi", parts: [{ root: ["C5"], anc: ["del", "inf"] }], ncs: WS_RAD_NCS,
         yak: "boyundan omuza ve kolun dış yüzüne yayılan ağrı", mua: "omuz abduksiyonu zayıf, biseps refleksi azalmış",
         not: "Romboid yalnız C5'ten beslenir; tutulması lezyonu C5'e çeker. Pronator teres ve triseps normal kalır." },
-      { id: "C6", btn: "C6", ad: "C6 radikülopatisi", root: ["C6"], anc: ["bic", "pt"],
+      { id: "C6", cat: "k", btn: "C6", ad: "C6 radikülopatisi", parts: [{ root: ["C6"], anc: ["bic", "pt"] }], ncs: WS_RAD_NCS,
         yak: "boyundan başparmağa yayılan ağrı ve uyuşma", mua: "dirsek fleksiyonu zayıf, brakiyoradiyalis refleksi azalmış",
         not: "C6'nın kendine özgü kası yoktur: C5 paternine pronator teres veya FKR eklenir, romboid normal kalır. Bu yüzden C5 ya da C7 ile en çok karışan düzeydir." },
-      { id: "C7", btn: "C7", ad: "C7 radikülopatisi", root: ["C7"], anc: ["tri", "fcr"],
+      { id: "C7", cat: "k", btn: "C7", ad: "C7 radikülopatisi", parts: [{ root: ["C7"], anc: ["tri", "fcr"] }], ncs: WS_RAD_NCS,
         yak: "boyundan orta parmağa yayılan ağrı", mua: "dirsek ekstansiyonu zayıf, triseps refleksi azalmış",
         not: "Triseps (radial) ile pronator teres veya FKR (median) birlikte tutulur; deltoid, biseps ve el içi kasları normaldir." },
-      { id: "C8", btn: "C8", ad: "C8 radikülopatisi", root: ["C8"], anc: ["fdi", "eip", "fpl"],
+      { id: "C8", cat: "k", btn: "C8", ad: "C8 radikülopatisi", parts: [{ root: ["C8"], anc: ["fdi", "eip", "fpl"] }], ncs: WS_RAD_NCS,
         yak: "dördüncü ve beşinci parmakta uyuşma, elde beceriksizlik", mua: "parmak abduksiyonu ve işaret parmağı ekstansiyonu zayıf",
-        not: "Üç ayrı sinirden C8 kası tutulur: 1. DİO (ulnar), EİP (radial), FPL (median). Ulnar nöropatide EİP ve FPL normal kalır." },
-      { id: "ULN", btn: "Ulnar nöropati (dirsek)", ad: "Dirsekte ulnar nöropati", mono: { fdi: 1, fcu: 0.5 }, ms: "ulnar",
+        not: "Üç ayrı sinirden C8 kası tutulur: 1. DİO (ulnar), EİP (radial), FPL (median). Ulnar nöropatide EİP ve FPL normal kalır. Alt trunkus lezyonundan iğne ile ayrılamayabilir: paraspinal ve SNAP ayırır." },
+      { id: "T1", cat: "k", btn: "T1", ad: "T1 radikülopatisi", parts: [{ root: ["T1"], anc: ["apb", "fdi"] }], ncs: WS_RAD_NCS,
+        yak: "ön kolun iç yüzüne yayılan ağrı ve elde güçsüzlük", mua: "başparmak abduksiyonu ve parmak abduksiyonu zayıf, parmak ekstansiyonu tam",
+        not: "APB (median) en belirgin tutulan kastır, 1. DİO (ulnar) eşlik eder. C8'in radial kasları (EİP, EDK) normal kalır; bu, C8 ve alt trunkustan ayırır. Nadir bir düzeydir." },
+      { id: "C67", cat: "k", btn: "C6 + C7", ad: "C6 ve C7 radikülopatisi", parts: [{ root: ["C6"], anc: ["bic", "pt"] }, { root: ["C7"], anc: ["tri", "edc"] }], ncs: WS_RAD_NCS,
+        yak: "boyundan başparmak ve orta parmağa yayılan ağrı", mua: "dirsek fleksiyonu ve ekstansiyonu zayıf, biseps ve triseps refleksleri azalmış",
+        not: "Tek düzey bütün kasları açıklamaz: biseps ve deltoid C7 ile, triseps ve EDK C6 ile açıklanamaz. El içi kasları normaldir." },
+      { id: "C78", cat: "k", btn: "C7 + C8", ad: "C7 ve C8 radikülopatisi", parts: [{ root: ["C7"], anc: ["tri", "fcr"] }, { root: ["C8"], anc: ["fdi", "eip"] }], ncs: WS_RAD_NCS,
+        yak: "boyundan orta ve küçük parmağa yayılan ağrı, elde beceriksizlik", mua: "dirsek ve parmak ekstansiyonu ile parmak abduksiyonu zayıf, triseps refleksi azalmış",
+        not: "FKR ve pronator teres C8 ile, 1. DİO C7 ile açıklanamaz; ikisi birlikte iki düzey gerektirir. Deltoid ve biseps normaldir." },
+      { id: "UT", cat: "s", btn: "Üst trunkus", ad: "Üst trunkus pleksopatisi", w: { inf: 1, del: 1, bic: 1, brd: 1, pt: 0.5, fcr: 0.5 },
+        ncs: "Lateral antebrakiyal kutanöz ve başparmaktan kaydedilen median SNAP düşük; ulnar SNAP normal.",
+        yak: "omuz ve kolun dış yüzünde şiddetli ağrının ardından gelişen omuz güçsüzlüğü", mua: "omuz abduksiyonu, dış rotasyonu ve dirsek fleksiyonu zayıf; biseps refleksi azalmış",
+        not: "C5–C6 kaslarının hepsi tutulur ama romboid (dorsal skapular sinir kökten çıkar) ve paraspinal normaldir. SNAP'in düşük olması lezyonu arka kök gangliyonunun distaline yerleştirir." },
+      { id: "LT", cat: "s", btn: "Alt trunkus", ad: "Alt trunkus pleksopatisi", w: { fdi: 1, apb: 1, fpl: 1, fcu: 1, eip: 1, edc: 0.5 },
+        ncs: "Ulnar ve medial antebrakiyal kutanöz SNAP düşük; median SNAP normal.",
+        yak: "ön kolun iç yüzünde ve küçük parmakta uyuşma, elde güçsüzlük", mua: "el içi kaslarının tümü ve parmak ekstansiyonu zayıf",
+        not: "C8–T1 kasları üç sinirden birlikte tutulur (ulnar, median, radial) ve paraspinal normaldir. İğne paterni C8 radikülopatisine çok benzer; ayrımı düşük ulnar ve medial antebrakiyal kutanöz SNAP yapar." },
+      { id: "ULN", cat: "s", btn: "Ulnar (dirsek)", ad: "Dirsekte ulnar nöropati", w: { fdi: 1, fcu: 0.5 },
+        ncs: "Ulnar SNAP düşük; dirsek segmentinde ulnar motor iletim yavaş. Median ve radial yanıtlar normal.",
         yak: "dördüncü ve beşinci parmakta uyuşma, elde beceriksizlik", mua: "parmak abduksiyonu zayıf; boyun hareketleri ağrılı",
-        not: "Anormal kasların hepsi ulnar sinirdedir. Aynı kökten (C8) ama başka sinirden kaslar, yani EİP (radial), FPL ve APB (median), ve paraspinal normaldir. Kesin ayrım için sinir iletim çalışması gerekir." },
-      { id: "NORM", btn: "Normal", ad: "Normal iğne EMG", norm: true,
+        not: "Anormal kasların hepsi ulnar sinirdedir. Aynı kökten (C8) ama başka sinirden kaslar, yani EİP (radial), FPL ve APB (median), ve paraspinal normaldir." },
+      { id: "RAD", cat: "s", btn: "Radial (spiral oluk)", ad: "Spiral olukta radial nöropati", w: { brd: 1, edc: 1, eip: 1 },
+        ncs: "Radial SNAP düşük. Median ve ulnar yanıtlar normal.",
+        yak: "sabah uyanınca fark edilen düşük el", mua: "el bileği ve parmak ekstansiyonu zayıf, dirsek ekstansiyonu korunmuş; el sırtında uyuşma",
+        not: "Brakiyoradiyalis, EDK ve EİP tutulur; triseps dalı spiral oluğun proksimalinden çıktığı için normaldir. C7 radikülopatisinden ayıran: median C7 kasları (pronator teres, FKR) ve paraspinal normal, brakiyoradiyalis (C5–C6) anormal." },
+      { id: "MED", cat: "s", btn: "Proksimal median", ad: "Proksimal median nöropati", w: { pt: 1, fcr: 1, fpl: 1, apb: 1 },
+        ncs: "Median SNAP düşük; ulnar ve radial SNAP normal. Bilekte median distal latans normal.",
+        yak: "ilk üç parmakta uyuşma ve kavrama güçsüzlüğü", mua: "önkol pronasyonu, başparmak fleksiyonu ve abduksiyonu zayıf",
+        not: "Pronator teres, FKR, FPL ve APB, yani dört ayrı kök düzeyinden (C6–T1) ama tek sinirden kaslar tutulur. Karpal tünelde yalnız APB tutulurdu." },
+      { id: "PNP", cat: "y", btn: "Polinöropati", ad: "Uzunluğa bağlı aksonal polinöropati", w: { fdi: 1, apb: 1, eip: 0.5 }, nost: true, fix: 2, bil: true, sure: "2 yıldır",
+        ncs: "Sural ve yüzeyel peroneal SNAP iki yanlı alınamıyor; ulnar ve median SNAP düşük. Karşı kolda iğne bulguları aynı.",
+        yak: "iki elde ve iki ayakta simetrik uyuşma, ellerde incelme", mua: "el içi kasları iki yanlı zayıf, tüm refleksler azalmış; eldiven-çorap tarzı duyu kaybı",
+        not: "Bulgular distalde ve simetriktir: el içi kasları kronik nörojen, proksimal kaslar ve paraspinal normal. Tek ekstremitede alt trunkusa benzer; karşı taraf ve bacaklar aynıysa polinöropatidir." },
+      { id: "ALS", cat: "y", btn: "Ön boynuz", ad: "Ön boynuz hastalığı (motor nöron hastalığı)", als: true, nost: true, fix: 2, bil: true, sure: "8 aydır",
+        ncs: "Tüm duysal yanıtlar normal; motor amplitüdler düşük. Diğer ekstremitelerde ve torakal paraspinalde de benzer iğne bulguları.",
+        yak: "ağrısız, ilerleyici el ve kol güçsüzlüğü ile kas seğirmeleri", mua: "yaygın atrofi ve fasikülasyon, refleksler canlı, duyu normal",
+        not: "Hiçbir kök ya da sinir dağılımına uymayan yaygın tutulum: birçok miyotom, birçok sinir, paraspinal dahil. Aktif denervasyon ile iri MÜP birlikte, istirahatte fasikülasyon var, SNAP normal." },
+      { id: "MYO", cat: "y", btn: "Miyopati", ad: "Proksimal miyopati", w: { del: 1, bic: 1, inf: 1, tri: 1, rho: 1 }, myo: true, nost: true, fix: 0, bil: true, sure: "6 aydır",
+        ncs: "Duysal ve motor iletim normal.",
+        yak: "iki kolda simetrik, ağrısız güçsüzlük; saç tararken zorlanma", mua: "omuz kuşağı kasları iki yanlı zayıf, refleksler ve duyu normal; CK yüksek",
+        not: "Proksimal kaslarda MÜP'ler küçük, kısa ve polifaziktir; az kuvvette ekran dolar (erken rekrutman). Seyrelme yoktur. Distal kaslar normaldir. Fibrilasyon eşlik ediyorsa nekrotizan ya da inflamatuar süreç düşünülür." },
+      { id: "NORM", cat: "y", btn: "Normal", ad: "Normal iğne EMG", norm: true, nost: true, ncs: "Duysal ve motor iletim normal.",
         yak: "boyun ve omuz ağrısı, kolda yaygın uyuşma hissi", mua: "kas gücü tam, refleksler normal",
         not: "Normal iğne EMG yalnız duysal lifleri tutan veya akson kaybı yapmayan radikülopatiyi dışlamaz." }
     ],
     lo: [
-      { id: "L34", btn: "L3–L4", ad: "L3–L4 radikülopatisi", root: ["L3", "L4"], anc: ["vl", "add"],
+      { id: "L24", cat: "k", btn: "L2–L4", ad: "L2–L4 radikülopatisi", parts: [{ root: ["L2", "L3", "L4"], anc: ["vl", "add"] }], ncs: WS_RAD_NCS,
         yak: "belden uyluğun ön yüzüne yayılan ağrı", mua: "diz ekstansiyonu zayıf, patella refleksi azalmış",
-        not: "Kuadriseps (femoral) ile adduktor (obturator) birlikte tutulur: iki ayrı sinir, aynı kökler. İğne EMG L3 ile L4'ü güvenilir ayıramaz." },
-      { id: "L5", btn: "L5", ad: "L5 radikülopatisi", root: ["L5"], anc: ["ta", "gmed", "tp"],
+        not: "Kuadriseps (femoral) ile adduktor (obturator) birlikte tutulur: iki ayrı sinir, aynı kökler. İğne EMG L2, L3 ve L4'ü birbirinden güvenilir ayıramaz." },
+      { id: "L5", cat: "k", btn: "L5", ad: "L5 radikülopatisi", parts: [{ root: ["L5"], anc: ["ta", "gmed", "tp"] }], ncs: WS_RAD_NCS,
         yak: "belden bacağın dış yüzüne ve ayak sırtına yayılan ağrı, düşük ayak", mua: "ayak bileği ve başparmak dorsifleksiyonu zayıf, refleksler normal",
         not: "Peroneal dışı L5 kasları anahtardır: tibialis posterior (tibial) ve gluteus medius (superior gluteal). Bunlar anormalse lezyon fibula başında olamaz." },
-      { id: "S1", btn: "S1", ad: "S1 radikülopatisi", root: ["S1"], anc: ["mg", "gmax"],
+      { id: "S1", cat: "k", btn: "S1", ad: "S1 radikülopatisi", parts: [{ root: ["S1"], anc: ["mg", "gmax"] }], ncs: WS_RAD_NCS,
         yak: "belden topuğa ve ayağın dış kenarına yayılan ağrı", mua: "parmak ucunda yürüme zor, Aşil refleksi alınmıyor",
         not: "Medial gastroknemius (tibial), gluteus maksimus (inferior gluteal) ve biseps femoris kısa baş (peroneal bölüm) birlikte tutulur; tibialis anterior normal kalır." },
-      { id: "PER", btn: "Peroneal nöropati (fibula başı)", ad: "Fibula başında peroneal nöropati", mono: { ta: 1, ehl: 1, pl: 1 }, ms: "peroneal",
+      { id: "L5S1", cat: "k", btn: "L5 + S1", ad: "L5 ve S1 radikülopatisi", parts: [{ root: ["L5"], anc: ["ta", "gmed"] }, { root: ["S1"], anc: ["mg", "gmax"] }], ncs: WS_RAD_NCS,
+        yak: "belden bacağın arka-dış yüzüne ve ayağa yayılan ağrı", mua: "ayak bileği dorsifleksiyonu ve plantar fleksiyonu zayıf, Aşil refleksi alınmıyor",
+        not: "Tibialis anterior S1 ile, medial gastroknemius L5 ile açıklanamaz; ikisi birlikte iki düzey gerektirir. Gluteal kaslar ve paraspinal tutulumu lezyonu pleksusun ve siyatiğin proksimaline yerleştirir." },
+      { id: "LSP", cat: "s", btn: "Lumbosakral pleksus", ad: "Lumbosakral pleksopati (sakral pleksus)", w: { gmed: 1, gmax: 1, st: 1, bfs: 1, ta: 1, ehl: 1, pl: 1, tp: 1, mg: 1 },
+        ncs: "Sural ve yüzeyel peroneal SNAP düşük; karşı taraf normal.",
+        yak: "kalça ve bacakta şiddetli ağrının ardından gelişen güçsüzlük", mua: "kalça abduksiyonu, diz fleksiyonu ve ayak bileği hareketleri zayıf; Aşil refleksi alınmıyor",
+        not: "L5–S1 kasları gluteal kaslar dahil tutulur, paraspinal normaldir. İğne paterni L5 + S1 radikülopatisine çok benzer; ayrımı düşük sural ve yüzeyel peroneal SNAP yapar." },
+      { id: "SCI", cat: "s", btn: "Siyatik", ad: "Siyatik nöropati", w: { st: 1, bfs: 1, ta: 1, ehl: 1, pl: 1, tp: 1, mg: 0.5 },
+        ncs: "Sural ve yüzeyel peroneal SNAP düşük; karşı taraf normal.",
+        yak: "kalçadan bacağa yayılan ağrı ve düşük ayak", mua: "diz fleksiyonu ve ayak bileği hareketleri zayıf, kalça abduksiyonu tam; Aşil refleksi azalmış",
+        not: "Hamstringler ile dizin altındaki peroneal ve tibial kaslar tutulur; peroneal bölüm genellikle daha ağırdır. Gluteus medius ve maksimus (pleksustan ayrı çıkan gluteal sinirler) ve paraspinal normaldir." },
+      { id: "PER", cat: "s", btn: "Peroneal (fibula başı)", ad: "Fibula başında peroneal nöropati", w: { ta: 1, ehl: 1, pl: 1 },
+        ncs: "Yüzeyel peroneal SNAP düşük; fibula başında peroneal motor iletim bloğu ya da yavaşlama. Sural normal.",
         yak: "düşük ayak ve ayak sırtında uyuşma", mua: "ayak bileği ve başparmak dorsifleksiyonu zayıf, refleksler normal; bel ağrısı da tarifliyor",
         not: "Anormal kasların hepsi peroneal sinirde ve fibula başının distalindedir. Tibialis posterior, gluteus medius, biseps femoris kısa baş ve paraspinal normaldir." },
-      { id: "NORM", btn: "Normal", ad: "Normal iğne EMG", norm: true,
+      { id: "FEM", cat: "s", btn: "Femoral", ad: "Femoral nöropati", w: { vl: 1, ilio: 0.5 },
+        ncs: "Safen SNAP düşük; femoral motor yanıt düşük.",
+        yak: "uyluğun ön yüzünde uyuşma ve dizde boşalma", mua: "diz ekstansiyonu zayıf, kalça adduksiyonu tam; patella refleksi alınmıyor",
+        not: "Kuadriseps tutulur, iliopsoas lezyon pelvis içindeyse eşlik eder. Adduktor longus (obturator) ve paraspinal normaldir; L2–L4 radikülopatisinde adduktor da tutulurdu." },
+      { id: "PNP", cat: "y", btn: "Polinöropati", ad: "Uzunluğa bağlı aksonal polinöropati", w: { ehl: 1, ta: 1, pl: 1, tp: 1, mg: 0.5 }, nost: true, fix: 2, bil: true, sure: "2 yıldır",
+        ncs: "Sural ve yüzeyel peroneal SNAP iki yanlı alınamıyor; motor amplitüdler distalde düşük. Karşı bacakta iğne bulguları aynı.",
+        yak: "iki ayakta simetrik uyuşma ve yanma", mua: "ayak parmak ekstansiyonu iki yanlı zayıf, Aşil refleksleri iki yanlı alınmıyor; çorap tarzı duyu kaybı",
+        not: "Bulgular distalde ve simetriktir: dizin altındaki kaslar sinir ayırt etmeden kronik nörojen, uyluk, gluteal kaslar ve paraspinal normal. Tek bacakta siyatik ya da L5 + S1'e benzer; karşı taraf aynıysa polinöropatidir." },
+      { id: "ALS", cat: "y", btn: "Ön boynuz", ad: "Ön boynuz hastalığı (motor nöron hastalığı)", als: true, nost: true, fix: 2, bil: true, sure: "8 aydır",
+        ncs: "Tüm duysal yanıtlar normal; motor amplitüdler düşük. Diğer ekstremitelerde ve torakal paraspinalde de benzer iğne bulguları.",
+        yak: "ağrısız, ilerleyici bacak güçsüzlüğü ile kas seğirmeleri", mua: "yaygın atrofi ve fasikülasyon, refleksler canlı, duyu normal",
+        not: "Hiçbir kök ya da sinir dağılımına uymayan yaygın tutulum: birçok miyotom, birçok sinir, paraspinal dahil. Aktif denervasyon ile iri MÜP birlikte, istirahatte fasikülasyon var, SNAP normal." },
+      { id: "MYO", cat: "y", btn: "Miyopati", ad: "Proksimal miyopati", w: { ilio: 1, vl: 1, add: 1, gmed: 1, gmax: 1, st: 0.5 }, myo: true, nost: true, fix: 0, bil: true, sure: "6 aydır",
+        ncs: "Duysal ve motor iletim normal.",
+        yak: "merdiven çıkmada ve oturduğu yerden kalkmada zorlanma", mua: "kalça fleksiyonu ve diz ekstansiyonu iki yanlı zayıf, refleksler ve duyu normal; CK yüksek",
+        not: "Proksimal kaslarda MÜP'ler küçük, kısa ve polifaziktir; az kuvvette ekran dolar (erken rekrutman). Seyrelme yoktur. Distal kaslar normaldir. Fibrilasyon eşlik ediyorsa nekrotizan ya da inflamatuar süreç düşünülür." },
+      { id: "NORM", cat: "y", btn: "Normal", ad: "Normal iğne EMG", norm: true, nost: true, ncs: "Duysal ve motor iletim normal.",
         yak: "bel ve kalça ağrısı, bacakta yaygın uyuşma hissi", mua: "kas gücü tam, refleksler normal",
         not: "Normal iğne EMG yalnız duysal lifleri tutan veya akson kaybı yapmayan radikülopatiyi dışlamaz." }
     ]
   };
-  var WS_SG = ["Akut", "Subakut", "Kronik aktif", "Kronik inaktif"];
+  var WS_CAT = [["k", "Kök"], ["s", "Pleksus ve sinir"], ["y", "Yaygın süreç ve normal"]];
+  var WS_SG = ["Akut", "Subakut", "Kronik aktif", "Kronik inaktif", "Karışık: eski sekel + yeni akut"];
   var WS_SURE = [function () { return ri(4, 7) + " haftadır"; }, function () { return ri(3, 5) + " aydır"; },
                  function () { return ri(2, 4) + " yıldır süren ve son aylarda artan"; }, function () { return ri(3, 6) + " yıl önce başlayıp o zamandan beri değişmeyen"; }];
 
   // What one muscle shows, from how strongly the lesion involves it (sev 0, 0.5, 1) and how old the lesion is.
-  function wsFind(sev, sg, para) {
-    var N = { fib: [0, 0], fa: [0, 0], nS: 8, mup: "norm" };
+  function wsFind(sev, sg, para, les) {
+    var N = { fib: [0, 0], fa: [0, 0], nS: 8, mup: "norm" }, f;
     if (!sev) return N;
+    if (les && les.myo) return para ? { fib: [1, 3], fa: [0.05, 0.2], nS: 8, mup: "norm" }
+      : { fib: sev === 1 && les.fibs ? [1, 3] : [0, 0], fa: [0.05, 0.2], nS: 8, mup: "myo", frac: sev === 1 ? null : 0.5 };
     if (para) return [{ fib: [3, 6], fa: [0.12, 0.45], nS: 8, mup: "norm" }, { fib: [1, 3], fa: [0.08, 0.3], nS: 8, mup: "norm" },
                       { fib: [1, 2], fa: [0.03, 0.09], nS: 8, mup: "norm" }, N][sg];
     var full = sev === 1;
-    return [
+    f = [
       full ? { fib: [3, 7], fa: [0.15, 0.55], nS: ri(4, 5), mup: "norm" } : { fib: [1, 3], fa: [0.1, 0.4], nS: 6, mup: "norm" },
       full ? { fib: [2, 5], fa: [0.1, 0.35], nS: 4, mup: "nasc" } : { fib: [0, 2], fa: [0.08, 0.3], nS: 6, mup: "nasc", frac: 0.4 },
       full ? { fib: [1, 3], fa: [0.03, 0.09], nS: ri(3, 4), mup: "big", poly: 0.4 } : { fib: [0, 1], fa: [0.03, 0.08], nS: 6, mup: "big", frac: 0.4, bigA: [2, 3.5], poly: 0.2 },
       full ? { fib: [0, 0], fa: [0, 0], nS: ri(3, 4), mup: "big", poly: 0.15 } : { fib: [0, 0], fa: [0, 0], nS: 6, mup: "big", frac: 0.4, bigA: [2, 3.5], poly: 0.1 }
     ][sg];
+    if (les && les.als) { f.fasc = true; f.fib = [2, 4]; f.fa = [0.08, 0.3]; }
+    return f;
   }
   function wsAbn(f) { return f.fib[1] > 0 || f.mup !== "norm" || f.nS < 8; }
   function wsDesc(f, para) {
     if (!wsAbn(f)) return "normal";
-    var a = [f.fib[1] > 0 ? "fibrilasyon/PKD var" : "istirahat sessiz"];
+    var a = [(f.fib[1] > 0 ? "fibrilasyon/PKD var" : "istirahat sessiz") + (f.fasc ? ", fasikülasyon" : "")];
     if (para) return a[0];
+    if (f.mup === "myo") { a.push((f.frac ? "bazı MÜP'ler " : "MÜP ") + "küçük, kısa, polifazik"); a.push("erken rekrutman"); return a.join(" · "); }
     a.push(f.mup === "norm" ? "MÜP normal" : (f.frac ? "bazı MÜP'ler " : "MÜP ") + (f.mup === "nasc" ? "polifazik, kararsız" : "iri, uzun"));
     a.push(f.nS <= 4 ? "belirgin seyrelme" : "hafif seyrelme");
     return a.join(" · ");
   }
   function wsNew(limb) {
-    var L = WS_LES[limb], x = Math.random(), rad = L.filter(function (q) { return q.root; });
-    var les = x < 0.7 ? rad[ri(0, rad.length - 1)] : x < 0.88 ? L.filter(function (q) { return q.mono; })[0] : L.filter(function (q) { return q.norm; })[0];
-    var sg = les.norm ? null : ri(0, 3), find = {};
+    var L = WS_LES[limb], x = Math.random();
+    function pool(fn) { var a = L.filter(fn); return a[ri(0, a.length - 1)]; }
+    var les = x < 0.38 ? pool(function (q) { return q.parts && q.parts.length === 1; })
+            : x < 0.5 ? pool(function (q) { return q.parts && q.parts.length === 2; })
+            : x < 0.76 ? pool(function (q) { return q.cat === "s"; })
+            : x < 0.92 ? pool(function (q) { return q.cat === "y" && !q.norm; }) : pool(function (q) { return q.norm; });
+    var mixed = !!(les.parts && les.parts.length === 2 && Math.random() < 0.35), sg = les.norm ? null : les.fix != null ? les.fix : ri(0, 3), find = {}, psg = [sg, sg], old = null;
+    if (mixed) { old = ri(0, 1); psg = old ? [0, 3] : [3, 0]; sg = 4; }
+    if (les.myo) les.fibs = Math.random() < 0.5;
+    var nAls = 0;
     WS_MUS[limb].forEach(function (m) {
-      var w = 0;
-      if (les.root) {
-        if (m.para) w = Math.random() < [0.85, 0.6, 0.4, 0][sg] ? 1 : 0;
-        else {
-          les.root.forEach(function (k) { if ((m.r[k] || 0) > w) w = m.r[k]; });
-          if (les.anc.indexOf(m.id) >= 0) w = 1;
+      if (les.norm) { find[m.id] = wsFind(0, 0, m.para); return; }
+      if (les.parts) {
+        if (m.para) { var pp = Math.max.apply(null, psg.map(function (g) { return [0.85, 0.6, 0.4, 0][g]; })); find[m.id] = wsFind(Math.random() < pp ? 1 : 0, Math.min.apply(null, psg.slice(0, les.parts.length)), true); return; }
+        var fs = les.parts.map(function (p, i) {
+          var w = 0; p.root.forEach(function (k) { if ((m.r[k] || 0) > w) w = m.r[k]; });
+          if (p.anc.indexOf(m.id) >= 0) w = 1;
           else if (w === 1 && Math.random() > 0.85) w = 0;            // root lesions are partial: not every muscle of the myotome shows it
           else if (w === 0.5 && Math.random() > 0.45) w = 0;
+          return { w: w, g: psg[i], f: wsFind(w, psg[i], false) };
+        }).filter(function (q) { return q.w > 0; });
+        if (!fs.length) find[m.id] = wsFind(0, 0, false);
+        else if (fs.length === 1 || !mixed) find[m.id] = fs.sort(function (a, b) { return b.w - a.w; })[0].f;
+        else {                                                         // old and new lesion in one muscle: fresh fibrillations over remodelled units
+          var ac = fs[0].g === 0 ? fs[0] : fs[1], ch = fs[0].g === 0 ? fs[1] : fs[0];
+          find[m.id] = { fib: ac.f.fib, fa: ac.f.fa, nS: Math.min(ac.f.nS, ch.f.nS), mup: ch.f.mup, poly: ch.f.poly, frac: ch.f.frac, bigA: ch.f.bigA };
         }
-      } else if (les.mono) w = les.mono[m.id] || 0;
-      find[m.id] = wsFind(w, sg === null ? 0 : sg, m.para);
+        return;
+      }
+      var w2 = les.als ? (Math.random() < 0.8 ? 1 : 0) : (les.w[m.id] || 0);
+      if (m.para) w2 = les.als ? (Math.random() < 0.8 ? 1 : 0) : les.myo ? (les.fibs ? 1 : 0) : 0;
+      if (les.als && w2 && !m.para) nAls++;
+      find[m.id] = wsFind(w2, sg, m.para, les);
     });
+    if (les.als && nAls < 6) { wsNew(limb); return; }
     var side = Math.random() < 0.5 ? "sağ" : "sol";
-    st.ws = { limb: limb, les: les, sg: sg, find: find, cur: null, calls: {}, order: [], dx: null, dsg: null, done: false,
-              vig: ri(31, 68) + " yaşında " + (Math.random() < 0.5 ? "kadın" : "erkek") + " hasta. " + WS_SURE[sg === null ? ri(0, 1) : sg]() + ", " + side + " tarafta " +
-                   les.yak + " yakınması var. Muayene: " + les.mua + "." };
+    st.ws = { limb: limb, les: les, sg: sg, mixed: mixed, old: old, find: find, cur: null, calls: {}, order: [], dx: null, dsg: null, done: false, ncs: false,
+              vig: ri(31, 68) + " yaşında " + (Math.random() < 0.5 ? "kadın" : "erkek") + " hasta. " + (les.sure || WS_SURE[sg === null ? ri(0, 1) : mixed ? 0 : sg]()) + (les.bil ? " " : ", " + side + " tarafta ") +
+                   les.yak + " yakınması var. " + (mixed ? "Yıllar önce aynı " + (limb === "up" ? "kolda" : "bacakta") + " benzer bir atak geçirmiş. " : "") + "Muayene: " + les.mua + "." };
     setPattern(WS_PAT, false, null);
   }
+  function wsLes(id) { return WS_LES[st.ws.limb].filter(function (q) { return q.id === id; })[0]; }
   function wsMus(id) { return WS_MUS[st.ws.limb].filter(function (m) { return m.id === id; })[0]; }
   function wsPick(id) {
     var w = st.ws; if (!w) return;
@@ -1254,6 +1382,8 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     var w = st.ws, mus = WS_MUS[w.limb], fig = WS_FIG[w.limb], h, host;
     el("ws-title").textContent = (w.limb === "up" ? "Üst" : "Alt") + " ekstremite vakası";
     el("ws-vig").textContent = w.vig;
+    el("ws-ncs").hidden = w.ncs || w.done; el("ws-ncs-out").hidden = !(w.ncs || w.done);
+    el("ws-ncs-out").textContent = "Sinir iletimi: " + w.les.ncs;
     // figure with needle points
     h = '<svg viewBox="' + fig.vb + '" role="group" aria-label="İğne noktaları">' + fig.body;
     mus.forEach(function (m) {
@@ -1290,25 +1420,37 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     add(host, "div", "Bakılan kas: " + w.order.length + (w.order.length ? "  (" + w.order.map(function (id) { return wsMus(id).k + (w.calls[id] ? (w.calls[id] === "A" ? " ✕" : " ✓") : ""); }).join(", ") + ")" : ""), "note");
     // diagnosis
     host = el("ws-dx"); host.textContent = "";
-    WS_LES[w.limb].forEach(function (q) { var b = btn(host, q.btn, w.dx === q.id, function () { if (w.done) return; w.dx = q.id; if (q.norm) w.dsg = null; renderWs(); }); b.disabled = w.done; });
+    var pickNost = w.dx ? wsLes(w.dx).nost : false;
+    WS_CAT.forEach(function (c) {
+      add(host, "div", c[1], "note wscat");
+      var pr = add(host, "div", null, "pats");
+      WS_LES[w.limb].filter(function (q) { return q.cat === c[0]; }).forEach(function (q) {
+        var b = btn(pr, q.btn, w.dx === q.id, function () { if (w.done) return; w.dx = q.id; if (q.nost) w.dsg = null; renderWs(); }); b.disabled = w.done;
+      });
+    });
     host = el("ws-sg"); host.textContent = "";
-    WS_SG.forEach(function (t, k) { var b = btn(host, t, w.dsg === k, function () { if (w.done) return; w.dsg = k; renderWs(); }); b.disabled = w.done || w.dx === "NORM"; });
-    el("ws-submit").disabled = w.done || !w.dx || (w.dx !== "NORM" && w.dsg === null);
+    WS_SG.forEach(function (t, k) { var b = btn(host, t, w.dsg === k, function () { if (w.done) return; w.dsg = k; renderWs(); }); b.disabled = w.done || pickNost; });
+    el("ws-submit").disabled = w.done || !w.dx || (!pickNost && w.dsg === null);
     // feedback
     host = el("ws-fb"); host.textContent = ""; host.hidden = !w.done;
     if (!w.done) return;
-    var okDx = w.dx === w.les.id, okSg = w.les.norm || w.dsg === w.sg, v;
+    var okDx = w.dx === w.les.id, okSg = w.les.nost || w.dsg === w.sg, v, sgTxt;
     v = add(host, "div", (okDx ? "Tanı doğru: " : "Tanı yanlış. Doğrusu: ") + w.les.ad + ".", "verdict" + (okDx ? "" : " bad"));
-    if (!w.les.norm) add(host, "div", (okSg ? "Evre doğru: " : "Evre yanlış. Doğrusu: ") + WS_SG[w.sg] + ". " + EVRE_DEF[w.sg + 1].split(": ")[1] + ".", "verdict" + (okSg ? "" : " bad"));
+    if (!w.les.nost) {
+      sgTxt = w.mixed ? w.les.parts[w.old].root.join("–") + " eski sekel (kronik inaktif), " + w.les.parts[1 - w.old].root.join("–") + " yeni (akut). Ortak kaslarda iri MÜP üzerine iri fibrilasyon görülür"
+                      : EVRE_DEF[w.sg + 1].split(": ")[1];
+      add(host, "div", (okSg ? "Evre doğru: " : "Evre yanlış. Doğrusu: ") + WS_SG[w.sg].split(":")[0] + ". " + sgTxt + ".", "verdict" + (okSg ? "" : " bad"));
+    }
     add(host, "div", w.les.not);
     var abn = mus.filter(function (m) { return !m.para && wsAbn(w.find[m.id]); }), para = mus.filter(function (m) { return m.para; })[0];
     var seenAbn = abn.filter(function (m) { return w.order.indexOf(m.id) >= 0; }), nerves = {};
     seenAbn.forEach(function (m) { nerves[m.sinir.split(" (")[0]] = 1; });
     var li = add(host, "ul", null, "wsli");
     add(li, "li", w.order.length + " kasa baktınız. Taramada biri paraspinal olmak üzere 5–7 kas çoğu vakada yeter; şüpheli kökü doğrulamak için 1–2 kas eklenir.");
-    add(li, "li", "Paraspinal: " + (w.order.indexOf(para.id) >= 0 ? "baktınız" : "bakmadınız") + "; bu vakada " + (wsAbn(w.find[para.id]) ? "anormal. Bu bulgu lezyonu pleksusun proksimaline yerleştirir." : "normal." + (w.les.root ? " Normal paraspinal radikülopatiyi dışlamaz." : "")));
-    if (w.les.root) add(li, "li", "Radikülopati için aynı kökten, farklı periferik sinirlerden en az iki anormal kas gerekir. Anormal " + abn.length + " kasın " + seenAbn.length + " tanesine baktınız; bunlar " + Object.keys(nerves).length + " ayrı sinirden.");
-    if (w.les.mono) add(li, "li", "Tek sinire uyan patern gördüğünüzde aynı kökten, başka sinirden bir kasa bakmadan radikülopati demeyin.");
+    add(li, "li", "Paraspinal: " + (w.order.indexOf(para.id) >= 0 ? "baktınız" : "bakmadınız") + "; bu vakada " + (wsAbn(w.find[para.id]) ? "anormal." + (w.les.myo ? "" : " Bu bulgu lezyonu pleksusun proksimaline yerleştirir.") : "normal." + (w.les.parts ? " Normal paraspinal radikülopatiyi dışlamaz." : "")));
+    add(li, "li", "Sinir iletimi sonucuna " + (w.ncs ? "baktınız." : "bakmadınız.") + " Radikülopati ve ön boynuzda SNAP korunur; pleksus, sinir ve polinöropatide düşer.");
+    if (w.les.parts) add(li, "li", "Radikülopati için aynı kökten, farklı periferik sinirlerden en az iki anormal kas gerekir. Anormal " + abn.length + " kasın " + seenAbn.length + " tanesine baktınız; bunlar " + Object.keys(nerves).length + " ayrı sinirden.");
+    if (w.les.cat === "s") add(li, "li", "Tek sinire ya da pleksusa uyan patern gördüğünüzde aynı kökten, başka sinirden bir kasa ve paraspinale bakmadan karar vermeyin.");
     var missed = Object.keys(w.calls).filter(function (id) { return (w.calls[id] === "A") !== wsAbn(w.find[id]); });
     if (missed.length) add(li, "li", "Kararınız gerçek bulguyla uyuşmayan kaslar: " + missed.map(function (id) { return wsMus(id).ad; }).join(", ") + ". Şekilden bu kaslara dönüp yeniden bakın.");
     var tw = add(host, "div", null, "tablewrap site"), tb = add(tw, "table"), tr = add(tb, "tr");
@@ -1322,7 +1464,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     add(host, "div", "Vakalar matematiksel olarak üretilir. Kök ağırlıkları kurs dokümanındaki miyotom tablosundan gelir; kök lezyonu kısmi olduğu için miyotomdaki her kas tutulmaz.", "note");
   }
 
-  // ---------- root finder: mark what you found in the lab, get the level that explains it ----------
+  // ---------- EMG / nerve conduction laboratory: mark the findings, get the lesion that explains them ----------
   // r: myotome weight (1 main, 0.5 minor), from the course tables. n: peripheral nerve key. soft: unreliable muscle.
   var LAB_MUS = {
     up: [
@@ -1369,45 +1511,119 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       { id: "ah", ad: "Abduktor hallusis", sinir: "Tibial (medial plantar)", n: "tib", k: "S1 S2", r: { S1: 1 }, soft: true, g: "Ayak" }
     ]
   };
-  var LAB_ROOTS = { up: ["C5", "C6", "C7", "C8", "T1"], lo: ["L2–L4", "L5", "S1"] };
-  var LAB_PAIRS = { up: [["C5", "C6"], ["C6", "C7"], ["C7", "C8"], ["C8", "T1"]], lo: [["L2–L4", "L5"], ["L5", "S1"]] };
-  // Lesions distal to the root that give a look-alike pattern. A set explains the findings only if every abnormal muscle is in it.
-  var LAB_MONO = {
+  var LAB_SITE = {"up": {"rho": ["Skapulanın iç kenarının hemen medialinde, skapula spinası ile alt açının ortası.", "Skapulayı omurgaya doğru geri çekme.", "Yüzeyelde trapezius, fazla kaudalde latissimus dorsi. Pnömotoraks bildirilmiştir: derine itmeyin."], "sup": ["Supraspinöz çukur, skapula spinasının hemen üstü. İğne kemiğe değdirilip hafifçe geri çekilir.", "Kolu yana açmayı başlatma.", "Yüzeyelde trapezius. Pnömotoraks bildirilmiştir."], "inf": ["İnfraspinöz çukur, skapula spinasının iç üçte birinin 2–4 cm altı.", "Kola dış rotasyon.", "Fazla lateral veya yüzeyelde arka deltoid, fazla kaudalde teres minor."], "del": ["Orta lifler: akromionun dış kenarının 4–5 cm altı. Ön lifler: akromionun ön kenarının 3–4 cm altı.", "Orta lifler: kolu yana açma. Ön lifler: kolu öne kaldırma.", "Önceki kas içi enjeksiyonlar bulguyu karıştırabilir. Ön liflerde derinde korakobrakiyalis."], "bic": ["Önkol supinasyonda. Biseps tendonu ile omuz ön yüzü arasının ortası, önden.", "El supinasyonda dirsek fleksiyonu.", "Medialden girmeyin: brakiyal arter ve median sinir."], "brd": ["Biseps tendonu ile lateral epikondil arasının orta noktasından 3–4 parmak distal.", "Önkol nötral konumda dirsek fleksiyonu.", "Fazla lateral ve derinde ekstensör karpi radialis."], "pt": ["Önkol supinasyonda. Biseps tendonu ile medial epikondil arasının orta noktasından 2 parmak distal.", "Dirsek ekstansiyonda pronasyon.", "Fazla lateralde fleksör karpi radialis. Derinde median sinir."], "fcr": ["Önkol supinasyonda. Aynı orta noktadan 4 parmak distal, iğne el bileği ortasına doğru.", "El bileğini radial yöne fleksiyon.", "Fazla medialde fleksör digitorum süperfisyalis. Derinde median sinir."], "ecrl": ["Önkol pronasyonda. Lateral epikondilin hemen üstü.", "El bileğini radial yöne ekstansiyon.", "Posterior interosseöz sinir lezyonunda korunur. Fazla medialde brakiyoradiyalis."], "tri": ["Dirsek fleksiyonda. Lateral epikondil ile omuz arasının orta noktasının hemen altı, dış yandan.", "Dirsek ekstansiyonu.", "Dış yandan girildiğinde yakında büyük damar veya sinir yoktur."], "anc": ["Önkol pronasyonda. Olekranonun 1–2 parmak distali, ulnanın hemen radial yanı.", "Dirsek ekstansiyonu.", "Fazla öne kaçarsa ekstensör karpi ulnaris veya ekstensör digitorum komunis."], "edc": ["Önkol pronasyonda. Olekranonun 3–4 parmak distali, ulnanın 3 parmak radial yanı.", "Orta parmak ekstansiyonu.", "Çok yüzeyeldir. Derinde radial sinirin motor dalı."], "eip": ["Önkol pronasyonda. Ulnar stiloidin 2 parmak proksimali, ulnanın hemen radial yanından dik giriş.", "İşaret parmağı ekstansiyonu.", "Yüzeyelde ekstensör karpi ulnaris. Çevrede yüzeyel tendonlar vardır."], "fpl": ["Önkol supinasyonda. El bileğinin dış yanından dirseğin dış yanına giden hattın bileğe yakın üçte biri, radius üzerinden dik.", "Başparmak uç eklem fleksiyonu.", "Radial arter giriş noktasının hemen lateralindedir. Yüzeyelde fleksör digitorum süperfisyalis."], "fcu": ["Önkol supinasyonda. Önkolun iç yanı, dirsek ile bilek arasının ortası.", "El bileğini ulnar yöne fleksiyon ya da küçük parmak abdüksiyonu.", "İnce ve yüzeyeldir. Derinde fleksör digitorum profundus."], "fdi": ["El sırtı, 1. ve 2. metakarpofalangeal eklemlerin ortası.", "İşaret parmağı abdüksiyonu.", "Derinde adduktor pollisis (o da ulnar)."], "adm": ["Elin iç kenarı, 5. metakarpın ortası.", "Küçük parmak abdüksiyonu.", "Derinde fleksör ve opponens digiti minimi. Ağrılıdır."], "apb": ["Tenar çıkıntının dış yanı, 1. metakarp ortasının hemen laterali, teğet giriş.", "Başparmağı avuç düzleminden uzaklaştırma.", "Medialde fleksör pollisis brevis (çift innervasyon), derinde opponens. Ağrılıdır."], "para": ["Yüzüstü ya da yan yatar. İstenen düzeyde spinöz çıkıntının 2–3 cm laterali; iğne dik ve hafif mediale, laminaya doğru ilerletilir (multifidus).", "Gevşek tutulur; değerlendirme istirahatte yapılır.", "Orta hattan uzaklaşmayın. Alt servikalde derine itmeyin. Önceki cerrahi bölgesinde bulgu yanıltıcıdır."]}, "lo": {"ilio": ["İnguinal ligamentin altı, femoral nabzın 2–3 parmak laterali.", "Kalça fleksiyonu.", "Önce nabzı palpe edin: femoral sinir, arter ve ven medialde kalır."], "add": ["Uyluk iç yüzü, pubisin 3–4 parmak altı.", "Uyluk adduksiyonu.", "Femoral nöropatiyi lumbar pleksus veya kök lezyonundan ayırır."], "quad": ["Vastus lateralis: Uyluk dış yüzü, dizin dış yanının 4–5 parmak üstü. Rektus femoris: Uyluk ön yüzü, kalça ile diz arasının ortası.", "Diz ekstansiyonu.", ""], "ta": ["Tibia krestinin hemen laterali, ayak bileğinden dize giden mesafenin üçte ikisinde.", "Ayak bileği dorsifleksiyonu.", "Kas içinde yüzeyel kalın."], "ehl": ["Ayak bileğinin 3–4 parmak üstü, tibialis anterior tendonunun hemen laterali.", "Ayak başparmağı ekstansiyonu.", ""], "edb": ["Ayak sırtı, lateral malleolün 2–3 parmak distali. Sığ açıyla girin.", "Ayak parmakları ekstansiyonu.", "Sağlıklı kişide de iri MÜP ve spontan aktivite olabilir."], "pl": ["Baldır dış yüzü, fibula başının 3–4 parmak altı.", "Ayak eversiyonu.", "Fibula boynuna yaklaşmayın: common peroneal sinir."], "tp": ["Tibianın mediali, ayak bileği ile diz arasının orta noktasının hemen altı. Soleus ve fleksör digitorum longusun derininde.", "Ayak inversiyonu.", "Derin giriştir; tibial sinir ve damarlar daha derinde ve arkadadır."], "fdl": ["Tibialis posterior ile aynı giriş, soleusun derininde.", "Ayak parmakları fleksiyonu.", ""], "gmed": ["Yan yatar. Uyluğun dış yanı, iliak krestin 2–3 parmak altı.", "Uyluk abdüksiyonu.", ""], "tfl": ["Yan yatar. Büyük trokanterin önü, spina iliaka anterior süperiorun altı.", "Kalça abdüksiyonu ve iç rotasyon.", ""], "stm": ["Uyluk arka yüzü, dizin iç yanı ile iskial tüberozite arasının ortası.", "Diz fleksiyonu.", ""], "gmax": ["Kalçanın üst dış kadranı.", "Diz düzken kalça ekstansiyonu.", "Alt iç kadrandan kaçının: siyatik sinir."], "bfs": ["Dizin dış yanının 3–4 parmak üstü, uzun baş tendonunun mediali.", "Diz fleksiyonu.", "Common peroneal sinir biseps tendonunun iç kenarı boyunca seyreder; bir kadavra çalışması tendonun lateralinden girişi daha güvenli bulmuştur."], "bfl": ["Dizin dış yanı ile iskial tüberozite arasının ortası.", "Diz fleksiyonu.", ""], "mg": ["Baldırın arka iç yüzü, kas karnı.", "Ayak bileği plantar fleksiyonu.", ""], "lg": ["Baldırın arka dış yüzü, kas karnı.", "Ayak bileği plantar fleksiyonu.", ""], "sol": ["Tibianın mediali, ayak bileği ile diz arasının orta noktasının hemen altı.", "Ayak bileği plantar fleksiyonu.", "Fazla derinde fleksör digitorum longus."], "ah": ["Ayağın iç kenarı, topuk ile başparmak kökü arasının ortası. Sığ açıyla girin.", "Ayak başparmağı abdüksiyonu.", "Ağrılıdır. Sağlıklı kişide de nörojen bulgu olabilir."], "para": ["Yüzüstü, karın altına yastık. İstenen düzeyde spinöz çıkıntının 2–3 cm laterali; iğne dik ve hafif mediale, laminaya doğru ilerletilir (multifidus).", "Gevşek tutulur; değerlendirme istirahatte yapılır.", "Önceki bel cerrahisi bölgesinde ve ileri yaşta fibrilasyon yanıltıcı olabilir."]}};      // muscle id -> [entry point, activation, caution]
+  // Nerve conduction items. t: s sensory response, m motor response, h late response, f focal finding, b other side.
+  var LAB_NCS = {
     up: [
-      { ad: "Aksiller nöropati", set: ["del"] }, { ad: "Muskulokutan nöropati", set: ["bic"] }, { ad: "Distal median nöropati (karpal tünel)", set: ["apb"] },
-      { ad: "Supraskapular nöropati", set: ["sup", "inf"] }, { ad: "Posterior interosseöz nöropati", set: ["edc", "eip"] },
-      { ad: "Ulnar nöropati", set: ["fcu", "fdi", "adm"] }, { ad: "Proksimal median nöropati", set: ["pt", "fcr", "fpl", "apb"] },
-      { ad: "Radial nöropati", set: ["brd", "ecrl", "tri", "anc", "edc", "eip"] },
-      { ad: "Üst trunkus pleksopatisi", set: ["sup", "inf", "del", "bic", "brd", "pt", "fcr", "ecrl"], plx: true },
-      { ad: "Alt trunkus veya medial kord pleksopatisi", set: ["edc", "eip", "fpl", "fcu", "fdi", "adm", "apb"], plx: true }
+      { id: "med1", t: "s", ad: "Median SNAP (başparmak)", rap: "median (başparmak)", g: "Duysal yanıtlar (SNAP)" },
+      { id: "med2", t: "s", ad: "Median SNAP (2.–3. parmak)", rap: "median (2.–3. parmak)", g: "Duysal yanıtlar (SNAP)" },
+      { id: "uln5", t: "s", ad: "Ulnar SNAP (5. parmak)", rap: "ulnar", g: "Duysal yanıtlar (SNAP)" },
+      { id: "rad", t: "s", ad: "Radial yüzeyel SNAP", rap: "radial", g: "Duysal yanıtlar (SNAP)" },
+      { id: "lak", t: "s", ad: "Lateral antebrakiyal kutanöz", rap: "lateral antebrakiyal kutanöz", g: "Duysal yanıtlar (SNAP)" },
+      { id: "mak", t: "s", ad: "Medial antebrakiyal kutanöz", rap: "medial antebrakiyal kutanöz", g: "Duysal yanıtlar (SNAP)" },
+      { id: "cmed", t: "m", ad: "Median motor yanıt (APB)", rap: "median", g: "Motor yanıtlar (BKAP)" },
+      { id: "culn", t: "m", ad: "Ulnar motor yanıt (ADM)", rap: "ulnar", g: "Motor yanıtlar (BKAP)" },
+      { id: "fuln", t: "f", ad: "Ulnar: dirsekte blok ya da yavaşlama", rap: "dirsek segmentinde ulnar motor iletim bloğu ya da yavaşlaması", g: "Fokal iletim bulgusu" },
+      { id: "fmed", t: "f", ad: "Median: bilekte distal latans uzun", rap: "bilekte median distal latans uzaması", g: "Fokal iletim bulgusu" },
+      { id: "frad", t: "f", ad: "Radial: spiral olukta blok", rap: "spiral olukta radial motor iletim bloğu", g: "Fokal iletim bulgusu" },
+      { id: "bil", t: "b", ad: "Karşı kolda ya da bacaklarda da duysal yanıtlar düşük", g: "Yaygınlık" }
     ],
     lo: [
-      { ad: "Obturator nöropati", set: ["add"] }, { ad: "Femoral nöropati", set: ["ilio", "quad"] },
-      { ad: "Derin peroneal nöropati", set: ["ta", "ehl", "edb"] }, { ad: "Peroneal nöropati (fibula başı)", set: ["ta", "ehl", "edb", "pl"] },
-      { ad: "Tibial nöropati", set: ["tp", "fdl", "mg", "lg", "sol", "ah"] },
-      { ad: "Siyatik nöropati", set: ["stm", "bfs", "bfl", "ta", "ehl", "edb", "pl", "tp", "fdl", "mg", "lg", "sol", "ah"] }
+      { id: "sur", t: "s", ad: "Sural SNAP", rap: "sural", g: "Duysal yanıtlar (SNAP)" },
+      { id: "sp", t: "s", ad: "Yüzeyel peroneal SNAP", rap: "yüzeyel peroneal", g: "Duysal yanıtlar (SNAP)" },
+      { id: "saf", t: "s", ad: "Safen SNAP", rap: "safen", g: "Duysal yanıtlar (SNAP)" },
+      { id: "cper", t: "m", ad: "Peroneal motor yanıt (EDB)", rap: "peroneal", g: "Motor yanıtlar (BKAP)" },
+      { id: "ctib", t: "m", ad: "Tibial motor yanıt (AH)", rap: "tibial", g: "Motor yanıtlar (BKAP)" },
+      { id: "href", t: "h", ad: "H refleksi (soleus)", rap: "H refleksi", g: "Geç yanıt" },
+      { id: "fper", t: "f", ad: "Peroneal: fibula başında blok ya da yavaşlama", rap: "fibula başında peroneal motor iletim bloğu ya da yavaşlaması", g: "Fokal iletim bulgusu" },
+      { id: "bil", t: "b", ad: "Karşı bacakta ya da kollarda da duysal yanıtlar düşük", g: "Yaygınlık" }
     ]
   };
-  var LAB_FL = [["F", "Fib/PKD"], ["P", "Polifazik, kararsız"], ["I", "İri, uzun MÜP"], ["S", "Seyrelme"]];
-  st.lab = { on: false, limb: "up", up: {}, lo: {} };
+  var LAB_ROOTS = { up: ["C5", "C6", "C7", "C8", "T1"], lo: ["L2–L4", "L5", "S1"] };
+  var LAB_PAIRS = { up: [["C5", "C6"], ["C6", "C7"], ["C7", "C8"], ["C8", "T1"]], lo: [["L2–L4", "L5"], ["L5", "S1"]] };
+  // Sensory responses that travel through each root's ganglion: preserved in a root lesion, lost in a lesion beyond the ganglion.
+  var LAB_SNAP_ROOT = { C5: ["lak"], C6: ["lak", "med1", "rad"], C7: ["med2", "rad"], C8: ["uln5"], T1: ["mak"], "L2–L4": ["saf"], L5: ["sp"], S1: ["sur"] };
+  // Lesions beyond the root. t: p plexus, n nerve, y polyneuropathy. w: muscles expected abnormal. snap: sensory responses expected
+  // low. snapN: expected preserved. foc: the focal conduction finding that points at this nerve. h: H reflex runs through it.
+  var LAB_LES = {
+    up: [
+      { t: "p", ad: "Üst trunkus pleksopatisi", w: { sup: 1, inf: 1, del: 1, bic: 1, brd: 1, pt: 0.5, fcr: 0.5, ecrl: 0.5 }, snap: ["lak", "med1"], snapN: ["uln5", "mak"] },
+      { t: "p", ad: "Orta trunkus pleksopatisi", w: { tri: 1, anc: 1, edc: 1, pt: 1, fcr: 1, ecrl: 0.5, eip: 0.5 }, snap: ["med2"], snapN: ["uln5", "lak"] },
+      { t: "p", ad: "Alt trunkus pleksopatisi", w: { fdi: 1, adm: 1, apb: 1, fpl: 1, fcu: 1, eip: 1, edc: 0.5 }, snap: ["uln5", "mak"], snapN: ["med1", "lak"] },
+      { t: "p", ad: "Lateral kord pleksopatisi", w: { bic: 1, pt: 1, fcr: 1 }, snap: ["lak", "med1", "med2"], snapN: ["uln5", "rad"] },
+      { t: "p", ad: "Posterior kord pleksopatisi", w: { del: 1, tri: 1, anc: 1, brd: 1, ecrl: 1, edc: 1, eip: 1 }, snap: ["rad"], snapN: ["uln5", "med2"] },
+      { t: "p", ad: "Medial kord pleksopatisi", w: { fdi: 1, adm: 1, fcu: 1, apb: 1, fpl: 1 }, snap: ["uln5", "mak"], snapN: ["rad", "med1"] },
+      { t: "n", ad: "Aksiller nöropati", w: { del: 1 } }, { t: "n", ad: "Muskulokutan nöropati", w: { bic: 1 }, snap: ["lak"] },
+      { t: "n", ad: "Supraskapular nöropati", w: { sup: 1, inf: 1 } }, { t: "n", ad: "Dorsal skapular nöropati", w: { rho: 1 } },
+      { t: "n", ad: "Radial nöropati (spiral oluk)", w: { brd: 1, ecrl: 1, edc: 1, eip: 1 }, snap: ["rad"], foc: "frad" },
+      { t: "n", ad: "Radial nöropati (aksilla)", w: { tri: 1, anc: 1, brd: 1, ecrl: 1, edc: 1, eip: 1 }, snap: ["rad"] },
+      { t: "n", ad: "Posterior interosseöz nöropati", w: { edc: 1, eip: 1 }, snapN: ["rad"] },
+      { t: "n", ad: "Proksimal median nöropati", w: { pt: 1, fcr: 1, fpl: 1, apb: 1 }, snap: ["med1", "med2"] },
+      { t: "n", ad: "Anterior interosseöz nöropati", w: { fpl: 1 }, snapN: ["med1", "med2"] },
+      { t: "n", ad: "Distal median nöropati (karpal tünel)", w: { apb: 1 }, snap: ["med1", "med2"], foc: "fmed" },
+      { t: "n", ad: "Ulnar nöropati (dirsek)", w: { fcu: 0.5, fdi: 1, adm: 1 }, snap: ["uln5"], snapN: ["mak"], foc: "fuln" },
+      { t: "y", ad: "Polinöropati (uzunluğa bağlı)", w: { fdi: 1, adm: 1, apb: 1, eip: 0.5, fpl: 0.5 }, snap: ["med2", "uln5", "rad"] }
+    ],
+    lo: [
+      { t: "p", ad: "Lumbar pleksopati", w: { ilio: 1, quad: 1, add: 1 }, snap: ["saf"], snapN: ["sur", "sp"] },
+      { t: "p", ad: "Sakral pleksopati (lumbosakral trunkus dahil)", w: { gmed: 1, tfl: 1, gmax: 1, stm: 1, bfs: 1, bfl: 1, ta: 1, ehl: 1, pl: 1, tp: 1, fdl: 1, mg: 1, lg: 1, sol: 1, edb: 1, ah: 1 }, snap: ["sur", "sp"], snapN: ["saf"], h: true },
+      { t: "n", ad: "Siyatik nöropati", w: { stm: 1, bfs: 1, bfl: 1, ta: 1, ehl: 1, pl: 1, tp: 1, fdl: 1, mg: 1, lg: 1, sol: 1, edb: 1, ah: 1 }, snap: ["sur", "sp"], snapN: ["saf"], h: true },
+      { t: "n", ad: "Peroneal nöropati (fibula başı)", w: { ta: 1, ehl: 1, pl: 1, edb: 1 }, snap: ["sp"], snapN: ["sur"], foc: "fper" },
+      { t: "n", ad: "Derin peroneal nöropati", w: { ta: 1, ehl: 1, edb: 1 }, snapN: ["sp", "sur"] },
+      { t: "n", ad: "Tibial nöropati", w: { tp: 1, fdl: 1, mg: 1, lg: 1, sol: 1, ah: 1 }, snap: ["sur"], snapN: ["sp"], h: true },
+      { t: "n", ad: "Femoral nöropati", w: { ilio: 0.5, quad: 1 }, snap: ["saf"] }, { t: "n", ad: "Obturator nöropati", w: { add: 1 } },
+      { t: "n", ad: "Superior gluteal nöropati", w: { gmed: 1, tfl: 1 } }, { t: "n", ad: "İnferior gluteal nöropati", w: { gmax: 1 } },
+      { t: "y", ad: "Polinöropati (uzunluğa bağlı)", w: { ta: 1, ehl: 1, pl: 1, tp: 1, fdl: 1, mg: 1, lg: 1, sol: 1, edb: 1, ah: 1 }, snap: ["sur", "sp"], h: true }
+    ]
+  };
+  var LAB_FL = [["F", "Fib/PKD"], ["P", "Polifazik, kararsız"], ["I", "İri, uzun MÜP"], ["S", "Seyrelme"], ["M", "Miyopatik (küçük, kısa)"]];
+  var LAB_TYPE = { k: "kök", p: "pleksus", n: "sinir", y: "yaygın" };
+  var LAB_LINKS = [["Needle EMG muscle identification (Clin Neurophysiol Pract 2019, açık erişim)", "https://pmc.ncbi.nlm.nih.gov/articles/PMC6921208"],
+                   ["Barkhaus: Electronic Myoanatomic Atlas for Clinical EMG (PDF, fotoğraflı)", "https://www.siumed.edu/sites/default/files/2021-11/Muscle%20anatomy%20for%20EMG.pdf"]];
+  st.lab = { mode: 0, limb: "up", pane: "ncs", info: null, up: {}, lo: {}, upN: {}, loN: {} };
 
   function labW(m, roots) { var w = 0; roots.forEach(function (k) { if ((m.r[k] || 0) > w) w = m.r[k]; }); return w; }
-  function labEval(limb, roots) {
-    var mk = st.lab[limb], o = { roots: roots, ad: roots.join(" + "), exp: 0, hit: [], unx: [], con: [], nerves: {}, score: 0 };
+  function labItem(limb, id) { return LAB_NCS[limb].filter(function (q) { return q.id === id; })[0]; }
+  function labNames(limb, ids) { return ids.map(function (id) { return labItem(limb, id).rap; }).join(", "); }
+  function labExpect(c, id) {                                   // what candidate c predicts for sensory response id: "A" low, "N" preserved
+    if (c.t === "k") return c.rel.indexOf(id) >= 0 ? "N" : null;
+    return (c.def.snap || []).indexOf(id) >= 0 ? "A" : (c.def.snapN || []).indexOf(id) >= 0 ? "N" : null;
+  }
+  function labCand(limb, def) {
+    var mk = st.lab[limb], nk = st.lab[limb + "N"], para = mk.para && mk.para.s, bil = !!(nk.bil && nk.bil.s === "A");
+    var o = { def: def, ad: def.ad, t: def.t, hit: [], unx: [], con: [], nerves: {}, score: 0, nOk: [], nBad: [], rel: [] };
+    function ncs(id) { return nk[id] && nk[id].s; }
     LAB_MUS[limb].forEach(function (m) {
-      var s = mk[m.id] && mk[m.id].s; if (!s || m.para) return;
-      var w = labW(m, roots), f = m.soft ? 0.5 : 1;
-      if (s === "A") { if (w) { o.exp += w * f; o.hit.push(m); if (!m.soft) o.nerves[m.n] = 1; } else { o.unx.push(m); o.score -= f; } }
+      var c = mk[m.id]; if (!c || m.para || (c.f && c.f.M)) return;          // myopathic muscles are reported apart
+      var w = def.roots ? labW(m, def.roots) : (def.w[m.id] || 0), f = m.soft ? 0.5 : 1;
+      if (c.s === "A") { if (w) { o.score += w * f; o.hit.push(m); if (!m.soft) o.nerves[m.n] = 1; } else { o.unx.push(m); o.score -= f; } }
       else if (w) { o.con.push(m); o.score -= 0.4 * w; }
     });
-    o.score += o.exp - (roots.length > 1 ? 1 : 0);          // two levels at once must earn their extra assumption
     o.nN = Object.keys(o.nerves).length;
-    o.ok = o.hit.filter(function (m) { return !m.soft; }).length >= 2 && o.nN >= 2;
+    var nh = o.hit.filter(function (m) { return !m.soft; }).length;
+    if (def.t === "k") {
+      if (def.roots.length > 1) o.score -= 1;                                // two levels at once must earn their extra assumption
+      def.roots.forEach(function (r) { (LAB_SNAP_ROOT[r] || []).forEach(function (id) { if (o.rel.indexOf(id) < 0) o.rel.push(id); }); });
+      o.rel.forEach(function (id) { var s = ncs(id); if (s === "N") { o.score += 0.5; o.nOk.push(id); } else if (s === "A" && !bil) { o.score -= 1; o.nBad.push(id); } });
+      if (para === "A") o.score += 0.75;
+      o.ok = nh >= 2 && o.nN >= 2;
+    } else {
+      (def.snap || []).forEach(function (id) { var s = ncs(id); o.rel.push(id); if (s === "A") { o.score += 1; o.nOk.push(id); } else if (s === "N") { o.score -= 1; o.nBad.push(id); } });
+      (def.snapN || []).forEach(function (id) { var s = ncs(id); if (s === "N") { o.score += 0.25; o.nOk.push(id); } else if (s === "A" && !bil) { o.score -= 0.5; o.nBad.push(id); } });
+      if (def.foc && ncs(def.foc) === "A") { o.score += 1.5; o.foc = true; }
+      if (def.t === "y") { o.score += bil ? 2 : -1; o.ok = bil; }
+      else {
+        if (para === "A") o.score -= 2; else if (para === "N") o.score += 0.25;
+        o.ok = para !== "A" && !o.unx.length && (def.t === "p" ? nh >= 2 && o.nN >= 2 : nh >= 1 || !!o.foc);
+      }
+    }
+    if (def.h || (def.roots && def.roots.indexOf("S1") >= 0)) { if (ncs("href") === "A") { o.score += 0.5; o.hOk = true; } }
+    o.eff = o.score + (o.ok ? 0.5 : 0);
     return o;
   }
   function labStage(limb) {
-    var mk = st.lab[limb], F = 0, P = 0, I = 0, S = 0, any = 0;
-    for (var id in mk) if (mk[id].s === "A") { var f = mk[id].f || {}; if (f.F) F++; if (f.P) P++; if (f.I) I++; if (f.S) S++; if (f.F || f.P || f.I || f.S) any++; }
+    var mk = st.lab[limb], F = 0, P = 0, I = 0, any = 0;
+    for (var id in mk) if (mk[id].s === "A") { var f = mk[id].f || {}; if (f.M) continue; if (f.F) F++; if (f.P) P++; if (f.I) I++; if (f.F || f.P || f.I || f.S) any++; }
     if (!any) return null;
     if (F && I) return { ad: "Kronik aktif", rap: "kronik reinnervasyon ve eşlik eden aktif denervasyon", why: "fibrilasyon/PKD ile iri, uzun MÜP birlikte" };
     if (F && P) return { ad: "Subakut", rap: "aktif denervasyon ve erken reinnervasyon", why: "fibrilasyon/PKD ile polifazik, kararsız MÜP birlikte" };
@@ -1417,59 +1633,106 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     return { ad: "Hiperakut olabilir", rap: "yalnız rekrutman azalması", why: "tek bulgu seyrelme: ilk haftalar, iletim bloğu ya da yetersiz efor" };
   }
   function labAnalyse(limb) {
-    var mk = st.lab[limb], mus = LAB_MUS[limb], abn = [], nor = [], para = mk.para && mk.para.s, R = { abn: abn, nor: nor, para: para };
-    mus.forEach(function (m) { var s = mk[m.id] && mk[m.id].s; if (m.para) return; if (s === "A") abn.push(m); else if (s === "N") nor.push(m); });
+    var mk = st.lab[limb], nk = st.lab[limb + "N"], mus = LAB_MUS[limb], R = { abn: [], nor: [], myo: [], para: mk.para && mk.para.s, sLow: [], sNor: [], mLow: [], foc: [] };
+    mus.forEach(function (m) { var c = mk[m.id]; if (!c || m.para) return; if (c.s === "A") { if (c.f && c.f.M) R.myo.push(m); else R.abn.push(m); } else R.nor.push(m); });
+    LAB_NCS[limb].forEach(function (q) {
+      var s = nk[q.id] && nk[q.id].s; if (!s) return;
+      if (q.t === "s") (s === "A" ? R.sLow : R.sNor).push(q.id); else if (q.t === "m" && s === "A") R.mLow.push(q.id); else if (q.t === "f" && s === "A") R.foc.push(q.id);
+    });
+    R.bil = !!(nk.bil && nk.bil.s === "A"); R.h = nk.href && nk.href.s; R.nNcs = Object.keys(nk).length;
     R.stage = labStage(limb);
-    if (!abn.length) return R;
-    var cands = LAB_ROOTS[limb].map(function (k) { return labEval(limb, [k]); }).filter(function (c) { return c.exp > 0; });
-    cands.sort(function (a, b) { return b.score - a.score; });
-    var best = cands[0];
-    if (best && best.unx.length) LAB_PAIRS[limb].forEach(function (p) { var c = labEval(limb, p); if (c.score > best.score + 0.25) cands.push(c); });
-    cands.sort(function (a, b) { return b.score - a.score; });
-    R.cands = cands.slice(0, 3).filter(function (c, i) { return i === 0 || c.score > 0; }); R.top = cands[0];
-    R.second = cands[1] && cands[1].score > 0 && cands[0].score - cands[1].score < 2 ? cands[1] : null;   // a rival worth testing against
-    var ids = abn.map(function (m) { return m.id; });
-    R.mono = para === "A" ? [] : LAB_MONO[limb].filter(function (q) { return ids.every(function (id) { return q.set.indexOf(id) >= 0; }); })
-                                              .sort(function (a, b) { return a.set.length - b.set.length; }).slice(0, 2);
-    // which unexamined muscle would change the answer most
-    var top = R.top, sec = R.second, mono = R.mono[0], next = [];
-    if (top) mus.forEach(function (m) {
-      if (m.para || m.soft || (mk[m.id] && mk[m.id].s)) return;
-      var w1 = labW(m, top.roots), w2 = sec ? labW(m, sec.roots) : 0, v = 0, why = [];
+    if (!R.abn.length && !R.sLow.length && !R.foc.length) return R;
+    var defs = LAB_ROOTS[limb].map(function (k) { return { t: "k", ad: k, roots: [k] }; }).concat(LAB_LES[limb]);
+    var cands = defs.map(function (d) { return labCand(limb, d); }).filter(function (c) { return c.hit.length || c.foc || (!R.abn.length && c.t !== "k" && c.nOk.length && c.score > 0); });
+    var bestRoot = cands.filter(function (c) { return c.t === "k"; }).sort(function (a, b) { return b.score - a.score; })[0];
+    if (bestRoot && bestRoot.unx.length) LAB_PAIRS[limb].forEach(function (p) { var c = labCand(limb, { t: "k", ad: p.join(" + "), roots: p }); if (c.score > bestRoot.score + 0.25) cands.push(c); });
+    function size(c) { return c.t === "k" ? 0 : Object.keys(c.def.w).length; }          // at equal score the more specific lesion wins
+    cands.sort(function (a, b) { return b.eff - a.eff || size(a) - size(b); });
+    R.top = cands[0]; if (!R.top) return R;
+    R.cands = cands.slice(0, 4).filter(function (c, i) { return i === 0 || c.eff > 0; });
+    // the rival worth testing against: a root-versus-beyond-the-root alternative first, otherwise the runner-up
+    var cross = cands.filter(function (c, i) { return i > 0 && c.eff > 0 && (c.t === "k") !== (cands[0].t === "k") && cands[0].eff - c.eff < 1.5; })[0];
+    R.second = cross || (cands[1] && cands[1].eff > 0 && cands[0].eff - cands[1].eff < 2 ? cands[1] : null);
+    if (cross && R.cands.indexOf(cross) < 0) R.cands[R.cands.length - 1] = cross;
+    // which unexamined muscle or sensory response would change the answer most
+    var top = R.top, sec = R.second, next = [], seenN = {};
+    function wOf(c, m) { return c.def.roots ? labW(m, c.def.roots) : (c.def.w[m.id] || 0); }
+    mus.forEach(function (m) {
+      if (m.para || m.soft || mk[m.id]) return;
+      var w1 = wOf(top, m), w2 = sec ? wOf(sec, m) : 0, v = 0, why = [];
       if (sec && w1 !== w2) { v += Math.abs(w1 - w2); why.push("anormalse " + (w1 > w2 ? top.ad : sec.ad) + ", normalse " + (w1 > w2 ? sec.ad : top.ad) + " lehine"); }
-      if (mono && w1 === 1 && mono.set.indexOf(m.id) < 0) { v += 1; why.push("anormalse " + mono.ad.toLocaleLowerCase("tr") + " dışlanır"); }
-      if (w1 === 1 && !top.nerves[m.n]) { v += top.ok ? 0.25 : 0.75; why.push(top.ad + " kası, henüz bakılmamış bir sinirden"); }
+      if (w1 === 1 && !top.nerves[m.n]) { v += top.ok ? 0.25 : 0.75; why.push(top.ad + " dağılımında, henüz bakılmamış bir sinirden"); }
       if (v > 0) next.push({ m: m, v: v, why: why.join("; ") });
     });
     next.sort(function (a, b) { return b.v - a.v; });
-    var seenN = {};                                            // one suggestion per nerve, so the three are not near-duplicates
     R.next = next.filter(function (q) { if (seenN[q.m.n]) return false; seenN[q.m.n] = 1; return true; }).slice(0, 3);
+    R.nextN = [];
+    LAB_NCS[limb].forEach(function (q) {
+      if (q.t !== "s" || nk[q.id]) return;
+      var e1 = labExpect(top, q.id), e2 = sec ? labExpect(sec, q.id) : null;
+      if (sec && e1 !== e2 && (e1 || e2)) R.nextN.push(q.ad + ": " + (e1 === "A" || e2 === "N" ? "düşükse " + top.ad + ", normalse " + sec.ad : "normalse " + top.ad + ", düşükse " + sec.ad) + " lehine.");
+      else if (!sec && e1) R.nextN.push(q.ad + ": " + (top.t === "k" ? "normalse kök düzeyini destekler; düşükse lezyon gangliyonun distalindedir."
+        : e1 === "A" ? "düşükse " + top.ad.toLocaleLowerCase("tr") + " tanısını destekler." : "normalse bu lezyonla uyumlu; düşükse daha yaygın bir lezyon düşünün."));
+    });
+    R.nextN = R.nextN.slice(0, 3);
     return R;
   }
   function labReport(limb, R) {
-    var names = R.abn.map(function (m) { return m.ad.split(" (")[0].toLocaleLowerCase("tr"); }).join(", ");
-    var t = "İğne EMG'de " + names + " kas" + (R.abn.length > 1 ? "larında " : "ında ") + (R.stage ? R.stage.rap + " ile uyumlu " : "") + "nörojen tutulum bulguları izlendi. ";
-    if (R.top && R.top.ok && !(R.mono.length && !R.mono[0].plx))
-      t += "Bulgular " + R.top.ad.replace(" + ", " ve ") + " kök düzeyinde tutulum ile uyumludur" +
-           (R.second && R.second.ok && R.top.score - R.second.score < 1 ? "; " + R.second.ad.replace(" + ", " ve ") + " düzeyi dışlanamaz. " : ". ");
-    else if (R.mono.length) t += "Tutulan kaslar tek bir sinir dağılımındadır (" + R.mono[0].ad.toLocaleLowerCase("tr") + " ile uyumlu); radikülopati ölçütü karşılanmamaktadır. ";
-    else t += "Bulgular tek bir kök düzeyini göstermek için yeterli değildir. ";
-    t += "Paraspinal kaslarda denervasyon " + (R.para === "A" ? "saptandı." : R.para === "N" ? "saptanmadı." : "değerlendirilmedi.");
-    return t;
+    var t = "", p = [], top = R.top, lc = function (s) { return s.toLocaleLowerCase("tr"); };
+    if (R.sLow.length) p.push(labNames(limb, R.sLow) + " duysal yanıt" + (R.sLow.length > 1 ? "ları" : "ı") + " düşük amplitüdlü ya da alınamadı");
+    if (R.sNor.length) p.push(labNames(limb, R.sNor) + " duysal yanıt" + (R.sNor.length > 1 ? "ları" : "ı") + " normal");
+    if (R.mLow.length) p.push(labNames(limb, R.mLow) + " motor yanıt amplitüd" + (R.mLow.length > 1 ? "leri" : "ü") + " düşük");
+    R.foc.forEach(function (id) { p.push(labItem(limb, id).rap + " saptandı"); });
+    if (R.h === "A") p.push("H refleksi alınamadı ya da latansı uzun");
+    if (R.bil) p.push("karşı ekstremitede de duysal yanıtlar düşük");
+    if (p.length) t += "Sinir iletim incelemesinde " + p.join("; ") + ". ";
+    if (R.abn.length) {
+      t += "İğne EMG'de " + R.abn.map(function (m) { return lc(m.ad.split(" (")[0]); }).join(", ") + " kas" + (R.abn.length > 1 ? "larında " : "ında ") +
+           (R.stage ? R.stage.rap + " ile uyumlu " : "") + "nörojen tutulum bulguları izlendi. ";
+    } else if (R.nor.length) t += "İğne EMG'de incelenen kaslarda nörojen tutulum bulgusu izlenmedi. ";
+    if (R.myo.length) t += lc(R.myo.map(function (m) { return m.ad.split(" (")[0]; }).join(", ")) + " kas" + (R.myo.length > 1 ? "larında" : "ında") + " küçük, kısa süreli motor ünite potansiyelleri (miyopatik patern) izlendi. ";
+    if (top && top.ok) {
+      if (top.t === "k") {
+        t += "Bulgular " + top.ad.replace(" + ", " ve ") + " kök düzeyinde tutulum ile uyumludur";
+        t += top.nOk.length ? "; ilgili duysal yanıtların korunmuş olması preganglionik düzeyi destekler. " : top.nBad.length ? "; ancak ilgili duysal yanıtların düşük olması lezyonun arka kök gangliyonunun distaline uzanabileceğini düşündürür. " : ". ";
+      } else if (top.t === "y") t += "Bulgular uzunluğa bağlı, aksonal ağırlıklı sensorimotor polinöropati ile uyumludur. ";
+      else t += "Bulgular " + lc(top.ad) + " ile uyumludur" + (top.t === "p" && top.nOk.length ? "; duysal yanıt düşüklüğü postganglionik düzeyi destekler. " : ". ");
+      if (R.second && top.eff - R.second.eff < 1) t += (R.second.t === "k" ? R.second.ad.replace(" + ", " ve ") + " kök düzeyi" : R.second.ad.charAt(0).toLocaleUpperCase("tr") + lc(R.second.ad.slice(1))) + " dışlanamaz. ";
+    } else if (top) t += "Bulgular tek bir lezyon yerini kesin göstermek için yeterli değildir; en olası yer " + (top.t === "k" ? top.ad.replace(" + ", " ve ") + " kök düzeyidir. " : lc(top.ad) + " dağılımıdır. ");
+    if (R.abn.length || R.para) t += "Paraspinal kaslarda denervasyon " + (R.para === "A" ? "saptandı." : R.para === "N" ? "saptanmadı." : "değerlendirilmedi.");
+    return t.trim();
   }
   function renderLab() {
-    var L = st.lab, limb = L.limb, mk = L[limb], host = el("lab-list"), lastG = null;
+    var L = st.lab, limb = L.limb, mk = L[limb], nk = L[limb + "N"], host = el("lab-list"), lastG = null;
     Array.prototype.forEach.call(el("seg-limb").children, function (b, k) { b.setAttribute("aria-pressed", (k === 0) === (limb === "up") ? "true" : "false"); });
+    var pb = el("seg-pane").children, nM = Object.keys(mk).length, nN = Object.keys(nk).length;
+    pb[0].textContent = "1 Sinir iletimi" + (nN ? " (" + nN + ")" : ""); pb[1].textContent = "2 İğne EMG" + (nM ? " (" + nM + ")" : "");
+    pb[0].setAttribute("aria-pressed", L.pane === "ncs" ? "true" : "false"); pb[1].setAttribute("aria-pressed", L.pane === "emg" ? "true" : "false");
     function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
     function btn(parent, txt, on, cls, fn) { var b = add(parent, "button", txt, cls); b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false"); b.addEventListener("click", fn); return b; }
     host.textContent = "";
-    LAB_MUS[limb].forEach(function (m) {
+    if (L.pane === "ncs") LAB_NCS[limb].forEach(function (q) {
+      if (q.g !== lastG) { add(host, "div", q.g, "label labg"); lastG = q.g; }
+      var cur = nk[q.id] || {}, row = add(host, "div", null, "labrow" + (cur.s === "A" ? " isA" : cur.s === "N" ? " isN" : "")), info = add(row, "div", null, "labinfo");
+      add(info, "div", q.ad, "labname");
+      var bx = add(row, "div", null, "labbtn"), yes = q.t === "f" || q.t === "b";
+      btn(bx, yes ? "Var" : q.t === "h" ? "Yok / uzun" : "Düşük / yok", cur.s === "A", "abn", function () { if (cur.s === "A") delete nk[q.id]; else nk[q.id] = { s: "A" }; renderLab(); });
+      btn(bx, yes ? "Yok" : "Normal", cur.s === "N", "nor", function () { if (cur.s === "N") delete nk[q.id]; else nk[q.id] = { s: "N" }; renderLab(); });
+    });
+    else LAB_MUS[limb].forEach(function (m) {
       if (m.g !== lastG) { add(host, "div", m.g, "label labg"); lastG = m.g; }
       var cur = mk[m.id] || {}, row = add(host, "div", null, "labrow" + (cur.s === "A" ? " isA" : cur.s === "N" ? " isN" : "")), info = add(row, "div", null, "labinfo");
       add(info, "div", m.ad, "labname"); add(info, "div", m.sinir + "  ·  " + m.k, "note");
       var bx = add(row, "div", null, "labbtn");
+      btn(bx, "İğne yeri", L.info === m.id, "inf", function () { L.info = L.info === m.id ? null : m.id; renderLab(); });
       btn(bx, "Anormal", cur.s === "A", "abn", function () { if (cur.s === "A") delete mk[m.id]; else mk[m.id] = { s: "A", f: cur.f || {} }; renderLab(); });
       btn(bx, "Normal", cur.s === "N", "nor", function () { if (cur.s === "N") delete mk[m.id]; else mk[m.id] = { s: "N" }; renderLab(); });
+      if (L.info === m.id) {
+        var S = LAB_SITE[limb][m.id], bxi = add(row, "div", null, "labsite");
+        if (S) { add(bxi, "div", "Giriş: " + S[0]); add(bxi, "div", "Aktivasyon: " + S[1]); add(bxi, "div", "Dikkat: " + S[2]); }
+        var lk = add(bxi, "div", "Fotoğraflı atlas: ", "note");
+        LAB_LINKS.forEach(function (q, i) { if (i) lk.appendChild(document.createTextNode("  ·  ")); var a = add(lk, "a", q[0]); a.href = q[1]; a.target = "_blank"; a.rel = "noopener"; });
+      }
       if (cur.s === "A") {
         var fx = add(row, "div", null, "labfl");
         LAB_FL.forEach(function (q) {
@@ -1481,59 +1744,104 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     });
     // ---- analysis
     var R = labAnalyse(limb), out = el("lab-out"); out.textContent = "";
-    var nEx = R.abn.length + R.nor.length + (R.para ? 1 : 0);
-    add(out, "div", "Bakılan " + nEx + " kas: " + (R.abn.length + (R.para === "A" ? 1 : 0)) + " anormal, " + (R.nor.length + (R.para === "N" ? 1 : 0)) + " normal", "note");
-    if (!R.abn.length) {
-      add(out, "div", R.para === "A" ? "Yalnız paraspinal anormal" : "Anormal kas işaretlenmedi", "labhead");
+    var nEx = R.abn.length + R.nor.length + R.myo.length + (R.para ? 1 : 0), top = R.top, sec = R.second, lc = function (s) { return s.toLocaleLowerCase("tr"); };
+    add(out, "div", "Sinir iletimi: " + R.nNcs + " işaret  ·  İğne: " + nEx + " kas (" + (R.abn.length + R.myo.length + (R.para === "A" ? 1 : 0)) + " anormal)", "note");
+    if (R.myo.length) add(out, "div", "Miyopatik patern: " + R.myo.map(function (m) { return m.ad.split(" (")[0]; }).join(", ") +
+      ". Bu kaslar nörojen analizin dışında tutuldu. Proksimal ve simetrikse miyopati; fibrilasyon eşlik ediyorsa nekrotizan ya da inflamatuar süreç düşünün.", "verdict");
+    if (!top) {
+      add(out, "div", R.myo.length >= 2 ? "Miyopatik patern" : R.para === "A" ? "Yalnız paraspinal anormal" : "Lezyon paterni yok", "labhead");
       add(out, "div", R.para === "A" ? "Tek başına paraspinal bulgu düzey vermez. Ekstremite kaslarına bakın; lumbar paraspinalde yaşlı, yakınmasız kişilerde de fibrilasyon bildirilmiştir."
-        : nEx >= 5 ? "Tarama normal. Normal iğne EMG, yalnız duysal lifleri tutan ya da akson kaybı yapmayan radikülopatiyi dışlamaz."
-        : "Soldaki listede baktığınız kasları Anormal ya da Normal olarak işaretleyin. Normal kaslar da sonucu değiştirir; onları da girin.");
-      el("lab-rap").value = ""; return;
+        : nEx >= 5 && !R.myo.length ? "Tarama normal. Normal iğne EMG ve sinir iletimi, yalnız duysal lifleri tutan ya da akson kaybı yapmayan radikülopatiyi dışlamaz."
+        : "Önce sinir iletimi sonuçlarını, sonra baktığınız kasları işaretleyin. Normal bulgular da sonucu değiştirir; onları da girin.", "note");
+      if (R.bil) add(out, "div", "Karşı tarafta da duysal yanıtlar düşük: polinöropati zemini var.", "verdict bad");
+      el("lab-rap").value = labReport(limb, R); return;
     }
-    var top = R.top, sec = R.second, mono = R.mono, nerveOnly = mono.length && !mono[0].plx && !(top && top.ok);
-    if (!top) { add(out, "div", "Kök paterni yok", "labhead"); }
-    else if (nerveOnly) { add(out, "div", mono[0].ad, "labhead"); add(out, "div", "Anormal kasların hepsi tek sinirde; radikülopati ölçütü karşılanmıyor.", "verdict bad"); }
-    else {
-      var close = sec && top.score - sec.score < 1;
-      add(out, "div", top.ad + (top.roots.length > 1 ? " kök düzeyleri" : " kök düzeyi"), "labhead");
-      add(out, "div", !top.ok ? "Ölçüt karşılanmıyor: " + (top.nN < 2 ? "anormal kaslar tek sinirden" : "en az iki güvenilir anormal kas gerekli") + "."
-                     : close ? "Ölçüt karşılanıyor, ama " + sec.ad + " ile ayrım zayıf." : "Ölçüt karşılanıyor; en yakın seçenekten belirgin ayrılıyor.", "verdict" + (top.ok && !close ? "" : " bad"));
+    var close = sec && top.eff - sec.eff < 1;
+    add(out, "div", top.t === "k" ? top.ad + (top.def.roots.length > 1 ? " kök düzeyleri" : " kök düzeyi") : top.ad, "labhead");
+    add(out, "div", top.ok ? (close ? "Ölçüt karşılanıyor, ama " + (sec.t === "k" ? sec.ad + " kökü" : lc(sec.ad)) + " ile ayrım zayıf." : "Ölçüt karşılanıyor; en yakın seçenekten belirgin ayrılıyor.")
+      : top.t === "k" ? "Kök ölçütü karşılanmıyor: " + (top.nN < 2 ? "anormal kaslar tek sinirden." : "en az iki güvenilir anormal kas gerekli.")
+      : top.t === "p" ? "Pleksus ölçütü karşılanmıyor: en az iki ayrı sinirden kas, açıklanmayan kas olmaması ve anormal olmayan paraspinal gerekir."
+      : top.t === "y" ? "Polinöropati için karşı tarafın da tutulduğunu gösterin (Sinir iletimi > Yaygınlık)."
+      : "Sinir ölçütü karşılanmıyor: açıklanmayan anormal kas ya da anormal paraspinal var.", "verdict" + (top.ok && !close ? "" : " bad"));
+    // where along the axon: root or beyond the ganglion
+    if (top.t === "k") {
+      if (R.bil) add(out, "div", "Karşı tarafta da duysal yanıtlar düşük: polinöropati zemini var. SNAP bu hastada kök-pleksus ayrımında kullanılamaz; iğne bulgularını tek köke bağlamadan önce distal-simetrik dağılıma bakın.", "verdict bad");
+      else if (top.nBad.length) add(out, "div", "İlgili duysal yanıt düşük (" + labNames(limb, top.nBad) + "): radikülopatide beklenmez; lezyon arka kök gangliyonunun distalinde, yani pleksus ya da sinirde olabilir. Eşlik eden tuzak nöropati de aynı sonucu verir." +
+        (top.def.roots.indexOf("L5") >= 0 ? " L5'te gangliyon bazen spinal kanal içinde olduğundan yüzeyel peroneal SNAP radikülopatide de düşebildiği bildirilmiştir." : ""), "verdict bad");
+      else if (top.nOk.length) add(out, "div", "İlgili duysal yanıt korunmuş (" + labNames(limb, top.nOk) + "): lezyon gangliyonun proksimalinde, yani kök düzeyinde.", "verdict");
+    } else if (top.t !== "y") {
+      if (top.nOk.length || top.foc) add(out, "div", "Sinir iletimi uyumlu" + (top.nOk.length ? " (" + labNames(limb, top.nOk) + ")" : "") + (top.foc ? "; fokal iletim bulgusu bu siniri gösteriyor" : "") + ".", "verdict");
+      if (top.nBad.length) add(out, "div", "Sinir iletimi çelişiyor (" + labNames(limb, top.nBad) + "): bu lezyonda beklenen duysal patern değil.", "verdict bad");
     }
-    if (R.cands.length) {
-      var mx = Math.max.apply(null, R.cands.map(function (c) { return c.score; }).concat([1])), bars = add(out, "div", null, "labbars");
-      R.cands.forEach(function (c) {
-        var r = add(bars, "div", null, "labbar"); add(r, "span", c.ad, "bn");
-        var tr = add(r, "span", null, "bt"), fill = add(tr, "span"); fill.style.width = Math.max(3, Math.round(100 * Math.max(0, c.score) / mx)) + "%";
-        add(r, "span", fmt(c.score, 1), "bv");
-      });
-      var dl = add(out, "dl");
-      function row(k, v) { add(dl, "dt", k); add(dl, "dd", v); }
-      function nm(a) { return a.length ? a.map(function (m) { return m.ad.split(" (")[0]; }).join(", ") : "yok"; }
-      row("Açıklanan", nm(top.hit) + "  (" + top.nN + " ayrı sinir)");
-      row("Açıklanmayan", nm(top.unx));
-      row("Beklenip normal", nm(top.con));
-      row("Paraspinal", R.para === "A" ? "anormal: lezyon pleksusun proksimalinde" : R.para === "N" ? "normal: radikülopatiyi dışlamaz" : "bakılmadı");
-    }
-    if (mono.length && !nerveOnly) add(out, "div", "Aynı patern şununla da açıklanır: " + mono.map(function (q) { return q.ad.toLocaleLowerCase("tr"); }).join(", ") +
-      ". Ayrım: radikülopatide paraspinal tutulabilir ve duysal yanıtlar (SNAP) korunur; pleksus ya da sinir lezyonunda SNAP düşer.", "note");
-    if (top && top.roots.length > 1) add(out, "div", "Tek düzey bütün anormal kasları açıklamıyor. İki komşu kökün birlikte tutulumu ya da miyotom sınırındaki bireysel farklılık olabilir.", "note");
-    if (top && top.unx.length && top.roots.length === 1) add(out, "div", "Açıklanmayan kas var: komşu düzeyin eşlik etmesi, ikinci bir lezyon ya da yaygın süreç (polinöropati, ön boynuz) düşünün.", "note");
-    if ((R.next && R.next.length) || !R.para) {
-      add(out, "div", "Sıradaki en ayırt edici kaslar", "label");
+    var mx = Math.max.apply(null, R.cands.map(function (c) { return c.eff; }).concat([1])), bars = add(out, "div", null, "labbars");
+    R.cands.forEach(function (c) {
+      var r = add(bars, "div", null, "labbar"); add(r, "span", c.ad.split(" (")[0].replace(" pleksopatisi", "").replace(" nöropati", ""), "bn"); add(r, "span", LAB_TYPE[c.t], "bk");
+      var tr = add(r, "span", null, "bt"), fill = add(tr, "span"); fill.style.width = Math.max(3, Math.round(100 * Math.max(0, c.eff) / mx)) + "%";
+      add(r, "span", fmt(c.eff, 1), "bv");
+    });
+    var dl = add(out, "dl");
+    function row(k, v) { add(dl, "dt", k); add(dl, "dd", v); }
+    function nm(a) { return a.length ? a.map(function (m) { return m.ad.split(" (")[0]; }).join(", ") : "yok"; }
+    row("Açıklanan", nm(top.hit) + "  (" + top.nN + " ayrı sinir)");
+    row("Açıklanmayan", nm(top.unx));
+    row("Beklenip normal", nm(top.con));
+    row("Paraspinal", R.para === "A" ? (top.t === "k" ? "anormal: lezyon pleksusun proksimalinde" : "anormal: pleksus ya da sinir lezyonuyla çelişir") : R.para === "N" ? (top.t === "k" ? "normal: radikülopatiyi dışlamaz" : "normal: beklenen") : "bakılmadı");
+    if (top.t === "k" && !top.nOk.length && !top.nBad.length) row("Sinir iletimi", top.rel.length ? "ilgili SNAP'e bakılmadı (" + labNames(limb, top.rel) + ")" : "bu kök için güvenilir SNAP yok");
+    if (R.h) row("H refleksi", R.h === "A" ? "anormal: S1 arkı üzerinde lezyon lehine" : "normal");
+    if (R.mLow.length) row("Motor yanıt", labNames(limb, R.mLow) + " düşük: belirgin akson kaybı");
+    var otherFoc = R.foc.filter(function (id) { return top.def.foc !== id; });
+    if (otherFoc.length) add(out, "div", "Ek fokal iletim bulgusu: " + otherFoc.map(function (id) { return labItem(limb, id).ad; }).join("; ") + ". Ana lezyona eşlik eden tuzak nöropati olabilir.", "note");
+    var strayS = R.sLow.filter(function (id) { return top.nOk.indexOf(id) < 0 && top.nBad.indexOf(id) < 0; });
+    if (strayS.length && !R.bil && top.t !== "y") add(out, "div", "Bu lezyonla açıklanmayan düşük duysal yanıt: " + labNames(limb, strayS) + ". Eşlik eden nöropati, polinöropati ya da teknik neden olabilir.", "note");
+    if (top.t === "k" && top.def.roots.length > 1) add(out, "div", "Tek düzey bütün anormal kasları açıklamıyor. İki komşu kökün birlikte tutulumu ya da miyotom sınırındaki bireysel farklılık olabilir.", "note");
+    if (top.unx.length >= 2 && !R.sLow.length) add(out, "div", "Birden çok kas hiçbir tek lezyonla açıklanmıyor ve duysal yanıtlar düşük değil: poliradikülopati ya da ön boynuz hastalığı açısından diğer ekstremiteleri ve torakal paraspinali inceleyin.", "note");
+    else if (top.unx.length) add(out, "div", "Açıklanmayan kas var: komşu düzeyin eşlik etmesi, ikinci bir lezyon ya da yaygın süreç düşünün.", "note");
+    if (R.next.length || R.nextN.length || !R.para) {
+      add(out, "div", "Sıradaki en ayırt edici incelemeler", "label");
       var ul = add(out, "ul", null, "wsli");
       if (!R.para) add(ul, "li", "Paraspinal: anormalse lezyon pleksusun proksimalinde; normal olması radikülopatiyi dışlamaz.");
-      (R.next || []).forEach(function (q) { add(ul, "li", q.m.ad + " (" + q.m.sinir.split(" (")[0] + "; " + q.m.k + "): " + q.why + "."); });
+      R.nextN.forEach(function (s) { add(ul, "li", s); });
+      R.next.forEach(function (q) { add(ul, "li", q.m.ad + " (" + q.m.sinir.split(" (")[0] + "; " + q.m.k + "): " + q.why + "."); });
     }
     add(out, "div", "Evre", "label");
     add(out, "div", R.stage ? R.stage.ad + ": " + R.stage.why + "." : "Evre için anormal kaslarda bulgu türünü işaretleyin (Fib/PKD, polifazik, iri MÜP, seyrelme).", R.stage ? "" : "note");
     el("lab-rap").value = labReport(limb, R);
   }
-  function labOpen(on) {
-    st.lab.on = on;
-    if (on) { st.lab.was = st.running; st.running = false; } else if (st.lab.was) st.running = true;
-    el("sim-grid").hidden = on; el("lab-card").hidden = !on;
-    Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.setAttribute("aria-pressed", (k === 1) === on ? "true" : "false"); });
-    if (on) renderLab(); else syncUI();
+
+  var MYO_TAB = {
+    up: { ad: "Servikal", roots: ["C5", "C6", "C7", "C8", "T1"], rows: [
+      ["Romboid majör", "Dorsal skapular", { C5: 1 }], ["Supraspinatus, infraspinatus", "Supraskapular", { C5: 1, C6: 1 }], ["Deltoid", "Aksiller", { C5: 1, C6: 1 }],
+      ["Biseps", "Muskulokutan", { C5: 1, C6: 1 }], ["Brakiyoradiyalis", "Radial", { C5: 1, C6: 1 }], ["Pronator teres", "Median", { C6: 1, C7: 1 }],
+      ["Fleksör karpi radialis", "Median", { C6: 1, C7: 1 }], ["Ekstensör karpi radialis longus", "Radial", { C6: 1, C7: 0.5 }], ["Triseps", "Radial", { C6: 0.5, C7: 1, C8: 0.5 }],
+      ["Ankoneus", "Radial", { C7: 1, C8: 0.5 }], ["Ekstensör digitorum komunis", "Radial (post. interosseöz)", { C7: 1, C8: 1 }], ["Ekstensör indisis proprius", "Radial (post. interosseöz)", { C7: 0.5, C8: 1 }],
+      ["Fleksör pollisis longus", "Median (ant. interosseöz)", { C7: 0.5, C8: 1, T1: 0.5 }], ["Fleksör karpi ulnaris", "Ulnar", { C7: 0.5, C8: 1, T1: 0.5 }],
+      ["Birinci dorsal interosseöz, abduktor digiti minimi", "Ulnar", { C8: 1, T1: 1 }], ["Abduktor pollisis brevis", "Median", { C8: 0.5, T1: 1 }]] },
+    lo: { ad: "Lumbosakral", roots: ["L2", "L3", "L4", "L5", "S1", "S2"], rows: [
+      ["İliopsoas", "Femoral, lumbar pleksus", { L2: 1, L3: 1, L4: 0.5 }], ["Adduktor longus", "Obturator", { L2: 1, L3: 1, L4: 0.5 }], ["Rektus femoris, vastus lateralis ve medialis", "Femoral", { L2: 0.5, L3: 1, L4: 1 }],
+      ["Tibialis anterior", "Derin peroneal", { L4: 0.5, L5: 1 }], ["Ekstensör hallusis longus", "Derin peroneal", { L5: 1, S1: 0.5 }], ["Ekstensör digitorum brevis", "Derin peroneal", { L5: 1, S1: 0.5 }],
+      ["Peroneus longus", "Yüzeyel peroneal", { L5: 1, S1: 0.5 }], ["Tibialis posterior, fleksör digitorum longus", "Tibial", { L5: 1, S1: 0.5 }], ["Gluteus medius, tensor fasya lata", "Superior gluteal", { L4: 0.5, L5: 1, S1: 0.5 }],
+      ["Semitendinosus, semimembranosus", "Siyatik (tibial bölüm)", { L5: 1, S1: 0.5 }], ["Gluteus maksimus", "İnferior gluteal", { L5: 0.5, S1: 1, S2: 0.5 }], ["Biseps femoris kısa baş", "Siyatik (peroneal bölüm)", { S1: 1 }],
+      ["Biseps femoris uzun baş", "Siyatik (tibial bölüm)", { S1: 1 }], ["Medial ve lateral gastroknemius", "Tibial", { S1: 1, S2: 0.5 }], ["Soleus", "Tibial", { S1: 1, S2: 1 }], ["Abduktor hallusis", "Tibial (medial plantar)", { S1: 1, S2: 1 }]] }
+  };
+  function renderTab() {
+    ["up", "lo"].forEach(function (k) {
+      var T = MYO_TAB[k], host = el("tab-" + k); if (host.firstChild) return;
+      function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+      var tb = add(host, "table", null, "myo"), tr; add(tb, "caption", T.ad);
+      tr = add(tb, "tr"); add(tr, "th", "Kas"); add(tr, "th", "Sinir"); T.roots.forEach(function (r) { add(tr, "th", r, "r"); });
+      T.rows.forEach(function (row) {
+        tr = add(tb, "tr"); add(tr, "td", row[0]); add(tr, "td", row[1], "s");
+        T.roots.forEach(function (r) { var td = add(tr, "td", null, "r"), w = row[2][r]; if (w) { var d = add(td, "i", null, w === 1 ? "d" : ""); d.setAttribute("role", "img"); d.setAttribute("aria-label", w === 1 ? "baskın" : "katkı"); } });
+      });
+    });
+  }
+  function setMode(k) {                                        // 0 simulator, 1 root finder, 2 myotome table
+    var was = st.lab.mode || 0; st.lab.mode = k; st.lab.on = k === 1;
+    if (!was && k) { st.lab.was = st.running; st.running = false; } else if (was && !k && st.lab.was) st.running = true;
+    el("sim-grid").hidden = k !== 0; el("lab-card").hidden = k !== 1; el("tab-card").hidden = k !== 2;
+    Array.prototype.forEach.call(el("seg-mode").children, function (b, i) { b.setAttribute("aria-pressed", [1, 0, 2][i] === k ? "true" : "false"); });
+    el("sim-intro").hidden = k !== 0;
+    if (k === 1) renderLab(); else if (k === 2) renderTab(); else syncUI();
   }
 
   function startQuiz(grp) {
@@ -1555,9 +1863,11 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   el("ws-up").addEventListener("click", function () { wsNew("up"); });
   el("ws-lo").addEventListener("click", function () { wsNew("lo"); });
   el("ws-exit").addEventListener("click", wsExit);
-  Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.addEventListener("click", function () { labOpen(k === 1); }); });
+  Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.addEventListener("click", function () { setMode([1, 0, 2][k]); }); });
+  Array.prototype.forEach.call(el("seg-pane").children, function (b, k) { b.addEventListener("click", function () { st.lab.pane = k ? "emg" : "ncs"; renderLab(); }); });
+  el("ws-ncs").addEventListener("click", function () { if (st.ws) { st.ws.ncs = true; renderWs(); } });
   Array.prototype.forEach.call(el("seg-limb").children, function (b, k) { b.addEventListener("click", function () { st.lab.limb = k ? "lo" : "up"; renderLab(); }); });
-  el("lab-clear").addEventListener("click", function () { st.lab[st.lab.limb] = {}; el("lab-copied").textContent = ""; renderLab(); });
+  el("lab-clear").addEventListener("click", function () { st.lab[st.lab.limb] = {}; st.lab[st.lab.limb + "N"] = {}; st.lab.info = null; el("lab-copied").textContent = ""; renderLab(); });
   el("lab-copy").addEventListener("click", function () {
     var t = el("lab-rap"), done = function () { el("lab-copied").textContent = "Kopyalandı"; };
     if (!t.value) return;
@@ -1606,6 +1916,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { advance(450); st.running = false; }
   else advance(260);
   syncUI();
+  setMode(1);                                                  // the lab opens first; the simulator is one tap away
   requestAnimationFrame(frame);
 })();
 </script>
