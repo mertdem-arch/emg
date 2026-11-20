@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1822">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="EMG Sim">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>EMG Trase Simülatörü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: instrument screen on the left with its transport controls, pattern and scale controls on the right, reading card under the screen. */
+:root {
+  --bg: #eef2f5;
+  --panel: #ffffff;
+  --ink: #15212b;
+  --muted: #566573;
+  --line: #d3dce3;
+  --accent: #0f6e8c;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2f1f5;
+  --warn: #b4530a;
+  --screen: #0c1822;
+  --font-display: "IBM Plex Sans Condensed", "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f161c; --panel: #17212a; --ink: #e6edf2; --muted: #9db0bf; --line: #2b3a46;
+    --accent: #4fb3d1; --accent-ink: #06202a; --accent-soft: #163441; --warn: #f0a35a; --screen: #0a141c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f161c; --panel: #17212a; --ink: #e6edf2; --muted: #9db0bf; --line: #2b3a46;
+  --accent: #4fb3d1; --accent-ink: #06202a; --accent-soft: #163441; --warn: #f0a35a; --screen: #0a141c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+button, .wsdot { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); -webkit-text-size-adjust: 100%; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 20px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+h1 { font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 1.15; margin: 0; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 65ch; }
+header a { color: var(--accent); }
+.grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.screen { background: var(--screen); border-radius: 8px; padding: 0; overflow: hidden; line-height: 0; }
+canvas { width: 100%; height: auto; aspect-ratio: 1 / 1; display: block; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+legend { padding: 0; margin-bottom: 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+button { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; cursor: pointer; line-height: 1.25; }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+button.primary { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font-family: var(--font-mono); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.u { text-transform: none; letter-spacing: 0; }
+.pats { display: flex; flex-wrap: wrap; gap: 6px; }
+.check { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13.5px; }
+.read h2 { font-family: var(--font-display); font-weight: 600; font-size: 20px; margin: 0; line-height: 1.2; }
+.read .grp { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; }
+dt { color: var(--muted); font-size: 13.5px; }
+dd { margin: 0; max-width: 65ch; }
+.calc { font-family: var(--font-mono); font-size: 13.5px; font-variant-numeric: tabular-nums; background: var(--accent-soft); border-radius: 7px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; }
+.calc .flag { color: var(--warn); font-family: var(--font-body); font-weight: 600; }
+.note { color: var(--muted); font-size: 13px; margin: 0; }
+.ladder { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 10px; align-items: center; }
+.ladder .name { font-size: 13.5px; color: var(--muted); }
+.calc .on { font-weight: 600; color: var(--ink); }
+.calc .off { color: var(--muted); }
+.site { display: flex; flex-direction: column; gap: 8px; }
+.site table { border-collapse: collapse; width: 100%; font-family: var(--font-mono); font-size: 13px; font-variant-numeric: tabular-nums; }
+.site th, .site td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.site th:first-child, .site td:first-child { text-align: left; font-family: var(--font-body); }
+.site th { font-family: var(--font-body); font-weight: 600; color: var(--muted); font-size: 12px; }
+.site tr.dull td { color: var(--muted); }
+.tablewrap { overflow-x: auto; }
+.verdict { font-weight: 600; }
+.verdict.bad { color: var(--warn); }
+input[type="range"] { accent-color: var(--accent); width: 130px; }
+.ws-fig svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.ws-fig .cap { font: 600 9.5px var(--font-body); letter-spacing: .06em; fill: var(--muted); }
+.wsdot { cursor: pointer; outline: none; }
+.wsdot .hit { fill: transparent; }
+.wsdot .pt { fill: var(--panel); stroke: var(--accent); stroke-width: 2; }
+.wsdot text { font: 500 10px var(--font-body); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+.wsdot:hover .pt, .wsdot:focus-visible .pt { stroke-width: 3.5; }
+.wsdot.seen .pt { fill: var(--accent-soft); }
+.wsdot.nor .pt { fill: #5b9a6a; stroke: #2f6b3f; }
+.wsdot.abn .pt { fill: var(--warn); stroke: var(--warn); }
+.wsdot.cur .pt { stroke: var(--ink); stroke-width: 3.5; }
+.wsdot.cur text { font-weight: 700; }
+.wsname { font-family: var(--font-display); font-weight: 600; font-size: 18px; line-height: 1.2; }
+.wsli { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+#ws-fb { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+#ws-fb td { white-space: normal; text-align: left; font-family: var(--font-body); }
+#ws-fb th { text-align: left; }
+#ws-cur { display: flex; flex-direction: column; gap: 6px; }
+.lab-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .lab-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 861px) { .lab-side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; } }
+#lab-list { display: flex; flex-direction: column; gap: 2px; }
+.lab-side, #lab-out { display: flex; flex-direction: column; gap: 10px; }
+.labg { margin-top: 10px; }
+.labrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 6px 8px; border-radius: 8px; border-left: 4px solid transparent; }
+.labrow.isA { background: color-mix(in srgb, var(--warn) 12%, transparent); border-left-color: var(--warn); }
+.labrow.isN { background: color-mix(in srgb, #3f8a54 12%, transparent); border-left-color: #3f8a54; }
+.labname { font-weight: 500; line-height: 1.25; }
+.labbtn { display: flex; gap: 6px; }
+.labbtn button { min-height: 38px; padding: 6px 12px; }
+.labbtn .abn[aria-pressed="true"] { background: var(--warn); border-color: var(--warn); color: #fff; }
+.labbtn .nor[aria-pressed="true"] { background: #3f8a54; border-color: #3f8a54; color: #fff; }
+.labfl { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.labfl .chip { font-size: 13px; padding: 4px 9px; border-radius: 999px; }
+.labhead { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.15; }
+.labbars { display: flex; flex-direction: column; gap: 5px; }
+.labbar { display: grid; grid-template-columns: 74px minmax(0, 1fr) 34px; gap: 8px; align-items: center; font-family: var(--font-mono); font-size: 13px; }
+.labbar .bt { height: 10px; background: var(--accent-soft); border-radius: 5px; overflow: hidden; display: block; }
+.labbar .bt span { display: block; height: 100%; background: var(--accent); border-radius: 5px; }
+.labbar .bv { text-align: right; color: var(--muted); }
+#lab-rap { width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; resize: vertical; }
+@media (min-width: 861px) {
+  /* workshop: keep the screen in view while the case card scrolls */
+  body.ws-on .grid > .col:first-child { position: sticky; top: 12px; }
+  body.ws-on .screen { max-width: max(260px, calc(100vh - 300px)); margin: 0 auto; }
+}
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>EMG Trase Simülatörü</h1>
+    <p>Trase gerçek cihazdaki gibi soldan sağa süpürür. Gerçekçi kayıtlarda birçok ünite birlikte ateşler; fibrilasyon ve MÜP dereceleri, maksimum kasıdaki interferans paternleri ve nörojen tutulumun evreleri karşılaştırılabilir; radikülopati atölyesinde gizli bir vakada kas kas iğne EMG yapılır; ayrıca 27 şematik patern vardır. Kazancı 100, 200 ve 500 µV/kare arasında değiştirip kareleri sayın. <a href="https://claude.ai/artifact/Kkmwnp7ge1g6Nf6KUUHW8y">Kurs dokümanı</a></p>
+  </header>
+  <div class="row"><div class="seg" role="group" aria-label="Bölüm" id="seg-mode"><button type="button" aria-pressed="true">Simülatör</button><button type="button" aria-pressed="false">Kök bulucu (laboratuvar)</button></div></div>
+
+  <div class="card" id="lab-card" hidden>
+    <div class="read"><div class="grp">Laboratuvar aracı</div><h2>Kök bulucu</h2></div>
+    <p class="note">Baktığınız her kası Anormal ya da Normal olarak işaretleyin; sağdaki analiz her dokunuşta güncellenir. Hasta bilgisi girilmez, hiçbir şey kaydedilmez; sayfa kapanınca işaretler silinir.</p>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Ekstremite" id="seg-limb"><button type="button">Üst ekstremite</button><button type="button">Alt ekstremite</button></div>
+      <button id="lab-clear" type="button">Temizle</button>
+    </div>
+    <div class="lab-grid">
+      <div id="lab-list"></div>
+      <div class="lab-side">
+        <div id="lab-out" aria-live="polite"></div>
+        <fieldset><legend>Rapor taslağı</legend>
+          <textarea id="lab-rap" rows="6" readonly aria-label="Rapor taslağı"></textarea>
+          <div class="row"><button id="lab-copy" type="button">Kopyala</button><span class="note" id="lab-copied"></span></div>
+        </fieldset>
+        <p class="note">Bu bir karar desteğidir, tanı koymaz. Puan = açıklanan anormal kasların miyotom ağırlığı − açıklanmayan anormal kaslar − 0,4 × beklenip normal bulunan kaslar; iki düzey birlikte önerilirse 1 puan düşülür. Ölçüt: aynı kökten, en az iki ayrı periferik sinirden iki anormal kas. Ağırlıklar kurs dokümanındaki miyotom tablosundandır; puanlama kuralı doğrulanmış bir yöntem değildir. Sinir iletimi, klinik ve görüntüleme ile birlikte yorumlayın.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" id="sim-grid">
+    <div class="col">
+      <div class="card">
+        <div class="screen"><canvas id="scope" width="720" height="720" role="img" aria-label="Süpüren EMG trasesi"></canvas></div>
+        <div class="row">
+          <button id="btn-run" class="primary" type="button">Dondur</button>
+          <button id="btn-trig" type="button" aria-pressed="false">Tetik</button>
+          <button id="btn-sound" type="button" aria-pressed="false">Ses</button>
+          <span class="label" id="lbl-speed">Hız</span>
+          <div class="seg" role="group" aria-labelledby="lbl-speed" id="seg-speed"></div>
+        </div>
+        <div class="row">
+          <button id="btn-needle" type="button">İğneyi oynat</button>
+          <label class="check" for="rng-force">Kası kuvveti <input type="range" id="rng-force" min="0" max="100" step="1" value="35"> <span id="force-val" style="font-family:var(--font-mono)">%35</span></label>
+        </div>
+        <div class="row" id="row-phase" hidden>
+          <span class="label">Muayene adımı</span>
+          <div class="seg" role="group" aria-label="Muayene adımı" id="seg-phase"><button type="button">1 İstirahat</button><button type="button">2 Hafif kası</button><button type="button">3 Maksimum kası</button></div>
+          <button id="ws-back" type="button" hidden>Kas haritasına dön</button>
+        </div>
+        <p class="note">İğneyi oynat yeni bir konumu örnekler: ünitelerin uzaklığı ve keskinliği değişir. Kası kuvveti gerçekçi kayıtlarda yeni ünitelerin devreye girişini gösterir. Tetik açıkken en büyük MÜP her süpürmede aynı yerde durur, diğerleri kayar; kare saymak için bunu kullanın. Dondurduktan sonra kazancı değiştirirseniz aynı potansiyel yeni ölçekte görünür. Ses yalnız gerçek zamanlı hızda çalar.</p>
+      </div>
+
+      <div class="card read" id="card-read" aria-live="polite">
+        <div>
+          <div class="grp" id="r-grp"></div>
+          <h2 id="r-ad"></h2>
+        </div>
+        <div class="row" id="r-quiz" hidden></div>
+        <div class="calc" id="r-calc"></div>
+        <div class="site" id="r-site" hidden></div>
+        <dl id="r-dl">
+          <dt>Ekranda</dt><dd id="r-gor"></dd>
+          <dt>Seste</dt><dd id="r-dinle"></dd>
+          <dt>Anlamı</dt><dd id="r-anlam"></dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <fieldset><legend>Radikülopati atölyesi: vaka çöz</legend>
+          <p class="note">Gizli bir vaka üretilir. Şekilden kas seçip iğneyi yerleştirirsiniz; ekran ve ses o kasın bulgusunu verir. Yeterince kasa bakınca düzeyi ve evreyi söylersiniz.</p>
+          <div class="row"><button id="ws-up" class="primary" type="button">Üst ekstremite vakası</button><button id="ws-lo" class="primary" type="button">Alt ekstremite vakası</button><button id="ws-exit" type="button" hidden>Atölyeden çık</button></div>
+        </fieldset>
+      </div>
+      <div class="card" id="ws-card" hidden>
+        <div class="read"><div class="grp">Radikülopati atölyesi</div><h2 id="ws-title"></h2></div>
+        <p id="ws-vig" style="margin:0"></p>
+        <div class="ws-fig" id="ws-fig"></div>
+        <div id="ws-cur"></div>
+        <fieldset><legend>Tanınız</legend><div class="pats" id="ws-dx"></div></fieldset>
+        <fieldset><legend>Evre</legend><div class="pats" id="ws-sg"></div></fieldset>
+        <div class="row"><button id="ws-submit" class="primary" type="button">Yanıtla</button></div>
+        <div id="ws-fb" hidden></div>
+      </div>
+      <div class="card" id="card-pats">
+        <fieldset><legend>Gerçekçi kayıt: derecelendirme</legend>
+          <div class="ladder">
+            <span class="name">Fibrilasyon / PKD</span><div class="pats" id="pat-gf"></div>
+            <span class="name">Nörojen MÜP</span><div class="pats" id="pat-gm"></div>
+            <span class="name">İnterferans</span><div class="pats" id="pat-gi"></div>
+            <span class="name">Evreleme</span><div class="pats" id="pat-ge"></div>
+          </div>
+          <div class="row"><button id="btn-quiz" type="button">Beni sına: dereceyi gizle</button><button id="btn-quiz-ip" type="button">Beni sına: yalnız interferans</button><button id="btn-quiz-ev" type="button">Beni sına: yalnız evreleme</button></div>
+        </fieldset>
+        <fieldset><legend>İstirahat: temel</legend><div class="pats" id="pat-rest"></div></fieldset>
+        <fieldset><legend>İstirahat: özel boşalımlar</legend><div class="pats" id="pat-ozel"></div></fieldset>
+        <fieldset><legend>Şematik tek MÜP (kitap görünümü)</legend><div class="pats" id="pat-mup"></div></fieldset>
+        <fieldset><legend>Artan kası: rekrutman</legend><div class="pats" id="pat-rek"></div></fieldset>
+        <label class="check" for="chk-keep"><input type="checkbox" id="chk-keep"> Patern değişince kazanç ve süpürme ayarımı koru</label>
+      </div>
+      <div class="card">
+        <fieldset><legend>Kazanç (<span class="u">µV/kare</span>)</legend><div class="seg" id="seg-gain"></div></fieldset>
+        <fieldset><legend>Süpürme (<span class="u">ms/kare</span>)</legend><div class="seg" id="seg-sweep"></div></fieldset>
+        <button id="btn-rec" type="button">Bu patern için önerilen ayara dön</button>
+      </div>
+      <p class="note">Traseler matematiksel olarak üretilir; hasta kaydı değildir. Ekran 10 × 10 karedir, negatif yukarıdır. Fibrilasyon dereceleri yerleşik 0–4+ tanımıdır. MÜP dereceleri için yayımlanmış sayısal eşik yoktur; buradaki basamaklar çalışma ölçeğidir, laboratuvarınızın alışkanlığına göre ayarlanmalıdır.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- waveform shapes: sums of Gaussians [amplitude, centre ms, sigma ms]; positive = upward (negative polarity) ----------
+  var COMPS = {
+    normal:  [[-0.26, -1.7, 1.15], [1, 0, 0.28], [-0.5, 0.8, 0.5], [-0.1, 2.6, 1.5]],
+    normalB: [[-0.2, -1.4, 1.0], [1, 0, 0.33], [-0.62, 0.95, 0.55], [-0.08, 2.9, 1.4]],
+    normalC: [[1, 0, 0.36], [-0.72, 1.05, 0.6], [-0.1, 3.0, 1.5], [-0.12, -1.2, 0.8]],
+    poly:    [[-0.25, -4.0, 0.9], [0.55, -2.3, 0.6], [-0.6, -0.9, 0.55], [1, 0.5, 0.5], [-0.7, 2.0, 0.6], [0.45, 3.8, 0.7], [-0.12, 6.0, 1.2],
+              [-0.10, 12.5, 0.3], [0.25, 13.0, 0.3], [-0.12, 13.6, 0.35]],
+    chronic: [[-0.30, -4.2, 2.0], [1, 0, 0.6], [-0.95, 1.9, 0.9], [0.30, 5.2, 1.6], [-0.10, 9.0, 2.2]],
+    chronicB:[[-0.25, -3.5, 1.8], [0.8, -0.9, 0.6], [-0.45, 0.2, 0.4], [1, 1.2, 0.6], [-0.9, 3.2, 1.0], [0.25, 6.5, 1.8]],
+    myo:     [[-0.5, -0.8, 0.25], [1, -0.3, 0.22], [-0.9, 0.2, 0.22], [0.8, 0.7, 0.22], [-0.4, 1.2, 0.3]],
+    myoB:    [[-0.6, -0.4, 0.22], [1, 0, 0.2], [-0.7, 0.45, 0.22], [0.35, 0.9, 0.25]],
+    fib:     [[-0.35, -0.45, 0.22], [1, 0, 0.2], [-0.18, 0.6, 0.4]],
+    psw:     [[-1, 0, 0.35], [0.42, 3.5, 2.6], [0.1, 9, 4.0]],
+    eps:     [[1, 0, 0.22], [-0.45, 0.55, 0.3]],
+    giant:   [[-0.28, -6, 2.6], [1, 0, 0.8], [-0.9, 2.6, 1.2], [0.35, 7, 2.2], [-0.12, 12, 3]],
+    polyCore:[[-0.25, -4.0, 0.9], [0.55, -2.3, 0.6], [-0.6, -0.9, 0.55], [1, 0.5, 0.5], [-0.7, 2.0, 0.6], [0.45, 3.8, 0.7], [-0.12, 6.0, 1.2]],
+    sat:     [[-0.4, -0.5, 0.3], [1, 0, 0.3], [-0.5, 0.6, 0.35]],
+    crd:     [[1, 0, 0.3], [-0.6, 0.7, 0.35], [0.7, 2.2, 0.3], [-0.8, 3.0, 0.3], [0.45, 4.6, 0.35], [-0.3, 5.6, 0.5]]
+  };
+  var T_MIN = -20, T_MAX = 30, T_STEP = 0.02;
+  function mkTable(comps) {
+    var n = Math.round((T_MAX - T_MIN) / T_STEP) + 1, a = new Float32Array(n), lo = Infinity, hi = -Infinity, i, j;
+    for (i = 0; i < n; i++) {
+      var t = T_MIN + i * T_STEP, v = 0;
+      for (j = 0; j < comps.length; j++) { var c = comps[j], z = (t - c[1]) / c[2]; v += c[0] * Math.exp(-0.5 * z * z); }
+      a[i] = v; if (v < lo) lo = v; if (v > hi) hi = v;
+    }
+    for (i = 0; i < n; i++) a[i] /= (hi - lo);   // peak-to-peak = 1
+    return a;
+  }
+  var TABLE = {};
+  Object.keys(COMPS).forEach(function (k) { TABLE[k] = mkTable(COMPS[k]); });
+  // A unique unit built from a template: stretched in time, blurred when the fibres are far from the needle tip.
+  function variant(name, stretch, blur) {
+    var src = COMPS[name], out = [], i;
+    for (i = 0; i < src.length; i++) {
+      var c = src[i], main = Math.abs(c[0]) === 1;
+      var sg = c[2] * (main ? Math.pow(stretch, 0.4) : stretch) * (0.9 + 0.2 * Math.random());
+      out.push([c[0] * (main ? 1 : 0.8 + 0.4 * Math.random()), c[1] * stretch * (0.94 + 0.12 * Math.random()), Math.sqrt(sg * sg + blur * blur)]);
+    }
+    return mkTable(out);
+  }
+  // Duration (ms) and phase count of a table, measured the way the reader would on screen.
+  function measure(a) {
+    var n = a.length, i, lo = -1, hi = -1;
+    for (i = 0; i < n; i++) if (Math.abs(a[i]) > 0.04) { if (lo < 0) lo = i; hi = i; }
+    var ph = 0, sgn = 0, peak = 0, lastCounted = 0;
+    for (i = lo; i <= hi; i++) {
+      var sg = a[i] > 0 ? 1 : -1;
+      if (sg !== sgn) { if (peak >= 0.08 && sgn !== lastCounted) { ph++; lastCounted = sgn; } sgn = sg; peak = 0; }
+      if (Math.abs(a[i]) > peak) peak = Math.abs(a[i]);
+    }
+    if (peak >= 0.08 && sgn !== lastCounted) ph++;
+    return { dur: (hi - lo) * T_STEP, ph: ph };
+  }
+  function shapeAt(name, d) {
+    if (d <= T_MIN || d >= T_MAX) return 0;
+    var a = typeof name === "string" ? TABLE[name] : name, x = (d - T_MIN) / T_STEP, i = x | 0, f = x - i;
+    return a[i] + (a[i + 1] - a[i]) * f;
+  }
+
+  // ---------- patterns ----------
+  // unit: s = shape(s), a = peak-to-peak mV, hz = rate, cv = interval variability, mode: reg | poisson | burst
+  var PATTERNS = [
+    { id: "sessiz", grp: "rest", ad: "Sessiz kas", units: [], noise: 0.003, rec: { gain: 100, sweep: 10, trig: false },
+      gor: "Taban çizgisi düzdür; yalnız amplifikatör gürültüsü vardır.",
+      dinle: "Sessizlik.",
+      anlam: "Normal istirahat bulgusu. Fibrilasyon aramadan önce bu sessizliği elde edin: kas tam gevşek olmalı." },
+    { id: "fib", grp: "rest", ad: "Fibrilasyon", amp: 0.12, noise: 0.003, rec: { gain: 100, sweep: 10, trig: false },
+      units: [{ s: "fib", a: 0.12, hz: 6, cv: 0.01 }, { s: "fib", a: 0.07, hz: 3.7, cv: 0.01 }],
+      gor: "Kısa, iki-üç fazlı dikenler metronom gibi düzenli gelir. Burada iki ayrı lif ateşliyor: biri 6, diğeri yaklaşık 4 Hz.",
+      dinle: "Teneke çatıya yağmur: keskin, düzenli tıkırtı.",
+      anlam: "Aktif denervasyon. İğne durduktan sonra 2–3 saniyeden uzun sürmeli ve en az iki bölgede bulunmalı. Kazancı 500'e alın: potansiyel kaybolur." },
+    { id: "psw", grp: "rest", ad: "Pozitif keskin dalga", amp: 0.14, noise: 0.003, rec: { gain: 100, sweep: 10, trig: false },
+      units: [{ s: "psw", a: 0.14, hz: 5, cv: 0.01 }, { s: "psw", a: 0.09, hz: 3.1, cv: 0.01 }],
+      gor: "Keskin bir aşağı (pozitif) sapma, ardından yavaşça dönen geniş negatif kuyruk. Ritim düzenlidir.",
+      dinle: "Künt, düzenli pop sesi.",
+      anlam: "Fibrilasyonla aynı anlamı taşır: aktif denervasyon." },
+    { id: "eps", grp: "rest", ad: "Uç plak dikeni", amp: 0.12, noise: 0.011, rec: { gain: 100, sweep: 10, trig: false },
+      units: [{ s: "eps", a: 0.12, mode: "poisson", mean: 30, min: 4, cvA: 0.3 }],
+      gor: "Kalın, gürültülü taban çizgisi üzerinde düzensiz aralıklı dikenler. İlk sapma yukarı (negatif) yönlüdür.",
+      dinle: "Kızgın yağ cızırtısı; arkada deniz kabuğu uğultusu.",
+      anlam: "Normal. İğne uç plak bölgesindedir ve hasta ağrı duyar. Fibrilasyondan ritmin düzensizliği ve başlangıç yönü ile ayrılır; iğneyi çekin." },
+    { id: "fasc", grp: "rest", ad: "Fasikülasyon", amp: 0.9, noise: 0.003, rec: { gain: 200, sweep: 10, trig: false },
+      units: [{ s: ["normal", "poly", "normalB"], a: 0.9, mode: "poisson", mean: 900, min: 250, cvA: 0.2 }],
+      gor: "MÜP boyutunda tek boşalımlar, öngörülemeyen aralıklarla. Arada ekran boş kalır.",
+      dinle: "Tek tek, düzensiz patlamalar: patlamış mısır.",
+      anlam: "Tek başına özgül değildir. Kök irritasyonunda görülebilir; anlamını eşlik eden denervasyon bulguları belirler." },
+    { id: "crd", grp: "rest", ad: "Kompleks tekrarlayıcı boşalım", amp: 0.4, noise: 0.003, rec: { gain: 100, sweep: 10, trig: false },
+      units: [{ s: "crd", a: 0.4, mode: "burst", hz: 30, on: 1400, off: 1200 }],
+      gor: "Çok dikenli aynı kompleks hiç değişmeden yineler. Boşalım aniden başlar, aniden kesilir.",
+      dinle: "Makine ya da motor sesi.",
+      anlam: "Kronik süreci gösterir; nörojen ya da miyopatik olabilir." },
+
+    { id: "ins", grp: "ozel", ad: "Normal insersiyon", noise: 0.003, rec: { gain: 100, sweep: 50, trig: false },
+      ek: "Patlama 300 ms'den kısa olmalı: 50 ms/karede 6 kareden kısa",
+      units: [{ s: ["fib", "eps", "psw"], a: 0.25, mode: "ins", P: 2000, W: 160, cvA: 0.5 }],
+      gor: "İğne her oynatıldığında (burada 2 saniyede bir) kısa bir diken patlaması olur ve ekran hemen sessizleşir.",
+      dinle: "Kısa, sert bir hışırtı; iğne durunca kesilir.",
+      anlam: "Normal. Patlama iğne hareketinden yalnız biraz uzun sürer. Hiç yoksa (azalmış insersiyon) iğne yağ ya da fibrotik dokudadır." },
+    { id: "insart", grp: "ozel", ad: "Artmış insersiyon", amp: 0.2, noise: 0.003, rec: { gain: 100, sweep: 50, trig: false },
+      ek: "Patlama 300 ms'yi (6 kareyi) aşıyor ama kendiliğinden sönüyor",
+      units: [{ s: ["fib", "eps", "psw"], a: 0.25, mode: "ins", P: 2600, W: 160, cvA: 0.5 }, { s: "psw", a: 0.2, mode: "decay", P: 2600, W: 160 }],
+      gor: "Patlama iğne durduktan sonra da sürer: pozitif keskin dalga dizisi giderek yavaşlar ve söner.",
+      dinle: "Hışırtının ardından yavaşlayan pop sesleri.",
+      anlam: "İğne durduktan sonra devam eden kas lifi potansiyelleri. Denervasyonun ilk haftalarında fibrilasyondan önce görülebilir; kalıcı fibrilasyondan farkı kendiliğinden sönmesidir." },
+    { id: "myot", grp: "ozel", ad: "Miyotonik boşalım", amp: 0.3, noise: 0.003, rec: { gain: 100, sweep: 50, trig: false },
+      units: [{ s: "psw", a: 0.3, mode: "myot" }],
+      gor: "Tek lif potansiyeli hızlanıp yavaşlar; amplitüd de birlikte büyüyüp küçülür. En yüksek hız 40–100 Hz arasındadır.",
+      dinle: "Pike yapan uçak ya da gaz verilen motosiklet.",
+      anlam: "Miyotonik distrofiler ve kanal hastalıkları. Fibrilasyona benzeyen şekilden değil, hız ve amplitüdün sürekli değişmesinden tanınır. Kronik denervasyonda kısa miyotonik boşalımlar görülebilir." },
+    { id: "nmt", grp: "ozel", ad: "Nöromiyotoni", amp: 0.8, noise: 0.003, rec: { gain: 200, sweep: 50, trig: false },
+      units: [{ s: "normalC", a: 0.8, mode: "nmt" }],
+      gor: "Tek bir motor ünite 150–300 Hz ile ateşler. Dizi aniden başlar, amplitüd giderek küçülür ve aniden biter.",
+      dinle: "Tiz bir ping ya da inilti.",
+      anlam: "Periferik sinir hipereksitabilitesi (Isaacs sendromu). EMG'de görülen en hızlı boşalımdır; istemli kasıyla ilişkisi yoktur." },
+    { id: "myok", grp: "ozel", ad: "Miyokimi", amp: 0.8, noise: 0.003, rec: { gain: 200, sweep: 100, trig: false },
+      units: [{ s: "normal", a: 0.8, mode: "grp", hz: 42, nMin: 3, nMax: 7, period: 420 }, { s: "normalB", a: 0.45, mode: "grp", hz: 30, nMin: 2, nMax: 4, period: 610 }],
+      gor: "Aynı MÜP'ün 2–7'li grupları, aralarında sessizlikle yarı düzenli yineler. Burada iki ayrı ünite kendi ritminde ateşliyor.",
+      dinle: "Uygun adım yürüyen asker sesi.",
+      anlam: "Grup içi hız değişkendir; gruplar saniyede 2–10 kez yineler. Radyasyon pleksopatisi için tipiktir; kök ile pleksus ayrımında değerlidir." },
+    { id: "kramp", grp: "ozel", ad: "Kramp boşalımı", amp: 1.2, noise: 0.004, rec: { gain: 500, sweep: 100, trig: false },
+      units: [["normal", 1.2], ["normalB", 0.8], ["normalC", 0.9], ["normal", 0.6], ["normalB", 1.0], ["normalC", 0.7]]
+        .map(function (p) { return { s: p[0], a: p[1], mode: "cramp", P: 5000, on: 3000 }; }),
+      gor: "Çok sayıda ünite giderek hızlanan, düzensiz ve yüksek frekanslı kesintisiz bir dizi oluşturur; sonra söner.",
+      dinle: "Giderek yükselen yoğun gürültü.",
+      anlam: "Çoğu kez istemli kasıdan sonra başlar ve ağrılı sertleşmeye eşlik eder. Tek başına patoloji göstermez." },
+    { id: "hum", grp: "ozel", ad: "50 Hz artefakt", hum: 0.12, units: [], noise: 0.003, rec: { gain: 100, sweep: 10, trig: false },
+      ek: "Periyot 20 ms: 10 ms/karede her dalga 2 kare",
+      gor: "Taban çizgisi düzgün bir sinüs dalgasıdır; 20 ms'de bir yineler.",
+      dinle: "Kesintisiz, pes bir uğultu.",
+      anlam: "Biyolojik değil, tekniktir: toprak elektrodunu, iğne kablosunu ve yakındaki elektrikli cihazları kontrol edin. Fibrilasyon ararken taban çizgisini okunmaz hale getirir." },
+
+    { id: "normal", grp: "mup", ad: "Normal MÜP", amp: 0.9, dur: 9, noise: 0.004, rec: { gain: 200, sweep: 10, trig: true },
+      units: [{ s: "normal", a: 0.9, hz: 8, cv: 0.08 }, { s: "normalB", a: 0.35, hz: 6.3, cv: 0.1 }],
+      gor: "Üç fazlı, keskin yükselen MÜP yaklaşık 8 Hz ile ateşler. Daha uzaktaki ikinci ünite küçük görünür.",
+      dinle: "Keskin, çıtırtılı tek tek vuruşlar.",
+      anlam: "0,9 mV ve 9 ms: normal sınırlar içinde (200 µV – 3 mV, 5–15 ms)." },
+    { id: "poly", grp: "mup", ad: "Erken reinnervasyon", amp: 0.9, dur: 14, noise: 0.004, rec: { gain: 200, sweep: 10, trig: true },
+      units: [{ s: "poly", a: 0.9, hz: 9, cv: 0.08, cvA: 0.1 }],
+      gor: "Taban çizgisini 6 kez kesen 7 fazlı MÜP; arkasında ona zaman kilitli küçük satellit potansiyel.",
+      dinle: "Tek vuruş yerine pürüzlü, kırık bir ses.",
+      anlam: "Amplitüd normal, faz sayısı artmış: başlangıçtan 6–26 hafta sonra beklenen bulgu. Tek kasta ve tek başına tanı koydurmaz." },
+    { id: "chronic", grp: "mup", ad: "Kronik nörojen MÜP", amp: 4.0, dur: 20, noise: 0.004, rec: { gain: 500, sweep: 10, trig: true },
+      units: [{ s: "chronic", a: 4.0, hz: 14, cv: 0.05 }],
+      gor: "4 mV'luk, 20 ms süren iri MÜP tek başına ve hızlı ateşler. 200'lük karede ekranı taşar.",
+      dinle: "Yüksek, tok ve hızlı vuruşlar.",
+      anlam: "2 mV çalışma eşiğinin iki katı. İri MÜP ile birlikte az sayıda ünitenin hızlı ateşlemesi kronik nörojen tutulumu gösterir; yaşını belirtmez." },
+    { id: "myo", grp: "mup", ad: "Miyopatik MÜP", amp: 0.25, dur: 3, noise: 0.004, rec: { gain: 200, sweep: 10, trig: true },
+      units: [{ s: "myo", a: 0.25, hz: 9, cv: 0.1 }, { s: "myoB", a: 0.18, hz: 10.5, cv: 0.1 }, { s: "myo", a: 0.13, hz: 8, cv: 0.1 }],
+      gor: "Kısa, küçük, çok fazlı MÜP'ler. Hafif kasıda bile birkaç ünite birden ateşler.",
+      dinle: "İnce, cızırtılı ses.",
+      anlam: "Ayırıcı tanı için: polifazi burada da vardır ama süre kısa, amplitüd düşüktür." },
+
+    { id: "giant", grp: "mup", ad: "Dev MÜP", amp: 9.0, dur: 28, noise: 0.004, rec: { gain: 1000, sweep: 10, trig: true },
+      units: [{ s: "giant", a: 9.0, hz: 13, cv: 0.05 }],
+      gor: "9 mV'luk, 28 ms süren MÜP. 500'lük karede 18 kare tutar ve ekranı taşar; 1 mV/karede sayılabilir.",
+      dinle: "Çok yüksek, tok vuruşlar.",
+      anlam: "5 mV üstü dev MÜP sayılır. Çok eski ve yaygın reinnervasyonu gösterir: geçirilmiş polio, ön boynuz hastalığı, çok kronik kök lezyonu." },
+    { id: "nasc", grp: "mup", ad: "Nasent MÜP", amp: 0.12, dur: 4, noise: 0.004, rec: { gain: 100, sweep: 10, trig: true },
+      units: [{ s: "myo", a: 0.12, hz: 16, cv: 0.06, cvA: 0.2, extra: [{ s: "sat", dt: 3.2, a: 0.05, jit: 0.3, block: 0.4 }] }],
+      gor: "Çok küçük, kısa, polifazik ve her boşalımda biraz değişen tek bir MÜP; tek başına hızlı ateşler.",
+      dinle: "İnce, hızlı tıkırtı.",
+      anlam: "Ağır denervasyondan sonra aksonal rejenerasyonun ilk işareti. Miyopatik MÜP'e benzer; ayıran rekrutmandır: burada tek ünite hızlı ateşler, miyopatide çok ünite birden gelir." },
+    { id: "unstable", grp: "mup", ad: "İnstabil MÜP", amp: 0.9, dur: 14, noise: 0.004, rec: { gain: 200, sweep: 10, trig: true },
+      units: [{ s: "polyCore", a: 0.9, hz: 9, cv: 0.08, cvA: 0.08, extra: [{ s: "sat", dt: 8.6, a: 0.3, jit: 0.3, block: 0.25 }, { s: "sat", dt: 13, a: 0.22, jit: 0.45, block: 0.45 }] }],
+      gor: "Tetik açıkken ana gövde yerinde durur ama arkadaki geç bileşenler her süpürmede yer değiştirir, bazen hiç çıkmaz.",
+      dinle: "Her vuruşta biraz farklı, pürüzlü ses.",
+      anlam: "Yeni kurulmuş, henüz olgunlaşmamış sinir-kas bağlantıları. Süren reinnervasyonu gösterir; sinir-kas kavşağı hastalıklarında da görülür. Stabil iri MÜP eski, instabil MÜP yeni sürece işaret eder." },
+    { id: "doublet", grp: "mup", ad: "Dublet", amp: 0.9, dur: 9, noise: 0.004, rec: { gain: 200, sweep: 10, trig: true },
+      units: [{ s: "normal", a: 0.9, hz: 7, cv: 0.1, extra: [{ s: "normal", dt: 5.5, rel: 0.85, jit: 0.3 }] }],
+      gor: "Aynı MÜP çok kısa aralıkla (burada yaklaşık 5 ms) iki kez üst üste ateşler; çift sonra yeniden gelir.",
+      dinle: "Çift vuruş: tak-tak, tak-tak.",
+      anlam: "Motor aksonun aşırı uyarılabilirliği: tetani, hiperventilasyon, periferik sinir hipereksitabilitesi. Polifazik MÜP sanılmamalıdır; iki bileşen aynı şekildedir." },
+
+    { id: "rnormal", grp: "rek", ad: "Normal rekrutman", amp: 1.1, noise: 0.006, rec: { gain: 500, sweep: 100, trig: false },
+      units: [{ s: "normal", a: 0.9, hz: 9, cv: 0.07 }, { s: "normalB", a: 0.6, hz: 11, cv: 0.07 }, { s: "normalC", a: 0.5, hz: 8, cv: 0.08 },
+              { s: "normal", a: 1.1, hz: 10, cv: 0.07 }, { s: "normalB", a: 0.4, hz: 7, cv: 0.08 }],
+      gor: "Beş farklı ünite birlikte ateşler; hiçbiri 11 Hz'i geçmez.",
+      dinle: "Dolgun, karışık uğultu.",
+      anlam: "Ekran 1 saniyedir: aynı MÜP'ün ekrandaki sayısı ateşleme hızını Hz olarak verir. En hızlı ünite 12–15 Hz'i geçmeden yenileri eklenir." },
+    { id: "rreduced", grp: "rek", ad: "Azalmış rekrutman", amp: 3.6, noise: 0.006, rec: { gain: 1000, sweep: 100, trig: false },
+      units: [{ s: "chronic", a: 3.6, hz: 24, cv: 0.03 }, { s: "chronicB", a: 2.2, hz: 17, cv: 0.04 }],
+      gor: "Yalnız iki iri ünite var; hızlı olan yaklaşık 24 Hz ile ateşler.",
+      dinle: "Hızlı, tek sesli tak-tak-tak; makineli tüfek benzeri.",
+      anlam: "Nörojen: akson kaybı veya ileti bloğu. 15 Hz üstü hız birden fazla iğne konumunda görülüyorsa anormaldir." },
+    { id: "rearly", grp: "rek", ad: "Erken rekrutman", amp: 0.3, noise: 0.006, rec: { gain: 200, sweep: 100, trig: false },
+      units: [[11, 0.3], [9, 0.22], [13, 0.18], [10, 0.26], [8, 0.2], [12, 0.15], [14, 0.24], [9.5, 0.17], [11.5, 0.21], [7.5, 0.19], [13.5, 0.16], [10.5, 0.23]]
+        .map(function (p, i) { return { s: i % 2 ? "myoB" : "myo", a: p[1], hz: p[0], cv: 0.12 }; }),
+      gor: "Hafif eforda çok sayıda küçük ünite ekranı doldurur.",
+      dinle: "Yoğun, ince hışırtı.",
+      anlam: "Miyopatik: her ünite az kuvvet ürettiği için aynı iş için çok sayıda ünite gerekir." },
+    { id: "rpoor", grp: "rek", ad: "Azalmış aktivasyon", amp: 0.9, noise: 0.006, rec: { gain: 500, sweep: 100, trig: false },
+      units: [{ s: "normal", a: 0.9, hz: 6, cv: 0.22 }, { s: "normalB", a: 0.6, hz: 4.5, cv: 0.25 }],
+      gor: "Az sayıda ünite var ama yavaş ve düzensiz ateşliyor: 4–6 Hz.",
+      dinle: "Seyrek, düzensiz vuruşlar.",
+      anlam: "Ağrı, kooperasyon eksikliği veya santral neden. Periferik lezyon göstermez; azalmış rekrutmandan hız ile ayrılır." },
+    { id: "racute", grp: "rek", ad: "Akut nörojen", amp: 0.9, noise: 0.006, rec: { gain: 500, sweep: 100, trig: false },
+      units: [{ s: "normal", a: 0.9, hz: 22, cv: 0.04 }, { s: "normalB", a: 0.6, hz: 15, cv: 0.05 }],
+      gor: "MÜP'lerin şekli ve boyutu normal; ama yalnız iki ünite var ve hızlı olan yaklaşık 22 Hz ile ateşliyor.",
+      dinle: "Hızlı ama ince tak-tak-tak.",
+      anlam: "Radikülopatinin ilk 3 haftası ya da ileti bloğu: reinnervasyon için henüz erken olduğundan MÜP büyümemiştir. Tek anormallik azalmış rekrutmandır." },
+    { id: "tremor", grp: "rek", ad: "Tremor", amp: 1.0, noise: 0.006, rec: { gain: 500, sweep: 100, trig: false },
+      units: [["normal", 1.0], ["normalB", 0.7], ["normalC", 0.8], ["normal", 0.5], ["normalB", 0.9]]
+        .map(function (p) { return { s: p[0], a: p[1], mode: "trem", P: 200 }; }),
+      gor: "Üniteler saniyede 5 kez, gruplar halinde birlikte ateşler; gruplar arasında ekran sessizdir.",
+      dinle: "Ritmik vuruşlar: vuuup-vuuup-vuuup.",
+      anlam: "Rekrutman ve MÜP şekli güvenilir değerlendirilemez: üst üste binen üniteler polifazik MÜP sanılabilir. Ekstremiteyi destekleyin, kasıyı azaltın." }
+  ];
+  var GRP_NAME = { gf: "Gerçekçi kayıt: istirahat", gm: "Gerçekçi kayıt: istemli kası", gi: "Gerçekçi kayıt: maksimum kası", ge: "Gerçekçi kayıt: evreleme (aynı konum, üç adım)", rest: "İstirahat", ozel: "İstirahat: özel boşalım", mup: "Şematik tek MÜP", rek: "Artan kası" };
+
+  // ---------- realistic graded scenes ----------
+  var FIB_DEF = ["0: süregen potansiyel yok", "+1: en az iki bölgede süregen tek tek potansiyeller", "+2: üç veya daha fazla bölgede orta sayıda",
+                 "+3: tüm bölgelerde çok sayıda", "+4: tüm bölgelerde taban çizgisini dolduran"];
+  var MUP_DEF = ["Normal: 0,3–1,5 mV, 8–12 ms; en hızlı ünite 12–15 Hz'i geçmeden yenisi eklenir",
+                 "+1 çok hafif: MÜP'lerin üçte biri 1,8–2,6 mV, 13–16 ms; en hızlı ünite ≈ 15 Hz",
+                 "+2 hafif: dört MÜP'ten üçü 2,4–4 mV, 15–19 ms; 3–4 ünite, ≈ 20 Hz",
+                 "+3 orta: hepsi 3,5–6 mV, 18–24 ms; 2 ünite, ≈ 25 Hz",
+                 "+4 ağır: dev MÜP 7–11 mV, 24–30 ms; tek ünite, 25–30 Hz"];
+  var FIB_GOR = ["Hiçbir konumda süregen potansiyel yok. İğne oynatılınca yalnız kısa insersiyon patlaması olur.",
+                 "Konumların yaklaşık yarısında bir-iki lif düzenli ateşler; diğer konumlar sessizdir.",
+                 "Konumların çoğunda birkaç lif birlikte ateşler; aralarında taban çizgisi rahatça seçilir.",
+                 "Her konumda çok sayıda lif ateşler; taban çizgisi yer yer görünür.",
+                 "Her konumda potansiyeller üst üste biner ve taban çizgisini tamamen doldurur."];
+  var MUP_GOR = ["Kuvvet arttıkça küçükten büyüğe yeni üniteler eklenir. Keskin, orta ve künt (uzak) üniteler birlikte görünür.",
+                 "Çoğu ünite normal; arada bir-iki hafif büyük ve uzun MÜP var. Seyrelme belirsizdir.",
+                 "Ünitelerin yarıdan fazlası iri ve uzun. Kuvvet artınca yeni ünite gelmekte gecikir, eldekiler hızlanır.",
+                 "Yalnız iki iri ünite kalmıştır; kuvvet arttıkça yenisi gelmez, hızları 25 Hz'e çıkar.",
+                 "Tek bir dev ünite tek başına ve çok hızlı ateşler: tek ünite paterni."];
+  var REAL = [];
+  [0, 1, 2, 3, 4].forEach(function (g) {
+    REAL.push({ id: "gf" + g, grp: "gf", ad: "Fibrilasyon / PKD " + (g ? "+" + g : "0"), btn: g ? "+" + g : "0", real: { kind: "fib", g: g }, units: [], noise: 0.003,
+      rec: { gain: 100, sweep: 10, trig: false }, gor: FIB_GOR[g],
+      dinle: g === 0 ? "Sessizlik; iğne oynarken kısa hışırtı." : (g < 3 ? "Seçilebilen, düzenli tıkırtılar ve poplar." : "Yoğun, kesintisiz yağmur sesi."),
+      anlam: "Derece tek ekrandan verilmez. İğneyi en az dört konuma oynatın: kaç konumda aktivite olduğu ve her konumdaki yoğunluk birlikte dereceyi belirler. Sayaç aşağıdadır." });
+  });
+  [0, 1, 2, 3, 4].forEach(function (g) {
+    REAL.push({ id: "gm" + g, grp: "gm", ad: g ? "Nörojen MÜP +" + g : "Normal kas", btn: g ? "+" + g : "Normal", real: { kind: "mup", g: g }, units: [], noise: 0.005,
+      rec: { gain: [200, 500, 500, 1000, 2000][g], sweep: 10, trig: true }, gor: MUP_GOR[g],
+      dinle: g < 2 ? "Farklı tonda vuruşların karışımı; keskin üniteler çıtırtılı, uzaktakiler boğuk." : "Az sayıda, tok ve hızlı vuruş.",
+      anlam: "Yalnız keskin (iğneye yakın) üniteleri ölçün; künt olanların amplitüdü de süresi de yanıltır. Dereceyi tek MÜP değil, birkaç konumda görülen MÜP'lerin çoğunluğu ve rekrutman birlikte belirler." });
+  });
+  // Interference pattern at maximal effort. surv = motor units left out of a pool of 30.
+  var IP_DEF = ["Tam: taban çizgisi kapalı, tek MÜP seçilmez; zarf 2–4 mV",
+                "Hafif seyrelme: taban çizgisi yer yer görünür, bazı MÜP'ler seçilir; zarf normal veya yüksek",
+                "Belirgin seyrelme: MÜP'ler tek tek seçilir; az sayıda iri ünite 25–30 Hz",
+                "Tek ünite (çit paterni): tek ünite, aralarında taban çizgisi; 30 Hz ve üstü",
+                "Miyopatik: düşük kuvvette bile tam; zarf düşük (1 mV altı)",
+                "Yetersiz efor veya santral: seyrelmiş ama üniteler yavaş (15 Hz altı) ve düzensiz; MÜP boyutu normal"];
+  var IP_CFG = [
+    { btn: "Tam", ad: "Tam interferans", surv: 30, enl: 0, rm: [20, 30], gain: 1000,
+      gor: "Maksimum kasıda üniteler üst üste biner: taban çizgisi hiçbir yerde görünmez, tek bir MÜP seçilemez. Kuvveti azaltınca desen seyrelir ve üniteler seçilir.",
+      dinle: "Dolgun, kesintisiz gürültü.",
+      anlam: "Normal. Tam demek için iki koşul birlikte aranır: taban çizgisi kapalı ve zarf 2–4 mV. Kuvvet maksimum değilse 'tam değil' demek hatadır." },
+    { btn: "Hafif seyrelme", ad: "Hafif seyrelmiş interferans", surv: 7, enl: 1, rm: [13, 19], gain: 1000,
+      gor: "Desen hâlâ yoğun ama yer yer taban çizgisi açılır ve bazı iri MÜP'ler tek tek seçilir. Zarf normalden yüksektir.",
+      dinle: "Gürültü içinde ayırt edilen tok vuruşlar.",
+      anlam: "Hafif-orta motor ünite kaybı. Tam ile en çok karışan basamak: süpürmeyi 10 ms/kareye alın; taban çizgisi görünüyorsa tam değildir." },
+    { btn: "Belirgin seyrelme", ad: "Belirgin seyrelmiş interferans", surv: 3, enl: 2, rm: [19, 25], gain: 2000,
+      gor: "Üç iri ünite maksimum eforda 25–30 Hz ile ateşler. MÜP'ler tek tek seçilir, aralarda taban çizgisi görünür; aynı şekiller tekrar tekrar geçer.",
+      dinle: "Hızlı, yüksek tak-tak-tak; birkaç ayrı ton.",
+      anlam: "İleri motor ünite kaybı ve reinnervasyon. Zarfın yüksekliği iri ünitelerden gelir; yoğunluk değil ünite sayısı azalmıştır." },
+    { btn: "Tek ünite", ad: "Tek ünite paterni", surv: 1, enl: 3, rm: [27, 31], gain: 2000,
+      gor: "Tek bir dev ünite düzenli aralıklarla, çit kazıkları gibi dizilir; her MÜP arasında taban çizgisi görünür. Kuvveti kısınca yalnızca hız düşer, yeni ünite eklenmez.",
+      dinle: "Makineli tüfek: tek tonlu, çok hızlı vuruşlar.",
+      anlam: "Çok ileri kayıp. Ünite maksimum eforda 30 Hz ve üstüne çıkar; hız yüksek olduğu için efor yeterlidir, eksik olan ünitedir." },
+    { btn: "Miyopatik", ad: "Miyopatik interferans", surv: 30, enl: 0, rm: [20, 30], myo: true, gain: 200,
+      gor: "Kuvvetin üçte birinde bile ekran dolar: taban çizgisi kapalıdır ama zarf düşüktür. Kuvveti kısın: desen yine dolu kalır.",
+      dinle: "İnce, cızırtılı, yoğun hışırtı.",
+      anlam: "Her ünite az kuvvet ürettiği için aynı iş çok sayıda üniteyle yapılır. Zayıf kasta tam ama düşük amplitüdlü interferans miyopati lehinedir." },
+    { btn: "Yetersiz efor", ad: "Yetersiz efor veya santral", surv: 30, enl: 0, rm: [20, 30], central: true, gain: 500,
+      gor: "Kuvvet sürgüsü sonda olsa da az sayıda ünite ateşler; hızları 15 Hz altında, düzensiz ve dalgalıdır. MÜP'ler normal boyuttadır; yalnız ilk (küçük) üniteler devrede olduğu için zarf düşük kalır.",
+      dinle: "Seyrek, düzensiz, dalgalanan vuruşlar.",
+      anlam: "Ağrı, kooperasyon eksikliği, üst motor nöron lezyonu. Nörojen seyrelmeden hız ile ayrılır: nörojende az ünite hızlı, burada az ünite yavaş ateşler." }
+  ];
+  IP_CFG.forEach(function (c, g) {
+    REAL.push({ id: "gi" + g, grp: "gi", ad: c.ad, btn: c.btn, real: { kind: "ip", g: g }, units: [], noise: 0.006,
+                rec: { gain: c.gain, sweep: 100, trig: false }, gor: c.gor, dinle: c.dinle, anlam: c.anlam });
+  });
+  // Staging of a neurogenic lesion: one needle site examined in three steps (rest, slight effort, maximal effort).
+  var EVRE_DEF = ["Hiperakut: istirahat sessiz, MÜP normal; tek bulgu seyrelme ve hızlı ateşleme",
+                  "Akut: fibrilasyon/PKD var (iri), MÜP normal, seyrelme",
+                  "Subakut: fibrilasyon/PKD sürer, MÜP polifazik ve kararsız, amplitüd normal veya düşük",
+                  "Kronik aktif: fibrilasyon/PKD var (küçük), MÜP iri ve uzun",
+                  "Kronik inaktif (sekel): istirahat sessiz, MÜP iri, uzun ve kararlı"];
+  var EVRE_CFG = [
+    { btn: "Hiperakut", ad: "Hiperakut nörojen tutulum", fib: [0, 0], fa: [0, 0], nS: 4, mup: "norm", gM: 500, sure: "kol-bacak kasında ilk 2–3 hafta",
+      mupTxt: "normal boyut ve şekil",
+      gor: "İstirahat sessiz, insersiyon normal. Hafif kasıda MÜP'ler normal. Maksimum kasıda ünite sayısı azdır ve kalanlar hızlı ateşler.",
+      dinle: "İstirahatte sessizlik; kasıda normal tok vuruşlar, ama az sayıda ve hızlı.",
+      anlam: "Akson hasarı yeni: fibrilasyon henüz çıkmamış, reinnervasyon başlamamış. Tek bulgu seyrelmedir; bu yüzden erken EMG 'normal' sanılabilir. Aynı tablo saf iletim bloğunda (demiyelinizan lezyon) kalıcı olur. Tekrar için en erken 3. hafta." },
+    { btn: "Akut", ad: "Akut nörojen tutulum (aktif denervasyon)", fib: [6, 9], fa: [0.15, 0.55], nS: 4, mup: "norm", gM: 500, sure: "yaklaşık 3 hafta – 2 ay",
+      mupTxt: "normal boyut ve şekil",
+      gor: "İstirahatte bol ve iri fibrilasyon ile pozitif keskin dalga. Hafif kasıda MÜP'ler hâlâ normal. Maksimum kasıda seyrelme.",
+      dinle: "İstirahatte yağmur damlası ve tok 'pop' sesleri; kasıda normal vuruşlar.",
+      anlam: "Aktif denervasyon var, reinnervasyon yok. MÜP şekli normal olduğu için lezyon yenidir. Fibrilasyon amplitüdü bu dönemde en yüksektir." },
+    { btn: "Subakut", ad: "Subakut nörojen tutulum (erken reinnervasyon)", fib: [3, 5], fa: [0.1, 0.35], nS: 4, mup: "nasc", gM: 500, sure: "yaklaşık 2 – 6 ay",
+      mupTxt: "polifazik, uzun süreli, kararsız; amplitüd normal veya düşük",
+      gor: "İstirahatte fibrilasyon sürer. Hafif kasıda MÜP'ler polifaziktir, süre uzamıştır ama amplitüd büyümemiştir; uydu bileşenler süpürmeden süpürmeye yer değiştirir veya düşer (tetik açıkken belirgin).",
+      dinle: "İstirahatte seyrek tıkırtı; kasıda cızırtılı, parçalı MÜP sesi.",
+      anlam: "Kollateral filizlenme başlamış ama olgunlaşmamış. Kararsız polifazik MÜP ile fibrilasyonun birlikteliği sürecin aylar içinde olduğunu gösterir. Amplitüd küçük olduğu için miyopatikle karışabilir: süre uzun ve rekrutman seyrelmiştir." },
+    { btn: "Kronik aktif", ad: "Kronik aktif nörojen tutulum", fib: [2, 3], fa: [0.03, 0.09], nS: 3, mup: "big", poly: 0.4, gM: 1000, sure: "6 aydan uzun, süren akson kaybı",
+      mupTxt: "iri (3–6 mV), uzun süreli, kararlı",
+      gor: "İstirahatte seyrek ve küçük fibrilasyon. Hafif kasıda MÜP'ler iri ve uzun, şekilleri süpürmeden süpürmeye aynı. Maksimum kasıda belirgin seyrelme.",
+      dinle: "İstirahatte seyrek, ince tıkırtı; kasıda yüksek, tok vuruşlar.",
+      anlam: "Reinnervasyon olgunlaşmış ama denervasyon sürüyor: ya lezyon ilerliyor ya da reinnervasyon yetişemiyor. Raporda 'kronik, aktif denervasyon bulguları eşlik ediyor' yazılır." },
+    { btn: "Kronik inaktif", ad: "Kronik inaktif nörojen tutulum (sekel)", fib: [0, 0], fa: [0, 0], nS: 3, mup: "big", poly: 0.15, gM: 1000, sure: "6 aydan uzun, eski lezyon",
+      mupTxt: "iri (3–6 mV), uzun süreli, kararlı, çoğu basit şekilli",
+      gor: "İstirahat sessiz. Hafif kasıda MÜP'ler iri, uzun ve kararlı. Maksimum kasıda seyrelme kalıcıdır.",
+      dinle: "İstirahatte sessizlik; kasıda yüksek, tok, düzenli vuruşlar.",
+      anlam: "Eski, tamamlanmış reinnervasyon. Aktif denervasyon yok; yeni yakınmayı tek başına açıklamaz. İri MÜP ve seyrelme ömür boyu kalabilir (eski radikülopati, polio sekeli)." }
+  ];
+  EVRE_CFG.forEach(function (c, g) {
+    REAL.push({ id: "ge" + g, grp: "ge", ad: c.ad, btn: c.btn, real: { kind: "evre", g: g }, units: [], noise: 0.006,
+                rec: { gain: 100, sweep: 10, trig: false }, gor: c.gor, dinle: c.dinle, anlam: c.anlam });
+  });
+  PATTERNS = REAL.concat(PATTERNS);
+  var GAINS = [50, 100, 200, 500, 1000, 2000], SWEEPS = [10, 20, 50, 100];
+  var SPEEDS = [{ v: 1, t: "Gerçek zaman" }, { v: 0.25, t: "1/4" }, { v: 0.1, t: "1/10" }];
+
+  // ---------- state ----------
+  var st = { pat: PATTERNS.filter(function (p) { return p.id === "gm0"; })[0], gain: 200, sweep: 10, speed: 1, running: true, trig: true, sound: false,
+             force: 0.35, site: null, tally: { n: 0, act: 0 }, quiz: null, reveal: false };
+  var simT = 0, events = [], units = [];
+  var cv = document.getElementById("scope"), ctx = cv.getContext("2d");
+  var N = 600, cFirst, cLast, cMin, cMax, cSet;
+  var sweepT0 = 0, cursorT = 0, lastCol = -1, sweeping = true;
+
+  function gauss() { var u = 1 - Math.random(), v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(6.283185307 * v); }
+  function fmt(x, d) { return x.toFixed(d === undefined ? 1 : d).replace(".", ","); }
+
+  // ---------- event generation ----------
+  function rawInterval(u) {
+    var x, tt, iv;
+    switch (u.mode) {
+      case "poisson": return u.min - Math.log(1 - Math.random()) * u.mean;
+      case "burst":
+        if (u.left > 0) { u.left--; return 1000 / u.hz; }
+        u.left = Math.round(u.on * u.hz / 1000);
+        return u.off * (0.8 + 0.5 * Math.random());
+      case "myot":       // run whose rate and amplitude wax and wane
+        x = (u.next - u.t0) / u.D;
+        if (x >= 1) { iv = 500 + Math.random() * 900; u.t0 = u.next + iv; u.D = 1300 + Math.random() * 1200; u.sNow = Math.random() < 0.5 ? "psw" : "fib"; return iv; }
+        return 1000 / (18 + 72 * Math.pow(Math.sin(Math.PI * Math.max(0, x)), 1.3));
+      case "nmt":        // very fast decrementing train with abrupt start and stop
+        x = (u.next - u.t0) / u.D;
+        if (x >= 1) { iv = 900 + Math.random() * 1400; u.t0 = u.next + iv; u.D = 500 + Math.random() * 900; u.f = 170 + Math.random() * 90; return iv; }
+        return (1000 / u.f) * (1 + gauss() * 0.04);
+      case "grp":        // grouped discharges of one unit
+        if (u.left > 0) { u.left--; return (1000 / u.hz) * (1 + gauss() * 0.06); }
+        u.left = u.nMin + ((Math.random() * (u.nMax - u.nMin + 1)) | 0) - 1;
+        return u.period * (1 + gauss() * 0.12);
+      case "cramp":      // episode: rate ramps up, then silence
+        tt = (u.next - u.t0) % u.P;
+        if (tt > u.on) return u.P - tt + Math.random() * 600;
+        return (1000 / (22 + 50 * tt / u.on)) * (1 + gauss() * 0.22);
+      case "trem":       // synchronised bursts
+        if (u.left > 0) { u.left--; return 13 + Math.random() * 10; }
+        u.left = (Math.random() * 3) | 0;
+        tt = (u.next - u.t0) % u.P;
+        return u.P - tt + Math.random() * 40;
+      case "ins":        // burst at each needle movement
+        tt = (u.next - u.t0) % u.P;
+        if (tt < u.W) return 2.5 - Math.log(1 - Math.random()) * 5;
+        return u.P - tt + Math.random() * 15;
+      case "vol":        // voluntary unit: rate follows the drive above its recruitment threshold
+        x = volRate(u, u.next);
+        return x > 0 ? (1000 / x) * (1 + gauss() * u.cv) : 70;
+      case "decay":      // train that slows and stops after each needle movement
+        tt = (u.next - u.t0) % u.P;
+        if (tt < u.W) { u.k = 0; return u.W - tt + 8; }
+        iv = 24 * Math.pow(1.14, u.k);
+        if (iv < 240 && tt + iv < u.P - 150) { u.k++; return iv; }
+        u.k = 0; return u.P - tt + u.W + 8;
+    }
+    return (1000 / u.hz) * (1 + gauss() * (u.cv || 0));
+  }
+  function interval(u) { return Math.max(1.5, rawInterval(u)); }
+  function ampFactor(u) {
+    var x;
+    if (u.mode === "myot") { x = (u.next - u.t0) / u.D; return 0.3 + 0.7 * Math.sin(Math.PI * Math.min(1, Math.max(0, x))); }
+    if (u.mode === "nmt") { x = (u.next - u.t0) / u.D; return 1 - 0.8 * Math.min(1, Math.max(0, x)); }
+    return 1 + gauss() * (u.cvA || 0);
+  }
+  // Drive needed for a given force rises when motor units are lost: the survivors must fire faster.
+  function drive(t) {
+    var sx = st.site, n = sx && sx.n ? sx.n : 8, pool = sx && sx.pool ? sx.pool : 8;
+    var E = st.force * Math.pow(pool / n, 0.75), fl = 1 + 0.07 * Math.sin(t / 270) + 0.05 * Math.sin(t / 97 + 1.3);
+    if (sx && sx.myo) E *= 2.6;                                   // weak units: the same force needs far more of them
+    if (sx && sx.central) { E = Math.min(E, 0.17); fl = 1 + 0.3 * Math.sin(t / 430) + 0.2 * Math.sin(t / 170 + 0.7); }
+    return E * fl;
+  }
+  function volRate(u, t) {
+    var x = drive(t) - u.th; if (x <= 0) return 0;
+    return Math.min(st.site && st.site.central ? 14 : 45, 5 + u.rmax * (1 - Math.exp(-x / 0.5)));
+  }
+  // What the eye judges on an interference pattern: how much of the time the baseline shows, and how tall the envelope is.
+  function ipStats() {
+    var n = 800, v = new Float32Array(n), i, j;
+    for (i = 0; i < n; i++) v[i] = sig(simT + i * 0.5);
+    var srt = Array.prototype.slice.call(v).sort(function (a, b) { return a - b; });
+    var env = srt[n - 5] - srt[4], thr = Math.max(0.02, 0.04 * env), flat = 0, w = 0;
+    for (i = 0; i + 10 <= n; i += 10, w++) {
+      var mn = 1e9, mx = -1e9;
+      for (j = i; j < i + 10; j++) { if (v[j] < mn) mn = v[j]; if (v[j] > mx) mx = v[j]; }
+      if (mx < thr && mn > -thr) flat++;
+    }
+    return { env: env, fr: flat / w };
+  }
+  function ri(a, b) { return a + ((Math.random() * (b - a + 1)) | 0); }
+  function buildSite(first) {
+    var r = st.pat.real, g = r.g, i;
+    units = [];
+    if (r.kind === "ip") {
+      var cfg = IP_CFG[g], pool = 30, all = [], sv = [];
+      for (i = 0; i < pool; i++) all.push(i);
+      for (i = 0; i < cfg.surv; i++) sv.push(all.splice((Math.random() * all.length) | 0, 1)[0]);
+      sv.sort(function (a, b) { return a - b; });
+      sv.forEach(function (k) {
+        var th = (k - sv[0]) / (pool - 1) * 0.8, rel = th / 0.8;
+        var amp = (0.45 + 2.2 * Math.pow(rel, 1.2)) * (0.75 + 0.5 * Math.random()), dur = 8 + 4 * Math.random();
+        var tpl = ["normal", "normalB", "normalC"][ri(0, 2)], nom = tpl === "normalC" ? 8 : 9, cls = Math.random() < 0.25 ? 0 : ri(1, 2);
+        if (cfg.enl) {
+          var A = [[1.6, 3.2], [3, 6], [6, 9]][cfg.enl - 1], D = [[12, 15], [13, 16], [13, 16]][cfg.enl - 1];
+          amp = A[0] + (A[1] - A[0]) * Math.random(); dur = D[0] + (D[1] - D[0]) * Math.random();
+          if (Math.random() < 0.3) { tpl = "polyCore"; nom = 14; }
+          cls = cfg.enl === 1 ? ri(0, 1) : 0;
+        }
+        if (cfg.myo) { amp *= 0.3; tpl = Math.random() < 0.5 ? "myo" : "myoB"; nom = 3.2; dur = 3 + 2 * Math.random(); }
+        var blur = [0, 0.3 + 0.2 * Math.random(), 0.7 + 0.6 * Math.random()][cls];
+        var df = [0.85 + 0.15 * Math.random(), 0.4 + 0.3 * Math.random(), 0.08 + 0.2 * Math.random()][cls];
+        units.push({ mode: "vol", s: variant(tpl, dur / nom, cfg.myo ? blur * 0.4 : blur), a: amp * df, th: th, rmax: cfg.rm[0] + (cfg.rm[1] - cfg.rm[0]) * Math.random(),
+                     cv: 0.1 + 0.05 * Math.random(), cvA: 0.05, cls: cls, next: simT + 150 + Math.random() * 100 });
+      });
+      st.site = { kind: "ip", n: cfg.surv, pool: pool, myo: !!cfg.myo, central: !!cfg.central, good: true };
+      return;
+    }
+    if (r.kind === "evre" || r.kind === "ws") {
+      var ec = r.kind === "evre" ? EVRE_CFG[g] : (st.ws && st.ws.cur ? st.ws.find[st.ws.cur] : null);
+      if (!ec) { st.site = { kind: "ws", n: 8, pool: 8, good: true, cnt: 0, nP: 0, fMax: 0 }; return; }
+      var fc = ec.fib[1] ? ri(ec.fib[0], ec.fib[1]) : 0, fP = 0, fMax = 0, sl = [0, 1, 2, 3, 4, 5, 6, 7], sv2 = [];
+      for (i = 0; i < fc; i++) {
+        var eP = Math.random() < 0.45; if (eP) fP++;
+        var fa = ec.fa[0] + (ec.fa[1] - ec.fa[0]) * Math.pow(Math.random(), 1.6), fhz = 1.5 + 8 * Math.pow(Math.random(), 1.3);
+        if (fa > fMax) fMax = fa;
+        units.push({ s: variant(eP ? "psw" : "fib", 0.85 + 0.3 * Math.random(), Math.random() < 0.4 ? 0.15 : 0), a: fa, hz: fhz,
+                     cv: 0.008 + 0.02 * Math.random(), next: simT + 150 + Math.random() * 1000 / fhz });
+      }
+      for (i = 0; i < ec.nS; i++) sv2.push(sl.splice((Math.random() * sl.length) | 0, 1)[0]);
+      sv2.sort(function (a, b) { return a - b; });
+      sv2.forEach(function (k, j) {
+        var th = (k - sv2[0]) * 0.1, amp = Math.min(1.5, (0.55 + th) * (0.75 + 0.55 * Math.random())), dur = 8 + 4 * Math.random();
+        var tpl = ["normal", "normalB", "normalC"][ri(0, 2)], nom = tpl === "normalC" ? 8 : 9, cls = j === 0 ? 0 : ri(0, 1), extra = null;
+        var hit = ec.frac == null ? (j === 0 || Math.random() < 0.7) : Math.random() < ec.frac;
+        if (ec.mup === "nasc" && hit) {
+          tpl = "polyCore"; nom = 14; dur = 14 + 5 * Math.random(); amp = 0.4 + 0.7 * Math.random();
+          extra = [{ s: "sat", dt: 6 + 3 * Math.random(), a: amp * 0.3, jit: 0.4, block: 0.3 }, { s: "sat", dt: 11 + 3 * Math.random(), a: amp * 0.22, jit: 0.5, block: 0.45 }];
+        }
+        if (ec.mup === "big" && (ec.frac == null || hit)) {
+          var bA = ec.bigA || [3, 6];
+          amp = bA[0] + (bA[1] - bA[0]) * Math.random(); dur = 16 + 6 * Math.random(); cls = 0;
+          if (Math.random() < ec.poly) { tpl = "chronicB"; nom = 18; }
+        }
+        var bl = [0, 0.3 + 0.2 * Math.random()][cls], df2 = [0.85 + 0.15 * Math.random(), 0.45 + 0.3 * Math.random()][cls];
+        units.push({ mode: "vol", s: variant(tpl, dur / nom, bl), a: amp * df2, th: th, rmax: 24 + 4 * Math.random(), cv: 0.09 + 0.04 * Math.random(), cvA: 0.05,
+                     cls: cls, extra: extra, next: simT + 150 + Math.random() * 150 });
+      });
+      st.site = { kind: r.kind, n: ec.nS, pool: 8, good: true, cnt: fc, nP: fP, fMax: fMax };
+      return;
+    }
+    if (r.kind === "fib") {
+      var cnt = 0, nP = 0;
+      if (Math.random() < [0, 0.5, 0.8, 1, 1][g]) cnt = [0, ri(1, 2), ri(3, 5), ri(8, 12), ri(36, 44)][g];
+      for (i = 0; i < cnt; i++) {
+        var isP = Math.random() < 0.45; if (isP) nP++;
+        var hz = g === 4 ? 3 + 9 * Math.random() : 1.5 + 9 * Math.pow(Math.random(), 1.3);
+        units.push({ s: variant(isP ? "psw" : "fib", 0.85 + 0.3 * Math.random(), Math.random() < 0.4 ? 0.15 : 0),
+                     a: (0.04 + 0.16 * Math.random()) * (Math.random() < 0.3 ? 0.5 : 1), hz: hz, cv: 0.008 + 0.02 * Math.random(),
+                     next: simT + 150 + Math.random() * 1000 / hz });
+      }
+      st.site = { kind: "fib", n: 8, cnt: cnt, nP: nP };
+      st.tally.n++; if (cnt) st.tally.act++;
+      return;
+    }
+    var nS = [8, 6, 4, 2, 1][g], idx = [0, 1, 2, 3, 4, 5, 6, 7], surv = [];
+    for (i = 0; i < nS; i++) surv.push(idx.splice((Math.random() * idx.length) | 0, 1)[0]);
+    surv.sort(function (a, b) { return a - b; });
+    var nE = [0, 2, 3, 2, 1][g], pick = [], pool2 = [];        // how many survivors are enlarged: 2/6, 3/4, 2/2, 1/1
+    for (i = 0; i < nS; i++) pool2.push(i);
+    for (i = 0; i < nE; i++) pick.push(pool2.splice((Math.random() * pool2.length) | 0, 1)[0]);
+    var poor = !first && nS > 1 && Math.random() < 0.2, list = [];
+    for (i = 0; i < nS; i++) {
+      var th = (surv[i] - surv[0]) * 0.1 + (i ? (Math.random() - 0.5) * 0.04 : 0);
+      var enl = pick.indexOf(i) >= 0;
+      var amp, dur, poly;
+      if (enl) {
+        var A = [[1.8, 2.6], [2.4, 4.0], [3.5, 6.0], [7, 11]][g - 1], D = [[13, 16], [15, 19], [18, 24], [24, 30]][g - 1];
+        amp = A[0] + (A[1] - A[0]) * Math.random(); dur = D[0] + (D[1] - D[0]) * Math.random(); poly = Math.random() < 0.35;
+      } else { amp = Math.min(1.5, (0.55 + 1.0 * th) * (0.75 + 0.55 * Math.random())); dur = 8 + 4 * Math.random(); poly = Math.random() < 0.1; }
+      list.push({ th: th, enl: enl, amp: amp, dur: dur, poly: poly, cls: poor ? ri(1, 2) : (Math.random() < 0.3 ? 0 : ri(1, 2)) });
+    }
+    if (!poor) list[ri(0, Math.min(3, nS) - 1)].cls = 0;      // at least one sharp unit among the first recruited
+    list.forEach(function (q) {
+      var tpl, nom;
+      if (g === 4 && q.enl) { tpl = q.poly ? "giant" : "normal"; nom = q.poly ? 28 : 9; }
+      else if (q.poly) { if (q.dur < 16) { tpl = "polyCore"; nom = 14; } else { tpl = "chronicB"; nom = 18; } }
+      else { tpl = ["normal", "normalB", "normalC"][ri(0, 2)]; nom = tpl === "normalC" ? 8 : 9; }
+      var blur = [0, 0.3 + 0.2 * Math.random(), 0.7 + 0.6 * Math.random()][q.cls];
+      var df = [0.85 + 0.15 * Math.random(), 0.4 + 0.3 * Math.random(), 0.08 + 0.2 * Math.random()][q.cls];
+      var tbl = variant(tpl, q.dur / nom, blur), m = measure(tbl);
+      units.push({ mode: "vol", s: tbl, a: q.amp * df, th: q.th, rmax: 20 + 2.5 * g, cv: 0.09 + 0.04 * Math.random(), cvA: 0.05,
+                   cls: q.cls, dur: m.dur, ph: m.ph, enl: q.enl, next: simT + 150 + Math.random() * 150 });
+    });
+    st.site = { kind: "mup", n: nS, good: !poor };
+  }
+  // Needle movement: a short injury burst; in denervated muscle it is followed by a train that slows and stops.
+  function insertionBurst(prolonged) {
+    var t = simT + 25, end = t + 100 + Math.random() * 60, names = ["fib", "eps", "psw"], k = 0, iv;
+    while (t < end) { events.push({ t: t, s: names[ri(0, 2)], a: 0.1 + 0.3 * Math.random(), big: 0 }); t += 2.5 - Math.log(1 - Math.random()) * 5; }
+    if (prolonged) { t = end + 8; while ((iv = 24 * Math.pow(1.14, k++)) < 240) { events.push({ t: t, s: "psw", a: 0.18, big: 0 }); t += iv; } }
+    events.sort(function (a, b) { return a.t - b.t; });
+  }
+  function moveNeedle() {
+    var r = st.pat.real;
+    events = [];
+    if (r) buildSite(false);
+    insertionBurst(r && ((r.kind === "fib" && r.g >= 2) || (r.kind === "evre" && EVRE_CFG[r.g].fib[1] > 0) ||
+                       (r.kind === "ws" && st.ws && st.ws.cur && st.ws.find[st.ws.cur].fib[1] > 0)));
+    audioNext = null; audioSim = null;
+    renderSite();
+  }
+  function resetUnits() {
+    events = [];
+    if (st.pat.real) { buildSite(true); return; }
+    st.site = null;
+    units = st.pat.units.map(function (u) {
+      var c = {}; for (var k in u) c[k] = u[k];
+      c.left = c.mode === "burst" ? Math.round(c.on * c.hz / 1000) : 0;
+      c.t0 = simT + 150; c.k = 0; c.sNow = "psw"; c.f = 200; c.D = c.mode === "nmt" ? 900 : 1800;
+      switch (c.mode) {
+        case "burst": case "myot": case "nmt": case "ins": c.next = c.t0; break;
+        case "decay": c.next = c.t0 + c.W + 8; break;
+        case "cramp": c.next = c.t0 + Math.random() * 500; break;
+        case "trem": c.next = c.t0 + Math.random() * 40; break;
+        case "grp": c.next = simT + Math.random() * c.period; break;
+        case "poisson": c.next = simT + Math.random() * Math.min(c.mean, 300); break;
+        default: c.next = simT + Math.random() * 1000 / c.hz;
+      }
+      return c;
+    });
+  }
+  function ensureEvents(until) {
+    var added = false;
+    for (var i = 0; i < units.length; i++) {
+      var u = units[i];
+      while (u.next < until) {
+        if (u.mode === "vol" && volRate(u, u.next) <= 0) { u.next += 70; continue; }
+        var s = u.mode === "myot" ? u.sNow : (Array.isArray(u.s) ? u.s[(Math.random() * u.s.length) | 0] : u.s);
+        var A = u.a * ampFactor(u);
+        events.push({ t: u.next, s: s, a: A, big: u.a });
+        if (u.extra) for (var j = 0; j < u.extra.length; j++) {
+          var p = u.extra[j];
+          if (Math.random() < (p.block || 0)) continue;
+          events.push({ t: u.next + p.dt + gauss() * (p.jit || 0), s: p.s, a: p.rel ? A * p.rel : p.a * (1 + gauss() * 0.1), big: 0 });
+        }
+        u.next += interval(u); added = true;
+      }
+    }
+    if (added) events.sort(function (a, b) { return a.t - b.t; });
+  }
+  function prune(before) {
+    var k = 0; while (k < events.length && events[k].t < before) k++;
+    if (k > 0) events.splice(0, k);
+  }
+  function sig(t) {
+    var v = st.pat.hum ? st.pat.hum * (Math.sin(0.314159265 * t) + 0.07 * Math.sin(0.942477796 * t + 0.6)) : 0;
+    for (var i = 0; i < events.length; i++) {
+      var d = t - events[i].t;
+      if (d < T_MIN) break;
+      if (d > T_MAX) continue;
+      v += events[i].a * shapeAt(events[i].s, d);
+    }
+    return v;
+  }
+
+  // ---------- sweep buffer ----------
+  function allocCols() {
+    cFirst = new Float32Array(N); cLast = new Float32Array(N); cMin = new Float32Array(N); cMax = new Float32Array(N); cSet = new Uint8Array(N);
+  }
+  function clearScreen() { cSet.fill(0); sweepT0 = simT; cursorT = simT; lastCol = -1; sweeping = true; }
+  function sweepDur() { return st.sweep * 10; }
+  function nextSweepStart(prevEnd) {
+    if (st.trig) {
+      var maxA = 0, i;
+      for (i = 0; i < units.length; i++) if (units[i].a > maxA && (units[i].mode !== "vol" || volRate(units[i], simT) > 0)) maxA = units[i].a;
+      var pre = 0.3 * sweepDur();
+      for (i = 0; i < events.length; i++) {
+        var e = events[i];
+        if (e.big >= 0.6 * maxA && e.t - pre >= prevEnd && e.t - pre < prevEnd + 1500) return e.t - pre;
+      }
+    }
+    return prevEnd;
+  }
+  function advance(dms) {
+    simT += dms;
+    ensureEvents(simT + 450);
+    var dur = sweepDur(), ds = Math.min(0.05, dur / N / 2), noise = st.pat.noise, guard = 0;
+    while (guard++ < 50) {
+      if (simT < sweepT0) { sweeping = false; break; }
+      sweeping = true;
+      if (cursorT < sweepT0) cursorT = sweepT0;
+      var end = Math.min(simT, sweepT0 + dur);
+      for (var t = cursorT; t < end; t += ds) {
+        var col = Math.floor((t - sweepT0) / dur * N); if (col >= N) break;
+        var v = sig(t) + gauss() * noise;
+        if (col !== lastCol) { cFirst[col] = cMin[col] = cMax[col] = v; cSet[col] = 1; lastCol = col; }
+        else { if (v < cMin[col]) cMin[col] = v; if (v > cMax[col]) cMax[col] = v; }
+        cLast[col] = v;
+      }
+      cursorT = end;
+      if (cursorT >= sweepT0 + dur - 1e-9) {
+        sweepT0 = nextSweepStart(sweepT0 + dur); cursorT = sweepT0; lastCol = -1;
+        if (simT < sweepT0) { sweeping = false; break; }
+      } else break;
+    }
+    prune(Math.min(cursorT, simT, audioSim === null ? Infinity : audioSim) - 60);
+  }
+
+  // ---------- drawing ----------
+  var SCREEN = "#0c1822", GRID = "rgba(140,178,205,0.20)", GRID_STRONG = "rgba(140,178,205,0.45)", TRACE = "#f6edd0", WARN = "#ffb061", DIM = "rgba(214,228,238,0.78)";
+  function resize() {
+    var cssW = Math.max(240, Math.round(cv.getBoundingClientRect().width)), dpr = Math.min(2, window.devicePixelRatio || 1);
+    var px = Math.round(cssW * dpr);
+    if (cv.width !== px) { cv.width = px; cv.height = px; }
+    var n = Math.max(240, Math.min(900, cssW));
+    if (n !== N || !cSet) { N = n; allocCols(); clearScreen(); }
+  }
+  function draw() {
+    var w = cv.width, h = cv.height, dv = h / 10, dh = w / 10, i, k = w / 720;
+    ctx.fillStyle = SCREEN; ctx.fillRect(0, 0, w, h);
+    ctx.lineWidth = Math.max(1, k);
+    for (i = 0; i <= 10; i++) {
+      ctx.strokeStyle = i === 5 ? GRID_STRONG : GRID;
+      ctx.beginPath(); ctx.moveTo(Math.round(i * dh) + 0.5, 0); ctx.lineTo(Math.round(i * dh) + 0.5, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, Math.round(i * dv) + 0.5); ctx.lineTo(w, Math.round(i * dv) + 0.5); ctx.stroke();
+    }
+    ctx.strokeStyle = GRID_STRONG; ctx.beginPath();
+    for (i = 1; i < 50; i++) {
+      if (i % 5 === 0) continue;
+      ctx.moveTo(i * dh / 5, h / 2 - 3 * k); ctx.lineTo(i * dh / 5, h / 2 + 3 * k);
+      ctx.moveTo(w / 2 - 3 * k, i * dv / 5); ctx.lineTo(w / 2 + 3 * k, i * dv / 5);
+    }
+    ctx.stroke();
+
+    var perDiv = st.gain / 1000, clipped = false;                      // mV per division
+    var cur = sweeping ? Math.floor((cursorT - sweepT0) / sweepDur() * N) : -1;
+    var gap = Math.max(6, Math.round(N * 0.022));
+    function Y(v) { var y = h / 2 - (v / perDiv) * dv; if (y < 1) { clipped = true; return 1; } if (y > h - 1) { clipped = true; return h - 1; } return y; }
+    ctx.strokeStyle = TRACE; ctx.lineWidth = 1.7 * k; ctx.lineJoin = "round"; ctx.lineCap = "round"; ctx.beginPath();
+    var pen = false;
+    for (i = 0; i < N; i++) {
+      if (!cSet[i] || (cur >= 0 && i > cur && i <= cur + gap)) { pen = false; continue; }
+      var x = (i + 0.5) / N * w;
+      if (!pen) { ctx.moveTo(x, Y(cFirst[i])); pen = true; } else ctx.lineTo(x, Y(cFirst[i]));
+      if (cMax[i] !== cMin[i]) { ctx.lineTo(x, Y(cMax[i])); ctx.lineTo(x, Y(cMin[i])); ctx.lineTo(x, Y(cLast[i])); }
+    }
+    ctx.stroke();
+
+    ctx.font = "500 " + Math.round(13 * k) + "px 'IBM Plex Mono', ui-monospace, monospace"; ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = DIM; ctx.textAlign = "left";
+    ctx.fillText(st.gain + " µV/kare  ·  " + st.sweep + " ms/kare", 10 * k, h - 10 * k);
+    ctx.textAlign = "right";
+    if (!st.running) ctx.fillText("DONDURULDU", w - 10 * k, h - 10 * k);
+    else if (st.trig) ctx.fillText("TETİK", w - 10 * k, h - 10 * k);
+    if (clipped) { ctx.fillStyle = WARN; ctx.fillText("EKRANI TAŞIYOR", w - 10 * k, 22 * k); }
+  }
+
+  // ---------- audio ----------
+  var actx = null, audioNext = null, audioSim = null, master = null;
+  function scheduleAudio() {
+    if (!actx || !st.sound || !st.running || st.speed !== 1) { audioNext = null; audioSim = null; return; }
+    var ct = actx.currentTime, sr = actx.sampleRate;
+    if (audioNext === null || audioNext < ct + 0.01) { audioNext = ct + 0.06; audioSim = simT + 60; }
+    var g = 0.5 * 200 / st.gain, noise = st.pat.noise;
+    while (audioNext < ct + 0.22) {
+      var n = Math.round(0.05 * sr), buf = actx.createBuffer(1, n, sr), d = buf.getChannelData(0);
+      ensureEvents(audioSim + 120);
+      for (var i = 0; i < n; i++) {
+        var v = (sig(audioSim + i * 1000 / sr) + gauss() * noise) * g;
+        d[i] = Math.tanh(v);
+      }
+      var src = actx.createBufferSource(); src.buffer = buf; src.connect(master); src.start(audioNext);
+      audioNext += n / sr; audioSim += n * 1000 / sr;
+    }
+  }
+  function toggleSound() {
+    if (!st.sound) {
+      try {
+        if (!actx) { var AC = window.AudioContext || window.webkitAudioContext; actx = new AC(); master = actx.createGain(); master.gain.value = 0.6; master.connect(actx.destination); }
+        if (actx.state === "suspended") actx.resume();
+        st.sound = true;
+      } catch (e) { st.sound = false; }
+    } else { st.sound = false; }
+    syncUI();
+  }
+
+  // ---------- UI ----------
+  function el(id) { return document.getElementById(id); }
+  function mkButtons(host, items, label, onPick) {
+    items.forEach(function (it) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = label(it); b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { onPick(it); }); b._item = it; host.appendChild(b);
+    });
+  }
+  function mark(host, test) { Array.prototype.forEach.call(host.children, function (b) { b.setAttribute("aria-pressed", test(b._item) ? "true" : "false"); }); }
+
+  function setPattern(p, keep, quiz) {
+    st.pat = p; st.quiz = quiz || null; st.reveal = false; st.tally = { n: 0, act: 0 };
+    if (p.real && p.real.kind !== "fib") { st.force = { ip: 1, mup: 0.35, evre: 0, ws: 0 }[p.real.kind]; el("rng-force").value = Math.round(st.force * 100); }
+    st.phase = 0;
+    if (!keep) { st.gain = p.rec.gain; st.sweep = p.rec.sweep; }
+    st.trig = p.rec.trig;
+    resetUnits(); clearScreen(); audioNext = null; audioSim = null; syncUI();
+  }
+  // The three steps of the needle examination on one site. Quiz mode uses the same neutral gains for every stage.
+  function setPhase(k) {
+    var isWs = st.pat.real.kind === "ws", c = isWs ? { gM: 500 } : EVRE_CFG[st.pat.real.g], quiz = isWs || (st.quiz && !st.quiz.done);
+    st.phase = k; st.force = [0, 0.3, 1][k]; el("rng-force").value = Math.round(st.force * 100);
+    st.gain = [100, quiz ? 500 : c.gM, quiz ? 1000 : c.gM * 2][k]; st.sweep = [10, 10, 100][k]; st.trig = k === 1;
+    clearScreen(); audioNext = null; audioSim = null; syncUI();
+  }
+  var CLS = ["keskin", "orta", "künt"];
+  function renderSite() {
+    var host = el("r-site"), p = st.pat, hide = st.quiz && !st.quiz.done;
+    host.textContent = "";
+    if (!p.real || p.real.kind === "ws") { host.hidden = true; return; }
+    host.hidden = false;
+    function add(tag, txt, cls) { var d = document.createElement(tag); d.textContent = txt; if (cls) d.className = cls; host.appendChild(d); return d; }
+    if (p.real.kind === "evre") {
+      if (hide) { add("div", "Üç adımı sırayla yapın: istirahat → hafif kası → maksimum kası. Her adımda tek soru: spontan aktivite var mı, MÜP şekli nasıl, kaç ünite kaç Hz ile ateşliyor? Ölçümler yanıttan sonra açılır.", "note"); return; }
+      var ev = EVRE_CFG[p.real.g], sv = st.site, ea = 0, ef = 0, nv = 0;
+      units.forEach(function (u) { if (u.mode !== "vol") return; nv++; var hz = volRate(u, simT); if (hz > 0) { ea++; if (hz > ef) ef = hz; } });
+      add("div", "1 İstirahat: " + (sv.cnt ? sv.cnt + " süregen kaynak (" + sv.nP + " PKD, " + (sv.cnt - sv.nP) + " fibrilasyon); en irisi yaklaşık " + Math.round(sv.fMax * 1000) + " µV" : "süregen potansiyel yok"));
+      add("div", "2 Hafif kası: MÜP " + ev.mupTxt);
+      add("div", "3 Rekrutman: " + (st.force > 0 ? "ateşleyen ünite " + ea + " / " + nv + "  ·  en hızlı " + (ef ? fmt(ef, 0) + " Hz" : "yok") : "kası yok; kuvveti artırın") + "  (sağlam kasta bu konumda 8 ünite olurdu)");
+      add("div", "Tipik süre: " + ev.sure + ". Süreler yaklaşıktır; kök lezyonunda paraspinal kaslar ekstremiteden önce tutulur ve önce düzelir.", "note");
+      return;
+    }
+    if (p.real.kind === "ip") {
+      if (hide) { add("div", "Ölçümler yanıttan sonra açılır. Önce taban çizgisine, sonra zarfa, sonra seçebildiğiniz ünitenin hızına bakın.", "note"); return; }
+      var q = ipStats(), sx0 = st.site, act = 0, fast = 0;
+      sx0.envS = sx0.envS == null ? q.env : 0.5 * sx0.envS + 0.5 * q.env; sx0.frS = sx0.frS == null ? q.fr : 0.5 * sx0.frS + 0.5 * q.fr;
+      var env = sx0.envS, fr = sx0.frS;
+      units.forEach(function (u) { var hz = volRate(u, simT); if (hz > 0) { act++; if (hz > fast) fast = hz; } });
+      add("div", "Kuvvet: %" + Math.round(st.force * 100) + (st.force < 0.9 ? "  ·  interferans maksimum kasıda yorumlanır" : "  ·  maksimum"));
+      add("div", "Taban çizgisi: " + (fr < 0.08 ? "kapalı" : fr < 0.35 ? "yer yer açık" : "çoğunlukla açık") + " (sürenin yaklaşık %" + Math.round(fr * 100) + " kadarı boş)");
+      add("div", "Zarf: yaklaşık " + fmt(env, 1) + " mV = " + fmt(env * 1000 / st.gain, 1) + " kare");
+      add("div", "Ateşleyen ünite: " + act + " / " + units.length + "  ·  en hızlı ünite: " + (fast ? fmt(fast, 0) + " Hz" : "yok"));
+      add("div", "Okuma sırası: efor maksimum mu → taban çizgisi kapalı mı → zarf kaç kare → seçilen ünite kaç Hz. Kararsız kalırsanız süpürmeyi 10–20 ms/kareye alın: taban çizgisi görünüyorsa tam değildir. Hız için ekranı dondurun: aynı MÜP 100 ms'lik bir karede kaç kez geçiyorsa, 10 katı Hz'dir.", "note");
+      return;
+    }
+    if (p.real.kind === "fib") {
+      var sx = st.site;
+      add("div", "Bakılan konum: " + st.tally.n + (hide ? "" : "  ·  aktivite olan: " + st.tally.act));
+      if (!hide) add("div", sx.cnt ? "Bu konumda " + sx.cnt + " lif ateşliyor: " + (sx.cnt - sx.nP) + " fibrilasyon, " + sx.nP + " pozitif keskin dalga." : "Bu konum sessiz.", "note");
+      if (st.tally.n < 4) add("div", "Karar için en az dört konuma bakın: İğneyi oynat.", "note");
+      return;
+    }
+    if (!st.site.good && !hide) add("div", "Bu konumda keskin MÜP yok: ölçmeyin, iğneyi oynatın.", "verdict bad");
+    if (hide) { add("div", "Ünite listesi yanıttan sonra açılır. İğneyi oynatıp kuvveti değiştirerek karar verin.", "note"); return; }
+    if (!st.reveal) {
+      var b = add("button", "Bu konumdaki üniteleri göster"); b.type = "button";
+      b.addEventListener("click", function () { st.reveal = true; renderSite(); });
+      return;
+    }
+    var wrap = document.createElement("div"); wrap.className = "tablewrap"; host.appendChild(wrap);
+    var tb = document.createElement("table"), tr = document.createElement("tr");
+    ["Ünite", "mV", "Kare", "ms", "Faz", "Hz"].forEach(function (h) { var th = document.createElement("th"); th.textContent = h; tr.appendChild(th); });
+    tb.appendChild(tr);
+    units.slice().sort(function (a, b) { return b.a - a.a; }).forEach(function (u) {
+      var r = document.createElement("tr"), hz = volRate(u, simT); if (u.cls === 2) r.className = "dull";
+      [CLS[u.cls] + (u.cls === 0 ? ": ölçülür" : ""), fmt(u.a, 2), fmt(u.a * 1000 / st.gain, 1), fmt(u.dur, 0), String(u.ph), hz > 0 ? fmt(hz, 0) : "sessiz"]
+        .forEach(function (v) { var td = document.createElement("td"); td.textContent = v; r.appendChild(td); });
+      tb.appendChild(r);
+    });
+    wrap.appendChild(tb);
+    add("div", "Bu kuvvette ateşleyen ünite: " + units.filter(function (u) { return volRate(u, simT) > 0; }).length + " / " + units.length + ". Künt ünitelerin değerleri iğne uzakta olduğu için yanıltıcıdır.", "note");
+  }
+  function syncUI() {
+    var p = st.pat, hide = st.quiz && !st.quiz.done;
+    ["gf", "gm", "gi", "ge", "rest", "ozel", "mup", "rek"].forEach(function (g) { mark(el("pat-" + g), function (q) { return q === p && !hide; }); });
+    mark(el("seg-gain"), function (g) { return g === st.gain; });
+    mark(el("seg-sweep"), function (s) { return s === st.sweep; });
+    mark(el("seg-speed"), function (s) { return s.v === st.speed; });
+    el("btn-run").textContent = st.running ? "Dondur" : "Devam et";
+    el("btn-trig").setAttribute("aria-pressed", st.trig ? "true" : "false");
+    el("btn-sound").setAttribute("aria-pressed", st.sound ? "true" : "false");
+    var volOn = !!(p.real && p.real.kind !== "fib");
+    el("rng-force").disabled = !volOn; el("force-val").textContent = volOn ? "%" + Math.round(st.force * 100) : "yok";
+    var isWs = !!(p.real && p.real.kind === "ws");
+    document.body.classList.toggle("ws-on", isWs);
+    el("card-read").hidden = isWs; el("ws-card").hidden = !isWs; el("card-pats").hidden = isWs; el("ws-exit").hidden = !isWs; el("ws-back").hidden = !isWs;
+    if (isWs) {
+      el("row-phase").hidden = false;
+      Array.prototype.forEach.call(el("seg-phase").children, function (b, k) { b.setAttribute("aria-pressed", st.phase === k ? "true" : "false"); });
+      renderWs(); return;
+    }
+    el("r-grp").textContent = GRP_NAME[p.grp];
+    el("r-ad").textContent = hide ? { fib: "Fibrilasyon / PKD: hangi derece?", mup: "Nörojen MÜP: hangi derece?", ip: "İnterferans: hangi patern?", evre: "Nörojen tutulum: hangi evre?" }[p.real.kind] : p.ad;
+    var isEv = !!(p.real && p.real.kind === "evre");
+    el("row-phase").hidden = !isEv;
+    Array.prototype.forEach.call(el("seg-phase").children, function (b, k) { b.setAttribute("aria-pressed", isEv && st.phase === k ? "true" : "false"); });
+    el("r-dl").hidden = !!hide;
+    el("r-gor").textContent = p.gor; el("r-dinle").textContent = p.dinle; el("r-anlam").textContent = p.anlam;
+    var c = el("r-calc"); c.textContent = "";
+    function line(txt, cls) { var d = document.createElement("div"); d.textContent = txt; if (cls) d.className = cls; c.appendChild(d); }
+    var qz = el("r-quiz"); qz.textContent = ""; qz.hidden = !st.quiz;
+    if (st.quiz) {
+      if (hide) {
+        PATTERNS.filter(function (q) { return q.grp === p.grp; }).forEach(function (q) {
+          var b = document.createElement("button"); b.type = "button"; b.textContent = q.btn;
+          b.addEventListener("click", function () { st.quiz.done = true; st.quiz.ans = q.real.g; st.reveal = true; syncUI(); });
+          qz.appendChild(b);
+        });
+      } else {
+        var grpPats = PATTERNS.filter(function (q) { return q.grp === p.grp; });
+        var ok = st.quiz.ans === p.real.g, v = document.createElement("span");
+        v.className = "verdict" + (ok ? "" : " bad");
+        v.textContent = ok ? "Doğru." : "Yanıtınız \"" + grpPats[st.quiz.ans].btn + "\" idi; doğrusu \"" + p.btn + "\".";
+        qz.appendChild(v);
+        var again = document.createElement("button"); again.type = "button"; again.textContent = "Yeni soru";
+        again.addEventListener("click", function () { startQuiz(p.grp); }); qz.appendChild(again);
+      }
+    }
+    if (p.real) {
+      ({ fib: FIB_DEF, mup: MUP_DEF, ip: IP_DEF, evre: EVRE_DEF }[p.real.kind]).forEach(function (t, g) { line((g === p.real.g && !hide ? "▸ " : "  ") + t, g === p.real.g && !hide ? "on" : "off"); });
+      if (p.real.kind === "mup") line("Bu kazançta 2 mV = " + fmt(2000 / st.gain, 1) + " kare, 5 mV = " + fmt(5000 / st.gain, 1) + " kare");
+      if (p.real.kind === "evre") line("Fibrilasyon amplitüdü yaş verir: ilk 2 ayda ortalama 0,6 mV, 1 yıldan sonra 100 µV'u geçmez (Kraft 1990)");
+      if (p.real.kind === "ip") line("Bu kazançta normal zarf (2–4 mV) = " + fmt(2000 / st.gain, 1) + "–" + fmt(4000 / st.gain, 1) + " kare");
+    } else {
+      if (p.amp) {
+        var n = p.amp * 1000 / st.gain;
+        line("Amplitüd: " + fmt(p.amp, p.amp < 1 ? 2 : 1) + " mV ÷ " + st.gain + " µV = " + fmt(n, n < 10 ? 1 : 0) + " kare");
+        if (n > 10) line("Ekranı taşar: bir üst kazanca çıkın.", "flag");
+        else if (n < 0.5) line("Yarım kareden küçük: bu kazançta gözden kaçar.", "flag");
+      } else if (!p.ek) line("Ölçülecek potansiyel yok.");
+      if (p.ek) line(p.ek);
+      if (p.dur) { var m = p.dur / st.sweep; line("Süre: " + p.dur + " ms ÷ " + st.sweep + " ms = " + fmt(m, 1) + " kare"); }
+      if (p.grp === "rek" && st.sweep === 100) line("Ekran = 1 saniye: MÜP sayısı = Hz");
+    }
+    renderSite();
+  }
+  // ---------- radiculopathy workshop: a hidden case, a limb to needle, and a diagnosis to commit to ----------
+  var WS_PAT = { id: "ws", grp: "ws", ad: "Radikülopati atölyesi", real: { kind: "ws", g: 0 }, units: [], noise: 0.006,
+                 rec: { gain: 100, sweep: 10, trig: false }, gor: "", dinle: "", anlam: "" };
+  var WS_FIG = {"up": {"vb": "-38 0 426 420", "body": "<path d=\"M22.0,6.0 C35.3,-1.3 44.7,-0.7 58.0,6.0 C71.3,12.7 48.0,14.0 62.0,26.0 C76.0,38.0 88.0,14.0 100.0,42.0 C112.0,70.0 100.7,52.3 98.0,110.0 C95.3,167.7 122.0,180.0 92.0,215.0 C62.0,250.0 36.0,272.0 8.0,215.0 C-20.0,158.0 4.7,106.3 8.0,44.0 C11.3,-18.3 13.3,40.7 18.0,28.0 C22.7,15.3 8.7,13.3 22.0,6.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><path d=\"M100.0,44.0 C106.3,25.3 109.0,37.3 118.0,56.0 C127.0,74.7 123.3,65.3 127.0,100.0 C130.7,134.7 127.0,126.7 129.0,160.0 C131.0,193.3 129.7,170.0 133.0,200.0 C136.3,230.0 136.3,216.7 139.0,250.0 C141.7,283.3 140.3,273.3 141.0,300.0 C141.7,326.7 139.0,313.3 141.0,330.0 C143.0,346.7 145.3,332.0 147.0,350.0 C148.7,368.0 152.3,370.0 146.0,384.0 C139.7,398.0 136.3,399.3 128.0,392.0 C119.7,384.7 123.0,382.7 121.0,362.0 C119.0,341.3 123.7,354.0 122.0,330.0 C120.3,306.0 119.3,320.0 116.0,290.0 C112.7,260.0 114.0,268.3 112.0,240.0 C110.0,211.7 112.7,231.7 110.0,205.0 C107.3,178.3 107.7,191.0 104.0,160.0 C100.3,129.0 100.3,150.7 99.0,112.0 C97.7,73.3 93.7,62.7 100.0,44.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><path d=\"M50.0,68.0 C56.3,38.0 85.0,32.7 93.0,60.0 C101.0,87.3 88.3,147.3 74.0,150.0 C59.7,152.7 43.7,98.0 50.0,68.0 Z\" fill=\"none\" stroke=\"#c9a686\" stroke-width=\"1.1\" stroke-dasharray=\"4 3\"/><line x1=\"34\" y1=\"8\" x2=\"34\" y2=\"212\" stroke=\"#c9a686\" stroke-width=\"1.1\" stroke-dasharray=\"2 4\"/><path d=\"M328.0,6.0 C314.7,-1.3 305.3,-0.7 292.0,6.0 C278.7,12.7 302.0,14.0 288.0,26.0 C274.0,38.0 262.0,14.0 250.0,42.0 C238.0,70.0 249.3,52.3 252.0,110.0 C254.7,167.7 228.0,180.0 258.0,215.0 C288.0,250.0 314.0,272.0 342.0,215.0 C370.0,158.0 345.3,106.3 342.0,44.0 C338.7,-18.3 336.7,40.7 332.0,28.0 C327.3,15.3 341.3,13.3 328.0,6.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><path d=\"M250.0,44.0 C243.7,25.3 241.0,37.3 232.0,56.0 C223.0,74.7 226.7,65.3 223.0,100.0 C219.3,134.7 223.0,126.7 221.0,160.0 C219.0,193.3 220.3,170.0 217.0,200.0 C213.7,230.0 213.7,216.7 211.0,250.0 C208.3,283.3 209.7,273.3 209.0,300.0 C208.3,326.7 211.0,313.3 209.0,330.0 C207.0,346.7 204.7,332.0 203.0,350.0 C201.3,368.0 197.7,370.0 204.0,384.0 C210.3,398.0 213.7,399.3 222.0,392.0 C230.3,384.7 227.0,382.7 229.0,362.0 C231.0,341.3 226.3,354.0 228.0,330.0 C229.7,306.0 230.7,320.0 234.0,290.0 C237.3,260.0 236.0,268.3 238.0,240.0 C240.0,211.7 237.3,231.7 240.0,205.0 C242.7,178.3 242.3,191.0 246.0,160.0 C249.7,129.0 249.7,150.7 251.0,112.0 C252.3,73.3 256.3,62.7 250.0,44.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><text x=\"75\" y=\"412\" class=\"cap\" text-anchor=\"middle\">ARKADAN</text><text x=\"275\" y=\"412\" class=\"cap\" text-anchor=\"middle\">ÖNDEN</text><text x=\"34\" y=\"226\" class=\"cap\" text-anchor=\"middle\" style=\"font-size:8px\">orta hat</text>"}, "lo": {"vb": "-38 -44 426 474", "body": "<path d=\"M30.0,12.0 C45.3,-2.7 42.7,6.0 70.0,6.0 C97.3,6.0 100.7,-9.3 112.0,12.0 C123.3,33.3 110.7,27.3 104.0,70.0 C97.3,112.7 98.3,95.0 92.0,140.0 C85.7,185.0 86.7,168.3 85.0,205.0 C83.3,241.7 89.7,203.3 87.0,250.0 C84.3,296.7 79.0,304.3 77.0,345.0 C75.0,385.7 81.3,353.0 81.0,372.0 C80.7,391.0 89.7,392.0 76.0,402.0 C62.3,412.0 51.0,412.0 40.0,402.0 C29.0,392.0 39.3,391.0 43.0,372.0 C46.7,353.0 52.3,384.0 51.0,345.0 C49.7,306.0 41.7,301.7 39.0,255.0 C36.3,208.3 47.7,250.0 43.0,205.0 C38.3,160.0 31.3,171.7 25.0,120.0 C18.7,68.3 22.3,86.0 24.0,50.0 C25.7,14.0 14.7,26.7 30.0,12.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><path d=\"M320.0,12.0 C304.7,-2.7 307.3,6.0 280.0,6.0 C252.7,6.0 249.3,-9.3 238.0,12.0 C226.7,33.3 239.3,27.3 246.0,70.0 C252.7,112.7 251.7,95.0 258.0,140.0 C264.3,185.0 263.3,168.3 265.0,205.0 C266.7,241.7 260.3,203.3 263.0,250.0 C265.7,296.7 271.0,304.3 273.0,345.0 C275.0,385.7 268.7,353.0 269.0,372.0 C269.3,391.0 260.3,392.0 274.0,402.0 C287.7,412.0 299.0,412.0 310.0,402.0 C321.0,392.0 310.7,391.0 307.0,372.0 C303.3,353.0 297.7,384.0 299.0,345.0 C300.3,306.0 308.3,301.7 311.0,255.0 C313.7,208.3 302.3,250.0 307.0,205.0 C311.7,160.0 318.7,171.7 325.0,120.0 C331.3,68.3 327.7,86.0 326.0,50.0 C324.3,14.0 335.3,26.7 320.0,12.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><path d=\"M238.0,-40.0 C266.0,-58.0 293.3,-58.0 322.0,-40.0 C350.7,-22.0 352.0,-4.0 324.0,14.0 C296.0,32.0 266.7,32.0 238.0,14.0 C209.3,-4.0 210.0,-22.0 238.0,-40.0 Z\" fill=\"#f1dfcd\" stroke=\"#c9a686\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"-38\" x2=\"240\" y2=\"60\" stroke=\"#c9a686\" stroke-width=\"1.1\" stroke-dasharray=\"2 4\"/><path d=\"M262.0,70.0 C274.7,74.0 280.0,85.3 300.0,82.0 C320.0,78.7 314.7,67.3 322.0,60.0\" fill=\"none\" stroke=\"#c9a686\" stroke-width=\"1.1\" stroke-dasharray=\"4 3\"/><path d=\"M46.0,205.0 C46.0,198.3 50.0,196.0 62.0,196.0 C74.0,196.0 82.0,198.3 82.0,205.0 C82.0,211.7 74.0,216.0 62.0,216.0 C50.0,216.0 46.0,211.7 46.0,205.0 Z\" fill=\"none\" stroke=\"#c9a686\" stroke-width=\"1.1\" stroke-dasharray=\"4 3\"/><text x=\"68\" y=\"422\" class=\"cap\" text-anchor=\"middle\">ÖNDEN</text><text x=\"282\" y=\"422\" class=\"cap\" text-anchor=\"middle\">ARKADAN</text>"}};
+  // x, y: needle point on the figure; s: which side the label sits on (1 right, -1 left)
+  var WS_MUS = {
+    up: [
+      { id: "cps", ad: "Servikal paraspinal", k: "Paraspinal", sinir: "Arka ramus", r: {}, para: true, x: 44, y: 30, s: 1 },
+      { id: "rho", ad: "Romboid majör", k: "Romboid", sinir: "Dorsal skapular", r: { C5: 1 }, x: 44, y: 104, s: -1 },
+      { id: "inf", ad: "İnfraspinatus", k: "İnfraspinatus", sinir: "Supraskapular", r: { C5: 1, C6: 1 }, x: 72, y: 96, s: 1 },
+      { id: "tri", ad: "Triseps", k: "Triseps", sinir: "Radial", r: { C6: 0.5, C7: 1, C8: 0.5 }, x: 115, y: 150, s: 1 },
+      { id: "edc", ad: "Ekstensör digitorum komunis", k: "EDK", sinir: "Radial (posterior interosseöz)", r: { C7: 1, C8: 1 }, x: 127, y: 240, s: 1 },
+      { id: "eip", ad: "Ekstensör indisis proprius", k: "EİP", sinir: "Radial (posterior interosseöz)", r: { C7: 0.5, C8: 1 }, x: 130, y: 305, s: 1 },
+      { id: "fdi", ad: "Birinci dorsal interosseöz", k: "1. DİO", sinir: "Ulnar", r: { C8: 1, T1: 1 }, x: 138, y: 358, s: 1 },
+      { id: "del", ad: "Deltoid", k: "Deltoid", sinir: "Aksiller", r: { C5: 1, C6: 1 }, x: 231, y: 80, s: -1 },
+      { id: "bic", ad: "Biseps", k: "Biseps", sinir: "Muskulokutan", r: { C5: 1, C6: 1 }, x: 236, y: 140, s: -1 },
+      { id: "brd", ad: "Brakiyoradiyalis", k: "BR", sinir: "Radial", r: { C5: 1, C6: 1 }, x: 216, y: 230, s: -1 },
+      { id: "pt", ad: "Pronator teres", k: "PT", sinir: "Median", r: { C6: 1, C7: 1 }, x: 233, y: 222, s: 1 },
+      { id: "fcr", ad: "Fleksör karpi radialis", k: "FKR", sinir: "Median", r: { C6: 1, C7: 1 }, x: 228, y: 256, s: -1 },
+      { id: "fcu", ad: "Fleksör karpi ulnaris", k: "FKU", sinir: "Ulnar", r: { C7: 0.5, C8: 1, T1: 0.5 }, x: 236, y: 276, s: 1 },
+      { id: "fpl", ad: "Fleksör pollisis longus", k: "FPL", sinir: "Median (anterior interosseöz)", r: { C7: 0.5, C8: 1, T1: 0.5 }, x: 217, y: 302, s: -1 },
+      { id: "apb", ad: "Abduktor pollisis brevis", k: "APB", sinir: "Median", r: { C8: 0.5, T1: 1 }, x: 211, y: 352, s: -1 }
+    ],
+    lo: [
+      { id: "ilio", ad: "İliopsoas", k: "İliopsoas", sinir: "Femoral, lumbar pleksus", r: { L2: 1, L3: 1, L4: 0.5 }, x: 60, y: 48, s: -1 },
+      { id: "add", ad: "Adduktor longus", k: "Adduktor", sinir: "Obturator", r: { L2: 1, L3: 1, L4: 0.5 }, x: 86, y: 96, s: 1 },
+      { id: "vl", ad: "Vastus lateralis", k: "Vastus lat.", sinir: "Femoral", r: { L2: 0.5, L3: 1, L4: 1 }, x: 40, y: 150, s: -1 },
+      { id: "pl", ad: "Peroneus longus", k: "Peroneus l.", sinir: "Yüzeyel peroneal", r: { L5: 1, S1: 0.5 }, x: 44, y: 270, s: -1 },
+      { id: "ta", ad: "Tibialis anterior", k: "Tib. ant.", sinir: "Derin peroneal", r: { L4: 0.5, L5: 1 }, x: 62, y: 248, s: 1 },
+      { id: "ehl", ad: "Ekstensör hallusis longus", k: "EHL", sinir: "Derin peroneal", r: { L5: 1, S1: 0.5 }, x: 62, y: 318, s: 1 },
+      { id: "lps", ad: "Lumbosakral paraspinal", k: "Paraspinal", sinir: "Arka ramus", r: {}, para: true, x: 254, y: -16, s: 1 },
+      { id: "gmed", ad: "Gluteus medius", k: "Glut. medius", sinir: "Superior gluteal", r: { L4: 0.5, L5: 1, S1: 0.5 }, x: 308, y: 30, s: 1 },
+      { id: "gmax", ad: "Gluteus maksimus", k: "Glut. maks.", sinir: "İnferior gluteal", r: { L5: 0.5, S1: 1, S2: 0.5 }, x: 280, y: 60, s: -1 },
+      { id: "st", ad: "Semitendinosus", k: "Semitend.", sinir: "Siyatik (tibial bölüm)", r: { L5: 1, S1: 0.5 }, x: 270, y: 140, s: -1 },
+      { id: "bfs", ad: "Biseps femoris kısa baş", k: "BF kısa baş", sinir: "Siyatik (peroneal bölüm)", r: { S1: 1 }, x: 302, y: 182, s: 1 },
+      { id: "mg", ad: "Medial gastroknemius", k: "Med. gastrok.", sinir: "Tibial", r: { S1: 1, S2: 0.5 }, x: 274, y: 250, s: -1 },
+      { id: "tp", ad: "Tibialis posterior", k: "Tib. post.", sinir: "Tibial", r: { L5: 1, S1: 0.5 }, x: 268, y: 296, s: -1 }
+    ]
+  };
+  var WS_LES = {
+    up: [
+      { id: "C5", btn: "C5", ad: "C5 radikülopatisi", root: ["C5"], anc: ["del", "inf"],
+        yak: "boyundan omuza ve kolun dış yüzüne yayılan ağrı", mua: "omuz abduksiyonu zayıf, biseps refleksi azalmış",
+        not: "Romboid yalnız C5'ten beslenir; tutulması lezyonu C5'e çeker. Pronator teres ve triseps normal kalır." },
+      { id: "C6", btn: "C6", ad: "C6 radikülopatisi", root: ["C6"], anc: ["bic", "pt"],
+        yak: "boyundan başparmağa yayılan ağrı ve uyuşma", mua: "dirsek fleksiyonu zayıf, brakiyoradiyalis refleksi azalmış",
+        not: "C6'nın kendine özgü kası yoktur: C5 paternine pronator teres veya FKR eklenir, romboid normal kalır. Bu yüzden C5 ya da C7 ile en çok karışan düzeydir." },
+      { id: "C7", btn: "C7", ad: "C7 radikülopatisi", root: ["C7"], anc: ["tri", "fcr"],
+        yak: "boyundan orta parmağa yayılan ağrı", mua: "dirsek ekstansiyonu zayıf, triseps refleksi azalmış",
+        not: "Triseps (radial) ile pronator teres veya FKR (median) birlikte tutulur; deltoid, biseps ve el içi kasları normaldir." },
+      { id: "C8", btn: "C8", ad: "C8 radikülopatisi", root: ["C8"], anc: ["fdi", "eip", "fpl"],
+        yak: "dördüncü ve beşinci parmakta uyuşma, elde beceriksizlik", mua: "parmak abduksiyonu ve işaret parmağı ekstansiyonu zayıf",
+        not: "Üç ayrı sinirden C8 kası tutulur: 1. DİO (ulnar), EİP (radial), FPL (median). Ulnar nöropatide EİP ve FPL normal kalır." },
+      { id: "ULN", btn: "Ulnar nöropati (dirsek)", ad: "Dirsekte ulnar nöropati", mono: { fdi: 1, fcu: 0.5 }, ms: "ulnar",
+        yak: "dördüncü ve beşinci parmakta uyuşma, elde beceriksizlik", mua: "parmak abduksiyonu zayıf; boyun hareketleri ağrılı",
+        not: "Anormal kasların hepsi ulnar sinirdedir. Aynı kökten (C8) ama başka sinirden kaslar, yani EİP (radial), FPL ve APB (median), ve paraspinal normaldir. Kesin ayrım için sinir iletim çalışması gerekir." },
+      { id: "NORM", btn: "Normal", ad: "Normal iğne EMG", norm: true,
+        yak: "boyun ve omuz ağrısı, kolda yaygın uyuşma hissi", mua: "kas gücü tam, refleksler normal",
+        not: "Normal iğne EMG yalnız duysal lifleri tutan veya akson kaybı yapmayan radikülopatiyi dışlamaz." }
+    ],
+    lo: [
+      { id: "L34", btn: "L3–L4", ad: "L3–L4 radikülopatisi", root: ["L3", "L4"], anc: ["vl", "add"],
+        yak: "belden uyluğun ön yüzüne yayılan ağrı", mua: "diz ekstansiyonu zayıf, patella refleksi azalmış",
+        not: "Kuadriseps (femoral) ile adduktor (obturator) birlikte tutulur: iki ayrı sinir, aynı kökler. İğne EMG L3 ile L4'ü güvenilir ayıramaz." },
+      { id: "L5", btn: "L5", ad: "L5 radikülopatisi", root: ["L5"], anc: ["ta", "gmed", "tp"],
+        yak: "belden bacağın dış yüzüne ve ayak sırtına yayılan ağrı, düşük ayak", mua: "ayak bileği ve başparmak dorsifleksiyonu zayıf, refleksler normal",
+        not: "Peroneal dışı L5 kasları anahtardır: tibialis posterior (tibial) ve gluteus medius (superior gluteal). Bunlar anormalse lezyon fibula başında olamaz." },
+      { id: "S1", btn: "S1", ad: "S1 radikülopatisi", root: ["S1"], anc: ["mg", "gmax"],
+        yak: "belden topuğa ve ayağın dış kenarına yayılan ağrı", mua: "parmak ucunda yürüme zor, Aşil refleksi alınmıyor",
+        not: "Medial gastroknemius (tibial), gluteus maksimus (inferior gluteal) ve biseps femoris kısa baş (peroneal bölüm) birlikte tutulur; tibialis anterior normal kalır." },
+      { id: "PER", btn: "Peroneal nöropati (fibula başı)", ad: "Fibula başında peroneal nöropati", mono: { ta: 1, ehl: 1, pl: 1 }, ms: "peroneal",
+        yak: "düşük ayak ve ayak sırtında uyuşma", mua: "ayak bileği ve başparmak dorsifleksiyonu zayıf, refleksler normal; bel ağrısı da tarifliyor",
+        not: "Anormal kasların hepsi peroneal sinirde ve fibula başının distalindedir. Tibialis posterior, gluteus medius, biseps femoris kısa baş ve paraspinal normaldir." },
+      { id: "NORM", btn: "Normal", ad: "Normal iğne EMG", norm: true,
+        yak: "bel ve kalça ağrısı, bacakta yaygın uyuşma hissi", mua: "kas gücü tam, refleksler normal",
+        not: "Normal iğne EMG yalnız duysal lifleri tutan veya akson kaybı yapmayan radikülopatiyi dışlamaz." }
+    ]
+  };
+  var WS_SG = ["Akut", "Subakut", "Kronik aktif", "Kronik inaktif"];
+  var WS_SURE = [function () { return ri(4, 7) + " haftadır"; }, function () { return ri(3, 5) + " aydır"; },
+                 function () { return ri(2, 4) + " yıldır süren ve son aylarda artan"; }, function () { return ri(3, 6) + " yıl önce başlayıp o zamandan beri değişmeyen"; }];
+
+  // What one muscle shows, from how strongly the lesion involves it (sev 0, 0.5, 1) and how old the lesion is.
+  function wsFind(sev, sg, para) {
+    var N = { fib: [0, 0], fa: [0, 0], nS: 8, mup: "norm" };
+    if (!sev) return N;
+    if (para) return [{ fib: [3, 6], fa: [0.12, 0.45], nS: 8, mup: "norm" }, { fib: [1, 3], fa: [0.08, 0.3], nS: 8, mup: "norm" },
+                      { fib: [1, 2], fa: [0.03, 0.09], nS: 8, mup: "norm" }, N][sg];
+    var full = sev === 1;
+    return [
+      full ? { fib: [3, 7], fa: [0.15, 0.55], nS: ri(4, 5), mup: "norm" } : { fib: [1, 3], fa: [0.1, 0.4], nS: 6, mup: "norm" },
+      full ? { fib: [2, 5], fa: [0.1, 0.35], nS: 4, mup: "nasc" } : { fib: [0, 2], fa: [0.08, 0.3], nS: 6, mup: "nasc", frac: 0.4 },
+      full ? { fib: [1, 3], fa: [0.03, 0.09], nS: ri(3, 4), mup: "big", poly: 0.4 } : { fib: [0, 1], fa: [0.03, 0.08], nS: 6, mup: "big", frac: 0.4, bigA: [2, 3.5], poly: 0.2 },
+      full ? { fib: [0, 0], fa: [0, 0], nS: ri(3, 4), mup: "big", poly: 0.15 } : { fib: [0, 0], fa: [0, 0], nS: 6, mup: "big", frac: 0.4, bigA: [2, 3.5], poly: 0.1 }
+    ][sg];
+  }
+  function wsAbn(f) { return f.fib[1] > 0 || f.mup !== "norm" || f.nS < 8; }
+  function wsDesc(f, para) {
+    if (!wsAbn(f)) return "normal";
+    var a = [f.fib[1] > 0 ? "fibrilasyon/PKD var" : "istirahat sessiz"];
+    if (para) return a[0];
+    a.push(f.mup === "norm" ? "MÜP normal" : (f.frac ? "bazı MÜP'ler " : "MÜP ") + (f.mup === "nasc" ? "polifazik, kararsız" : "iri, uzun"));
+    a.push(f.nS <= 4 ? "belirgin seyrelme" : "hafif seyrelme");
+    return a.join(" · ");
+  }
+  function wsNew(limb) {
+    var L = WS_LES[limb], x = Math.random(), rad = L.filter(function (q) { return q.root; });
+    var les = x < 0.7 ? rad[ri(0, rad.length - 1)] : x < 0.88 ? L.filter(function (q) { return q.mono; })[0] : L.filter(function (q) { return q.norm; })[0];
+    var sg = les.norm ? null : ri(0, 3), find = {};
+    WS_MUS[limb].forEach(function (m) {
+      var w = 0;
+      if (les.root) {
+        if (m.para) w = Math.random() < [0.85, 0.6, 0.4, 0][sg] ? 1 : 0;
+        else {
+          les.root.forEach(function (k) { if ((m.r[k] || 0) > w) w = m.r[k]; });
+          if (les.anc.indexOf(m.id) >= 0) w = 1;
+          else if (w === 1 && Math.random() > 0.85) w = 0;            // root lesions are partial: not every muscle of the myotome shows it
+          else if (w === 0.5 && Math.random() > 0.45) w = 0;
+        }
+      } else if (les.mono) w = les.mono[m.id] || 0;
+      find[m.id] = wsFind(w, sg === null ? 0 : sg, m.para);
+    });
+    var side = Math.random() < 0.5 ? "sağ" : "sol";
+    st.ws = { limb: limb, les: les, sg: sg, find: find, cur: null, calls: {}, order: [], dx: null, dsg: null, done: false,
+              vig: ri(31, 68) + " yaşında " + (Math.random() < 0.5 ? "kadın" : "erkek") + " hasta. " + WS_SURE[sg === null ? ri(0, 1) : sg]() + ", " + side + " tarafta " +
+                   les.yak + " yakınması var. Muayene: " + les.mua + "." };
+    setPattern(WS_PAT, false, null);
+  }
+  function wsMus(id) { return WS_MUS[st.ws.limb].filter(function (m) { return m.id === id; })[0]; }
+  function wsPick(id) {
+    var w = st.ws; if (!w) return;
+    w.cur = id; if (w.order.indexOf(id) < 0) w.order.push(id);
+    events = []; buildSite(false); insertionBurst(w.find[id].fib[1] > 0);
+    setPhase(0);
+    if (window.matchMedia("(max-width: 860px)").matches) el("scope").scrollIntoView({ block: "start", behavior: "smooth" });   // one column: bring the screen back into view
+  }
+  function wsExit() { st.ws = null; setPattern(PATTERNS.filter(function (q) { return q.id === "gm0"; })[0], false, null); }
+  function wsRoots(m) { var a = []; for (var k in m.r) a.push(m.r[k] === 1 ? k : "(" + k + ")"); return a.join(" ") || "tüm düzeyler"; }
+  function renderWs() {
+    var w = st.ws, mus = WS_MUS[w.limb], fig = WS_FIG[w.limb], h, host;
+    el("ws-title").textContent = (w.limb === "up" ? "Üst" : "Alt") + " ekstremite vakası";
+    el("ws-vig").textContent = w.vig;
+    // figure with needle points
+    h = '<svg viewBox="' + fig.vb + '" role="group" aria-label="İğne noktaları">' + fig.body;
+    mus.forEach(function (m) {
+      var cls = "wsdot" + (w.cur === m.id ? " cur" : "");
+      if (w.done) cls += wsAbn(w.find[m.id]) ? " abn" : " nor";
+      else if (w.calls[m.id]) cls += w.calls[m.id] === "A" ? " abn" : " nor";
+      else if (w.order.indexOf(m.id) >= 0) cls += " seen";
+      h += '<g class="' + cls + '" data-m="' + m.id + '" tabindex="0" role="button" aria-label="' + m.ad + '" transform="translate(' + m.x + ',' + m.y + ')">' +
+           '<circle class="hit" r="13"/><circle class="pt" r="6"/><text x="' + (m.s * 10) + '" y="3.5" text-anchor="' + (m.s > 0 ? "start" : "end") + '">' + m.k + '</text></g>';
+    });
+    host = el("ws-fig"); host.innerHTML = h + "</svg>";
+    Array.prototype.forEach.call(host.querySelectorAll(".wsdot"), function (g) {
+      var id = g.getAttribute("data-m");
+      g.addEventListener("click", function () { wsPick(id); });
+      g.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); wsPick(id); } });
+    });
+    // current muscle
+    host = el("ws-cur"); host.textContent = "";
+    function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+    function btn(parent, txt, on, fn) { var b = add(parent, "button", txt); b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false"); b.addEventListener("click", fn); return b; }
+    if (!w.cur) add(host, "div", "Şekilde bir noktaya dokunup iğneyi o kasa yerleştirin. Her kasta üç adım: istirahat, hafif kası, maksimum kası. Sesi açmak için ekranın altındaki Ses düğmesini kullanın.", "note");
+    else {
+      var m = wsMus(w.cur), f = w.find[w.cur];
+      add(host, "div", "İğne: " + m.ad, "wsname");
+      add(host, "div", "Sinir: " + m.sinir + (w.done ? "  ·  Kök: " + wsRoots(m) : ""), "note");
+      if (m.para) add(host, "div", "Paraspinalde yalnız istirahat değerlendirilir; MÜP ve rekrutman güvenilir değildir.", "note");
+      if (w.done) add(host, "div", "Gerçek bulgu: " + wsDesc(f, m.para));
+      else {
+        var r = add(host, "div", null, "row"); add(r, "span", "Bulgum", "label");
+        btn(r, "Normal", w.calls[w.cur] === "N", function () { w.calls[w.cur] = "N"; renderWs(); });
+        btn(r, "Anormal", w.calls[w.cur] === "A", function () { w.calls[w.cur] = "A"; renderWs(); });
+      }
+    }
+    add(host, "div", "Bakılan kas: " + w.order.length + (w.order.length ? "  (" + w.order.map(function (id) { return wsMus(id).k + (w.calls[id] ? (w.calls[id] === "A" ? " ✕" : " ✓") : ""); }).join(", ") + ")" : ""), "note");
+    // diagnosis
+    host = el("ws-dx"); host.textContent = "";
+    WS_LES[w.limb].forEach(function (q) { var b = btn(host, q.btn, w.dx === q.id, function () { if (w.done) return; w.dx = q.id; if (q.norm) w.dsg = null; renderWs(); }); b.disabled = w.done; });
+    host = el("ws-sg"); host.textContent = "";
+    WS_SG.forEach(function (t, k) { var b = btn(host, t, w.dsg === k, function () { if (w.done) return; w.dsg = k; renderWs(); }); b.disabled = w.done || w.dx === "NORM"; });
+    el("ws-submit").disabled = w.done || !w.dx || (w.dx !== "NORM" && w.dsg === null);
+    // feedback
+    host = el("ws-fb"); host.textContent = ""; host.hidden = !w.done;
+    if (!w.done) return;
+    var okDx = w.dx === w.les.id, okSg = w.les.norm || w.dsg === w.sg, v;
+    v = add(host, "div", (okDx ? "Tanı doğru: " : "Tanı yanlış. Doğrusu: ") + w.les.ad + ".", "verdict" + (okDx ? "" : " bad"));
+    if (!w.les.norm) add(host, "div", (okSg ? "Evre doğru: " : "Evre yanlış. Doğrusu: ") + WS_SG[w.sg] + ". " + EVRE_DEF[w.sg + 1].split(": ")[1] + ".", "verdict" + (okSg ? "" : " bad"));
+    add(host, "div", w.les.not);
+    var abn = mus.filter(function (m) { return !m.para && wsAbn(w.find[m.id]); }), para = mus.filter(function (m) { return m.para; })[0];
+    var seenAbn = abn.filter(function (m) { return w.order.indexOf(m.id) >= 0; }), nerves = {};
+    seenAbn.forEach(function (m) { nerves[m.sinir.split(" (")[0]] = 1; });
+    var li = add(host, "ul", null, "wsli");
+    add(li, "li", w.order.length + " kasa baktınız. Taramada biri paraspinal olmak üzere 5–7 kas çoğu vakada yeter; şüpheli kökü doğrulamak için 1–2 kas eklenir.");
+    add(li, "li", "Paraspinal: " + (w.order.indexOf(para.id) >= 0 ? "baktınız" : "bakmadınız") + "; bu vakada " + (wsAbn(w.find[para.id]) ? "anormal. Bu bulgu lezyonu pleksusun proksimaline yerleştirir." : "normal." + (w.les.root ? " Normal paraspinal radikülopatiyi dışlamaz." : "")));
+    if (w.les.root) add(li, "li", "Radikülopati için aynı kökten, farklı periferik sinirlerden en az iki anormal kas gerekir. Anormal " + abn.length + " kasın " + seenAbn.length + " tanesine baktınız; bunlar " + Object.keys(nerves).length + " ayrı sinirden.");
+    if (w.les.mono) add(li, "li", "Tek sinire uyan patern gördüğünüzde aynı kökten, başka sinirden bir kasa bakmadan radikülopati demeyin.");
+    var missed = Object.keys(w.calls).filter(function (id) { return (w.calls[id] === "A") !== wsAbn(w.find[id]); });
+    if (missed.length) add(li, "li", "Kararınız gerçek bulguyla uyuşmayan kaslar: " + missed.map(function (id) { return wsMus(id).ad; }).join(", ") + ". Şekilden bu kaslara dönüp yeniden bakın.");
+    var tw = add(host, "div", null, "tablewrap site"), tb = add(tw, "table"), tr = add(tb, "tr");
+    ["Kas", "Sinir", "Kök", "Gerçek bulgu", "Siz"].forEach(function (t) { add(tr, "th", t); });
+    mus.forEach(function (m) {
+      var f = w.find[m.id], seen = w.order.indexOf(m.id) >= 0, c = w.calls[m.id];
+      tr = add(tb, "tr", null, wsAbn(f) ? "" : "dull");
+      add(tr, "td", m.ad); add(tr, "td", m.sinir.split(" (")[0]); add(tr, "td", wsRoots(m)); add(tr, "td", wsDesc(f, m.para));
+      add(tr, "td", !seen ? "bakılmadı" : !c ? "karar yok" : (c === "A" ? "anormal" : "normal") + ((c === "A") === wsAbn(f) ? " ✓" : " ✕"));
+    });
+    add(host, "div", "Vakalar matematiksel olarak üretilir. Kök ağırlıkları kurs dokümanındaki miyotom tablosundan gelir; kök lezyonu kısmi olduğu için miyotomdaki her kas tutulmaz.", "note");
+  }
+
+  // ---------- root finder: mark what you found in the lab, get the level that explains it ----------
+  // r: myotome weight (1 main, 0.5 minor), from the course tables. n: peripheral nerve key. soft: unreliable muscle.
+  var LAB_MUS = {
+    up: [
+      { id: "para", ad: "Servikal paraspinal", sinir: "Arka ramus", k: "tüm düzeyler", r: {}, para: true, g: "Omuz kuşağı" },
+      { id: "rho", ad: "Romboid majör", sinir: "Dorsal skapular", n: "dsk", k: "C5", r: { C5: 1 }, g: "Omuz kuşağı" },
+      { id: "sup", ad: "Supraspinatus", sinir: "Supraskapular", n: "ssk", k: "C5 C6", r: { C5: 1, C6: 1 }, g: "Omuz kuşağı" },
+      { id: "inf", ad: "İnfraspinatus", sinir: "Supraskapular", n: "ssk", k: "C5 C6", r: { C5: 1, C6: 1 }, g: "Omuz kuşağı" },
+      { id: "del", ad: "Deltoid", sinir: "Aksiller", n: "aks", k: "C5 C6", r: { C5: 1, C6: 1 }, g: "Omuz kuşağı" },
+      { id: "bic", ad: "Biseps", sinir: "Muskulokutan", n: "msk", k: "C5 C6", r: { C5: 1, C6: 1 }, g: "Kol" },
+      { id: "tri", ad: "Triseps", sinir: "Radial", n: "rad", k: "(C6) C7 (C8)", r: { C6: 0.5, C7: 1, C8: 0.5 }, g: "Kol" },
+      { id: "anc", ad: "Ankoneus", sinir: "Radial", n: "rad", k: "C7 (C8)", r: { C7: 1, C8: 0.5 }, g: "Kol" },
+      { id: "brd", ad: "Brakiyoradiyalis", sinir: "Radial", n: "rad", k: "C5 C6", r: { C5: 1, C6: 1 }, g: "Önkol" },
+      { id: "ecrl", ad: "Ekstensör karpi radialis longus", sinir: "Radial", n: "rad", k: "C6 (C7)", r: { C6: 1, C7: 0.5 }, g: "Önkol" },
+      { id: "pt", ad: "Pronator teres", sinir: "Median", n: "med", k: "C6 C7", r: { C6: 1, C7: 1 }, g: "Önkol" },
+      { id: "fcr", ad: "Fleksör karpi radialis", sinir: "Median", n: "med", k: "C6 C7", r: { C6: 1, C7: 1 }, g: "Önkol" },
+      { id: "edc", ad: "Ekstensör digitorum komunis", sinir: "Radial (posterior interosseöz)", n: "rad", k: "C7 C8", r: { C7: 1, C8: 1 }, g: "Önkol" },
+      { id: "eip", ad: "Ekstensör indisis proprius", sinir: "Radial (posterior interosseöz)", n: "rad", k: "(C7) C8", r: { C7: 0.5, C8: 1 }, g: "Önkol" },
+      { id: "fpl", ad: "Fleksör pollisis longus", sinir: "Median (anterior interosseöz)", n: "med", k: "(C7) C8 (T1)", r: { C7: 0.5, C8: 1, T1: 0.5 }, g: "Önkol" },
+      { id: "fcu", ad: "Fleksör karpi ulnaris", sinir: "Ulnar", n: "uln", k: "(C7) C8 (T1)", r: { C7: 0.5, C8: 1, T1: 0.5 }, g: "Önkol" },
+      { id: "fdi", ad: "Birinci dorsal interosseöz", sinir: "Ulnar", n: "uln", k: "C8 T1", r: { C8: 1, T1: 1 }, g: "El" },
+      { id: "adm", ad: "Abduktor digiti minimi", sinir: "Ulnar", n: "uln", k: "C8 T1", r: { C8: 1, T1: 1 }, g: "El" },
+      { id: "apb", ad: "Abduktor pollisis brevis", sinir: "Median", n: "med", k: "(C8) T1", r: { C8: 0.5, T1: 1 }, g: "El" }
+    ],
+    lo: [
+      { id: "para", ad: "Lumbosakral paraspinal", sinir: "Arka ramus", k: "tüm düzeyler", r: {}, para: true, g: "Bel ve kalça" },
+      { id: "ilio", ad: "İliopsoas", sinir: "Femoral, lumbar pleksus", n: "fem", k: "L2 L3 (L4)", r: { "L2–L4": 1 }, g: "Bel ve kalça" },
+      { id: "gmed", ad: "Gluteus medius", sinir: "Superior gluteal", n: "sgl", k: "(L4) L5 (S1)", r: { "L2–L4": 0.5, L5: 1, S1: 0.5 }, g: "Bel ve kalça" },
+      { id: "tfl", ad: "Tensor fasya lata", sinir: "Superior gluteal", n: "sgl", k: "(L4) L5 (S1)", r: { "L2–L4": 0.5, L5: 1, S1: 0.5 }, g: "Bel ve kalça" },
+      { id: "gmax", ad: "Gluteus maksimus", sinir: "İnferior gluteal", n: "igl", k: "(L5) S1 (S2)", r: { L5: 0.5, S1: 1 }, g: "Bel ve kalça" },
+      { id: "add", ad: "Adduktor longus", sinir: "Obturator", n: "obt", k: "L2 L3 (L4)", r: { "L2–L4": 1 }, g: "Uyluk" },
+      { id: "quad", ad: "Kuadriseps (rektus femoris, vastuslar)", sinir: "Femoral", n: "fem", k: "(L2) L3 L4", r: { "L2–L4": 1 }, g: "Uyluk" },
+      { id: "stm", ad: "Semitendinosus, semimembranosus", sinir: "Siyatik (tibial bölüm)", n: "sit", k: "L5 (S1)", r: { L5: 1, S1: 0.5 }, g: "Uyluk" },
+      { id: "bfs", ad: "Biseps femoris kısa baş", sinir: "Siyatik (peroneal bölüm)", n: "sip", k: "S1", r: { S1: 1 }, g: "Uyluk" },
+      { id: "bfl", ad: "Biseps femoris uzun baş", sinir: "Siyatik (tibial bölüm)", n: "sit", k: "S1", r: { S1: 1 }, g: "Uyluk" },
+      { id: "ta", ad: "Tibialis anterior", sinir: "Derin peroneal", n: "per", k: "(L4) L5", r: { "L2–L4": 0.5, L5: 1 }, g: "Bacak" },
+      { id: "ehl", ad: "Ekstensör hallusis longus", sinir: "Derin peroneal", n: "per", k: "L5 (S1)", r: { L5: 1, S1: 0.5 }, g: "Bacak" },
+      { id: "pl", ad: "Peroneus longus", sinir: "Yüzeyel peroneal", n: "per", k: "L5 (S1)", r: { L5: 1, S1: 0.5 }, g: "Bacak" },
+      { id: "tp", ad: "Tibialis posterior", sinir: "Tibial", n: "tib", k: "L5 (S1)", r: { L5: 1, S1: 0.5 }, g: "Bacak" },
+      { id: "fdl", ad: "Fleksör digitorum longus", sinir: "Tibial", n: "tib", k: "L5 (S1)", r: { L5: 1, S1: 0.5 }, g: "Bacak" },
+      { id: "mg", ad: "Medial gastroknemius", sinir: "Tibial", n: "tib", k: "S1 (S2)", r: { S1: 1 }, g: "Bacak" },
+      { id: "lg", ad: "Lateral gastroknemius", sinir: "Tibial", n: "tib", k: "S1 (S2)", r: { S1: 1 }, g: "Bacak" },
+      { id: "sol", ad: "Soleus", sinir: "Tibial", n: "tib", k: "S1 S2", r: { S1: 1 }, g: "Bacak" },
+      { id: "edb", ad: "Ekstensör digitorum brevis", sinir: "Derin peroneal", n: "per", k: "L5 (S1)", r: { L5: 1, S1: 0.5 }, soft: true, g: "Ayak" },
+      { id: "ah", ad: "Abduktor hallusis", sinir: "Tibial (medial plantar)", n: "tib", k: "S1 S2", r: { S1: 1 }, soft: true, g: "Ayak" }
+    ]
+  };
+  var LAB_ROOTS = { up: ["C5", "C6", "C7", "C8", "T1"], lo: ["L2–L4", "L5", "S1"] };
+  var LAB_PAIRS = { up: [["C5", "C6"], ["C6", "C7"], ["C7", "C8"], ["C8", "T1"]], lo: [["L2–L4", "L5"], ["L5", "S1"]] };
+  // Lesions distal to the root that give a look-alike pattern. A set explains the findings only if every abnormal muscle is in it.
+  var LAB_MONO = {
+    up: [
+      { ad: "Aksiller nöropati", set: ["del"] }, { ad: "Muskulokutan nöropati", set: ["bic"] }, { ad: "Distal median nöropati (karpal tünel)", set: ["apb"] },
+      { ad: "Supraskapular nöropati", set: ["sup", "inf"] }, { ad: "Posterior interosseöz nöropati", set: ["edc", "eip"] },
+      { ad: "Ulnar nöropati", set: ["fcu", "fdi", "adm"] }, { ad: "Proksimal median nöropati", set: ["pt", "fcr", "fpl", "apb"] },
+      { ad: "Radial nöropati", set: ["brd", "ecrl", "tri", "anc", "edc", "eip"] },
+      { ad: "Üst trunkus pleksopatisi", set: ["sup", "inf", "del", "bic", "brd", "pt", "fcr", "ecrl"], plx: true },
+      { ad: "Alt trunkus veya medial kord pleksopatisi", set: ["edc", "eip", "fpl", "fcu", "fdi", "adm", "apb"], plx: true }
+    ],
+    lo: [
+      { ad: "Obturator nöropati", set: ["add"] }, { ad: "Femoral nöropati", set: ["ilio", "quad"] },
+      { ad: "Derin peroneal nöropati", set: ["ta", "ehl", "edb"] }, { ad: "Peroneal nöropati (fibula başı)", set: ["ta", "ehl", "edb", "pl"] },
+      { ad: "Tibial nöropati", set: ["tp", "fdl", "mg", "lg", "sol", "ah"] },
+      { ad: "Siyatik nöropati", set: ["stm", "bfs", "bfl", "ta", "ehl", "edb", "pl", "tp", "fdl", "mg", "lg", "sol", "ah"] }
+    ]
+  };
+  var LAB_FL = [["F", "Fib/PKD"], ["P", "Polifazik, kararsız"], ["I", "İri, uzun MÜP"], ["S", "Seyrelme"]];
+  st.lab = { on: false, limb: "up", up: {}, lo: {} };
+
+  function labW(m, roots) { var w = 0; roots.forEach(function (k) { if ((m.r[k] || 0) > w) w = m.r[k]; }); return w; }
+  function labEval(limb, roots) {
+    var mk = st.lab[limb], o = { roots: roots, ad: roots.join(" + "), exp: 0, hit: [], unx: [], con: [], nerves: {}, score: 0 };
+    LAB_MUS[limb].forEach(function (m) {
+      var s = mk[m.id] && mk[m.id].s; if (!s || m.para) return;
+      var w = labW(m, roots), f = m.soft ? 0.5 : 1;
+      if (s === "A") { if (w) { o.exp += w * f; o.hit.push(m); if (!m.soft) o.nerves[m.n] = 1; } else { o.unx.push(m); o.score -= f; } }
+      else if (w) { o.con.push(m); o.score -= 0.4 * w; }
+    });
+    o.score += o.exp - (roots.length > 1 ? 1 : 0);          // two levels at once must earn their extra assumption
+    o.nN = Object.keys(o.nerves).length;
+    o.ok = o.hit.filter(function (m) { return !m.soft; }).length >= 2 && o.nN >= 2;
+    return o;
+  }
+  function labStage(limb) {
+    var mk = st.lab[limb], F = 0, P = 0, I = 0, S = 0, any = 0;
+    for (var id in mk) if (mk[id].s === "A") { var f = mk[id].f || {}; if (f.F) F++; if (f.P) P++; if (f.I) I++; if (f.S) S++; if (f.F || f.P || f.I || f.S) any++; }
+    if (!any) return null;
+    if (F && I) return { ad: "Kronik aktif", rap: "kronik reinnervasyon ve eşlik eden aktif denervasyon", why: "fibrilasyon/PKD ile iri, uzun MÜP birlikte" };
+    if (F && P) return { ad: "Subakut", rap: "aktif denervasyon ve erken reinnervasyon", why: "fibrilasyon/PKD ile polifazik, kararsız MÜP birlikte" };
+    if (F) return { ad: "Akut", rap: "aktif denervasyon", why: "fibrilasyon/PKD var, MÜP şekli değişmemiş" };
+    if (I) return { ad: "Kronik inaktif", rap: "kronik reinnervasyon (aktif denervasyon yok)", why: "iri, uzun MÜP var, istirahat sessiz" };
+    if (P) return { ad: "Subakut-kronik, aktif denervasyon yok", rap: "reinnervasyon (aktif denervasyon yok)", why: "polifazik MÜP var, istirahat sessiz" };
+    return { ad: "Hiperakut olabilir", rap: "yalnız rekrutman azalması", why: "tek bulgu seyrelme: ilk haftalar, iletim bloğu ya da yetersiz efor" };
+  }
+  function labAnalyse(limb) {
+    var mk = st.lab[limb], mus = LAB_MUS[limb], abn = [], nor = [], para = mk.para && mk.para.s, R = { abn: abn, nor: nor, para: para };
+    mus.forEach(function (m) { var s = mk[m.id] && mk[m.id].s; if (m.para) return; if (s === "A") abn.push(m); else if (s === "N") nor.push(m); });
+    R.stage = labStage(limb);
+    if (!abn.length) return R;
+    var cands = LAB_ROOTS[limb].map(function (k) { return labEval(limb, [k]); }).filter(function (c) { return c.exp > 0; });
+    cands.sort(function (a, b) { return b.score - a.score; });
+    var best = cands[0];
+    if (best && best.unx.length) LAB_PAIRS[limb].forEach(function (p) { var c = labEval(limb, p); if (c.score > best.score + 0.25) cands.push(c); });
+    cands.sort(function (a, b) { return b.score - a.score; });
+    R.cands = cands.slice(0, 3).filter(function (c, i) { return i === 0 || c.score > 0; }); R.top = cands[0];
+    R.second = cands[1] && cands[1].score > 0 && cands[0].score - cands[1].score < 2 ? cands[1] : null;   // a rival worth testing against
+    var ids = abn.map(function (m) { return m.id; });
+    R.mono = para === "A" ? [] : LAB_MONO[limb].filter(function (q) { return ids.every(function (id) { return q.set.indexOf(id) >= 0; }); })
+                                              .sort(function (a, b) { return a.set.length - b.set.length; }).slice(0, 2);
+    // which unexamined muscle would change the answer most
+    var top = R.top, sec = R.second, mono = R.mono[0], next = [];
+    if (top) mus.forEach(function (m) {
+      if (m.para || m.soft || (mk[m.id] && mk[m.id].s)) return;
+      var w1 = labW(m, top.roots), w2 = sec ? labW(m, sec.roots) : 0, v = 0, why = [];
+      if (sec && w1 !== w2) { v += Math.abs(w1 - w2); why.push("anormalse " + (w1 > w2 ? top.ad : sec.ad) + ", normalse " + (w1 > w2 ? sec.ad : top.ad) + " lehine"); }
+      if (mono && w1 === 1 && mono.set.indexOf(m.id) < 0) { v += 1; why.push("anormalse " + mono.ad.toLocaleLowerCase("tr") + " dışlanır"); }
+      if (w1 === 1 && !top.nerves[m.n]) { v += top.ok ? 0.25 : 0.75; why.push(top.ad + " kası, henüz bakılmamış bir sinirden"); }
+      if (v > 0) next.push({ m: m, v: v, why: why.join("; ") });
+    });
+    next.sort(function (a, b) { return b.v - a.v; });
+    var seenN = {};                                            // one suggestion per nerve, so the three are not near-duplicates
+    R.next = next.filter(function (q) { if (seenN[q.m.n]) return false; seenN[q.m.n] = 1; return true; }).slice(0, 3);
+    return R;
+  }
+  function labReport(limb, R) {
+    var names = R.abn.map(function (m) { return m.ad.split(" (")[0].toLocaleLowerCase("tr"); }).join(", ");
+    var t = "İğne EMG'de " + names + " kas" + (R.abn.length > 1 ? "larında " : "ında ") + (R.stage ? R.stage.rap + " ile uyumlu " : "") + "nörojen tutulum bulguları izlendi. ";
+    if (R.top && R.top.ok && !(R.mono.length && !R.mono[0].plx))
+      t += "Bulgular " + R.top.ad.replace(" + ", " ve ") + " kök düzeyinde tutulum ile uyumludur" +
+           (R.second && R.second.ok && R.top.score - R.second.score < 1 ? "; " + R.second.ad.replace(" + ", " ve ") + " düzeyi dışlanamaz. " : ". ");
+    else if (R.mono.length) t += "Tutulan kaslar tek bir sinir dağılımındadır (" + R.mono[0].ad.toLocaleLowerCase("tr") + " ile uyumlu); radikülopati ölçütü karşılanmamaktadır. ";
+    else t += "Bulgular tek bir kök düzeyini göstermek için yeterli değildir. ";
+    t += "Paraspinal kaslarda denervasyon " + (R.para === "A" ? "saptandı." : R.para === "N" ? "saptanmadı." : "değerlendirilmedi.");
+    return t;
+  }
+  function renderLab() {
+    var L = st.lab, limb = L.limb, mk = L[limb], host = el("lab-list"), lastG = null;
+    Array.prototype.forEach.call(el("seg-limb").children, function (b, k) { b.setAttribute("aria-pressed", (k === 0) === (limb === "up") ? "true" : "false"); });
+    function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+    function btn(parent, txt, on, cls, fn) { var b = add(parent, "button", txt, cls); b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false"); b.addEventListener("click", fn); return b; }
+    host.textContent = "";
+    LAB_MUS[limb].forEach(function (m) {
+      if (m.g !== lastG) { add(host, "div", m.g, "label labg"); lastG = m.g; }
+      var cur = mk[m.id] || {}, row = add(host, "div", null, "labrow" + (cur.s === "A" ? " isA" : cur.s === "N" ? " isN" : "")), info = add(row, "div", null, "labinfo");
+      add(info, "div", m.ad, "labname"); add(info, "div", m.sinir + "  ·  " + m.k, "note");
+      var bx = add(row, "div", null, "labbtn");
+      btn(bx, "Anormal", cur.s === "A", "abn", function () { if (cur.s === "A") delete mk[m.id]; else mk[m.id] = { s: "A", f: cur.f || {} }; renderLab(); });
+      btn(bx, "Normal", cur.s === "N", "nor", function () { if (cur.s === "N") delete mk[m.id]; else mk[m.id] = { s: "N" }; renderLab(); });
+      if (cur.s === "A") {
+        var fx = add(row, "div", null, "labfl");
+        LAB_FL.forEach(function (q) {
+          if (m.para && q[0] !== "F") return;
+          btn(fx, q[1], !!(cur.f && cur.f[q[0]]), "chip", function () { cur.f = cur.f || {}; cur.f[q[0]] = !cur.f[q[0]]; renderLab(); });
+        });
+        if (m.soft) add(row, "div", "Ayak içi kaslarında nörojen bulgu sağlıklı kişide de görülebilir; bu kas yarım ağırlıkla sayılır.", "note labfl");
+      }
+    });
+    // ---- analysis
+    var R = labAnalyse(limb), out = el("lab-out"); out.textContent = "";
+    var nEx = R.abn.length + R.nor.length + (R.para ? 1 : 0);
+    add(out, "div", "Bakılan " + nEx + " kas: " + (R.abn.length + (R.para === "A" ? 1 : 0)) + " anormal, " + (R.nor.length + (R.para === "N" ? 1 : 0)) + " normal", "note");
+    if (!R.abn.length) {
+      add(out, "div", R.para === "A" ? "Yalnız paraspinal anormal" : "Anormal kas işaretlenmedi", "labhead");
+      add(out, "div", R.para === "A" ? "Tek başına paraspinal bulgu düzey vermez. Ekstremite kaslarına bakın; lumbar paraspinalde yaşlı, yakınmasız kişilerde de fibrilasyon bildirilmiştir."
+        : nEx >= 5 ? "Tarama normal. Normal iğne EMG, yalnız duysal lifleri tutan ya da akson kaybı yapmayan radikülopatiyi dışlamaz."
+        : "Soldaki listede baktığınız kasları Anormal ya da Normal olarak işaretleyin. Normal kaslar da sonucu değiştirir; onları da girin.");
+      el("lab-rap").value = ""; return;
+    }
+    var top = R.top, sec = R.second, mono = R.mono, nerveOnly = mono.length && !mono[0].plx && !(top && top.ok);
+    if (!top) { add(out, "div", "Kök paterni yok", "labhead"); }
+    else if (nerveOnly) { add(out, "div", mono[0].ad, "labhead"); add(out, "div", "Anormal kasların hepsi tek sinirde; radikülopati ölçütü karşılanmıyor.", "verdict bad"); }
+    else {
+      var close = sec && top.score - sec.score < 1;
+      add(out, "div", top.ad + (top.roots.length > 1 ? " kök düzeyleri" : " kök düzeyi"), "labhead");
+      add(out, "div", !top.ok ? "Ölçüt karşılanmıyor: " + (top.nN < 2 ? "anormal kaslar tek sinirden" : "en az iki güvenilir anormal kas gerekli") + "."
+                     : close ? "Ölçüt karşılanıyor, ama " + sec.ad + " ile ayrım zayıf." : "Ölçüt karşılanıyor; en yakın seçenekten belirgin ayrılıyor.", "verdict" + (top.ok && !close ? "" : " bad"));
+    }
+    if (R.cands.length) {
+      var mx = Math.max.apply(null, R.cands.map(function (c) { return c.score; }).concat([1])), bars = add(out, "div", null, "labbars");
+      R.cands.forEach(function (c) {
+        var r = add(bars, "div", null, "labbar"); add(r, "span", c.ad, "bn");
+        var tr = add(r, "span", null, "bt"), fill = add(tr, "span"); fill.style.width = Math.max(3, Math.round(100 * Math.max(0, c.score) / mx)) + "%";
+        add(r, "span", fmt(c.score, 1), "bv");
+      });
+      var dl = add(out, "dl");
+      function row(k, v) { add(dl, "dt", k); add(dl, "dd", v); }
+      function nm(a) { return a.length ? a.map(function (m) { return m.ad.split(" (")[0]; }).join(", ") : "yok"; }
+      row("Açıklanan", nm(top.hit) + "  (" + top.nN + " ayrı sinir)");
+      row("Açıklanmayan", nm(top.unx));
+      row("Beklenip normal", nm(top.con));
+      row("Paraspinal", R.para === "A" ? "anormal: lezyon pleksusun proksimalinde" : R.para === "N" ? "normal: radikülopatiyi dışlamaz" : "bakılmadı");
+    }
+    if (mono.length && !nerveOnly) add(out, "div", "Aynı patern şununla da açıklanır: " + mono.map(function (q) { return q.ad.toLocaleLowerCase("tr"); }).join(", ") +
+      ". Ayrım: radikülopatide paraspinal tutulabilir ve duysal yanıtlar (SNAP) korunur; pleksus ya da sinir lezyonunda SNAP düşer.", "note");
+    if (top && top.roots.length > 1) add(out, "div", "Tek düzey bütün anormal kasları açıklamıyor. İki komşu kökün birlikte tutulumu ya da miyotom sınırındaki bireysel farklılık olabilir.", "note");
+    if (top && top.unx.length && top.roots.length === 1) add(out, "div", "Açıklanmayan kas var: komşu düzeyin eşlik etmesi, ikinci bir lezyon ya da yaygın süreç (polinöropati, ön boynuz) düşünün.", "note");
+    if ((R.next && R.next.length) || !R.para) {
+      add(out, "div", "Sıradaki en ayırt edici kaslar", "label");
+      var ul = add(out, "ul", null, "wsli");
+      if (!R.para) add(ul, "li", "Paraspinal: anormalse lezyon pleksusun proksimalinde; normal olması radikülopatiyi dışlamaz.");
+      (R.next || []).forEach(function (q) { add(ul, "li", q.m.ad + " (" + q.m.sinir.split(" (")[0] + "; " + q.m.k + "): " + q.why + "."); });
+    }
+    add(out, "div", "Evre", "label");
+    add(out, "div", R.stage ? R.stage.ad + ": " + R.stage.why + "." : "Evre için anormal kaslarda bulgu türünü işaretleyin (Fib/PKD, polifazik, iri MÜP, seyrelme).", R.stage ? "" : "note");
+    el("lab-rap").value = labReport(limb, R);
+  }
+  function labOpen(on) {
+    st.lab.on = on;
+    if (on) { st.lab.was = st.running; st.running = false; } else if (st.lab.was) st.running = true;
+    el("sim-grid").hidden = on; el("lab-card").hidden = !on;
+    Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.setAttribute("aria-pressed", (k === 1) === on ? "true" : "false"); });
+    if (on) renderLab(); else syncUI();
+  }
+
+  function startQuiz(grp) {
+    st.ws = null;
+    var pool = PATTERNS.filter(function (q) { return q.real && (typeof grp !== "string" || q.grp === grp); });
+    var q = pool[ri(0, pool.length - 1)];
+    setPattern(q, false, { done: false, ans: null });
+    st.gain = { mup: 500, fib: 100, ip: 1000, evre: 100 }[q.real.kind];     // a neutral gain, so the setting does not give the answer away
+    syncUI();
+  }
+
+  ["gf", "gm", "gi", "ge"].forEach(function (g) {
+    mkButtons(el("pat-" + g), PATTERNS.filter(function (q) { return q.grp === g; }), function (q) { return q.btn; }, function (q) { setPattern(q, el("chk-keep").checked); });
+  });
+  el("btn-quiz").addEventListener("click", startQuiz);
+  el("btn-quiz-ip").addEventListener("click", function () { startQuiz("gi"); });
+  el("btn-quiz-ev").addEventListener("click", function () { startQuiz("ge"); });
+  Array.prototype.forEach.call(el("seg-phase").children, function (b, k) { b.addEventListener("click", function () { if (st.pat.real && (st.pat.real.kind === "evre" || st.pat.real.kind === "ws")) setPhase(k); }); });
+  el("ws-up").addEventListener("click", function () { wsNew("up"); });
+  el("ws-lo").addEventListener("click", function () { wsNew("lo"); });
+  el("ws-exit").addEventListener("click", wsExit);
+  Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.addEventListener("click", function () { labOpen(k === 1); }); });
+  Array.prototype.forEach.call(el("seg-limb").children, function (b, k) { b.addEventListener("click", function () { st.lab.limb = k ? "lo" : "up"; renderLab(); }); });
+  el("lab-clear").addEventListener("click", function () { st.lab[st.lab.limb] = {}; el("lab-copied").textContent = ""; renderLab(); });
+  el("lab-copy").addEventListener("click", function () {
+    var t = el("lab-rap"), done = function () { el("lab-copied").textContent = "Kopyalandı"; };
+    if (!t.value) return;
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t.value).then(done, function () { t.select(); document.execCommand("copy"); done(); }); return; } } catch (e) {}
+    try { t.select(); document.execCommand("copy"); done(); } catch (e2) { el("lab-copied").textContent = "Kopyalanamadı: metni seçip elle kopyalayın"; }
+  });
+  el("ws-back").addEventListener("click", function () { el("ws-fig").scrollIntoView({ block: "start", behavior: "smooth" }); });
+  el("ws-submit").addEventListener("click", function () { if (st.ws) { st.ws.done = true; renderWs(); el("ws-fb").scrollIntoView({ block: "nearest", behavior: "smooth" }); } });
+  el("btn-needle").addEventListener("click", moveNeedle);
+  el("rng-force").addEventListener("input", function () {
+    st.force = Number(this.value) / 100; el("force-val").textContent = "%" + this.value;
+    if (st.pat.real && (st.pat.real.kind === "evre" || st.pat.real.kind === "ws")) {
+      st.phase = st.force === 0 ? 0 : st.force >= 0.9 ? 2 : 1;
+      Array.prototype.forEach.call(el("seg-phase").children, function (b, k) { b.setAttribute("aria-pressed", st.phase === k ? "true" : "false"); });
+    }
+  });
+  mkButtons(el("pat-rest"), PATTERNS.filter(function (p) { return p.grp === "rest"; }), function (p) { return p.ad; }, function (p) { setPattern(p, el("chk-keep").checked); });
+  mkButtons(el("pat-ozel"), PATTERNS.filter(function (p) { return p.grp === "ozel"; }), function (p) { return p.ad; }, function (p) { setPattern(p, el("chk-keep").checked); });
+  mkButtons(el("pat-mup"), PATTERNS.filter(function (p) { return p.grp === "mup"; }), function (p) { return p.ad; }, function (p) { setPattern(p, el("chk-keep").checked); });
+  mkButtons(el("pat-rek"), PATTERNS.filter(function (p) { return p.grp === "rek"; }), function (p) { return p.ad; }, function (p) { setPattern(p, el("chk-keep").checked); });
+  mkButtons(el("seg-gain"), GAINS, function (g) { return String(g); }, function (g) { st.gain = g; syncUI(); });
+  setInterval(function () {
+    var r = st.pat.real; if (!r || !st.running) return;
+    if ((r.kind === "mup" && st.reveal) || r.kind === "ip" || r.kind === "evre") renderSite();
+  }, 600);
+  mkButtons(el("seg-sweep"), SWEEPS, function (s) { return String(s); }, function (s) { st.sweep = s; clearScreen(); syncUI(); });
+  mkButtons(el("seg-speed"), SPEEDS, function (s) { return s.t; }, function (s) { st.speed = s.v; syncUI(); });
+  el("btn-run").addEventListener("click", function () { st.running = !st.running; syncUI(); });
+  el("btn-trig").addEventListener("click", function () { st.trig = !st.trig; syncUI(); });
+  el("btn-sound").addEventListener("click", toggleSound);
+  el("btn-rec").addEventListener("click", function () { setPattern(st.pat, false, st.quiz); });
+
+  // ---------- loop ----------
+  var last = null;
+  function frame(now) {
+    if (last === null) last = now;
+    var dt = Math.min(50, now - last); last = now;
+    resize();
+    if (st.running) advance(dt * st.speed);
+    draw();
+    scheduleAudio();
+    requestAnimationFrame(frame);
+  }
+  resize(); resetUnits(); clearScreen();
+  // Reduced-motion: open with one finished sweep on screen, frozen, instead of a moving trace.
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { advance(450); st.running = false; }
+  else advance(260);
+  syncUI();
+  requestAnimationFrame(frame);
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+</script>
+</body>
+</html>
