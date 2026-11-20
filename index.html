@@ -59,7 +59,14 @@ header a { color: var(--accent); }
 @media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
 .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.screen { background: var(--screen); border-radius: 8px; padding: 0; overflow: hidden; line-height: 0; }
+.screen { background: var(--screen); border-radius: 8px; padding: 0; overflow: hidden; line-height: 0; position: relative; width: 100%; }
+.ovl { position: absolute; top: 8px; display: flex; align-items: center; gap: 2px; line-height: 1.2; background: rgba(12, 24, 34, .78); border: 1px solid rgba(244, 234, 210, .28); border-radius: 9px; padding: 2px; }
+.ovl-g { left: 8px; } .ovl-s { right: 8px; }
+.ovl span { font-family: var(--font-mono); font-size: 13px; color: #f4ead2; min-width: 68px; text-align: center; white-space: nowrap; }
+.ovl button { width: 40px; height: 38px; padding: 0; font-size: 22px; line-height: 1; color: #f4ead2; background: rgba(244, 234, 210, .12); border: 0; border-radius: 7px; }
+.ovl button:active { background: rgba(244, 234, 210, .3); }
+.ovl button:disabled { opacity: .35; }
+@media (max-width: 860px) { .screen { max-width: min(100%, 62vh); margin: 0 auto; } }
 canvas { width: 100%; height: auto; aspect-ratio: 1 / 1; display: block; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
@@ -163,7 +170,8 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 @media (min-width: 861px) {
   /* workshop: keep the screen in view while the case card scrolls */
   body.ws-on .grid > .col:first-child { position: sticky; top: 12px; }
-  body.ws-on .screen { max-width: max(260px, calc(100vh - 390px)); margin: 0 auto; }
+  body.ws-on .screen { max-width: max(300px, calc(100vh - 225px)); margin: 0 auto; }
+  body.ws-on .scale, body.ws-on #ws-back, body.ws-on #sim-grid > .col:first-child .note { display: none; }
 }
 [hidden] { display: none !important; }
 </style>
@@ -206,9 +214,10 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   <div class="grid" id="sim-grid">
     <div class="col">
       <div class="card">
-        <div class="screen"><canvas id="scope" width="720" height="720" role="img" aria-label="Süpüren EMG trasesi"></canvas></div>
-        <div class="row scale"><span class="label" id="lbl-gain">Kazanç <span class="u">µV/kare</span></span><div class="seg" role="group" aria-labelledby="lbl-gain" id="seg-gain"></div></div>
-        <div class="row scale"><span class="label" id="lbl-sweep">Süpürme <span class="u">ms/kare</span></span><div class="seg" role="group" aria-labelledby="lbl-sweep" id="seg-sweep"></div><button id="btn-rec" type="button" title="Bu patern için önerilen kazanç ve süpürmeye dön">Önerilen ayar</button></div>
+        <div class="screen"><canvas id="scope" width="720" height="720" role="img" aria-label="Süpüren EMG trasesi"></canvas>
+          <div class="ovl ovl-g" role="group" aria-label="Kazanç"><button id="g-dn" type="button" aria-label="Kazanç: bir alt değer">−</button><span id="g-val"></span><button id="g-up" type="button" aria-label="Kazanç: bir üst değer">+</button></div>
+          <div class="ovl ovl-s" role="group" aria-label="Süpürme"><button id="s-dn" type="button" aria-label="Süpürme: bir alt değer">−</button><span id="s-val"></span><button id="s-up" type="button" aria-label="Süpürme: bir üst değer">+</button></div>
+        </div>
         <div class="row">
           <button id="btn-run" class="primary" type="button">Dondur</button>
           <button id="btn-trig" type="button" aria-pressed="false">Tetik</button>
@@ -220,6 +229,8 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
           <button id="btn-needle" type="button">İğneyi oynat</button>
           <label class="check" for="rng-force">Kası kuvveti <input type="range" id="rng-force" min="0" max="100" step="1" value="35"> <span id="force-val" style="font-family:var(--font-mono)">%35</span></label>
         </div>
+        <div class="row scale"><span class="label" id="lbl-gain">Kazanç <span class="u">µV/kare</span></span><div class="seg" role="group" aria-labelledby="lbl-gain" id="seg-gain"></div></div>
+        <div class="row scale"><span class="label" id="lbl-sweep">Süpürme <span class="u">ms/kare</span></span><div class="seg" role="group" aria-labelledby="lbl-sweep" id="seg-sweep"></div><button id="btn-rec" type="button" title="Bu patern için önerilen kazanç ve süpürmeye dön">Önerilen ayar</button></div>
         <div class="row" id="row-phase" hidden>
           <span class="label">Muayene adımı</span>
           <div class="seg" role="group" aria-label="Muayene adımı" id="seg-phase"><button type="button">1 İstirahat</button><button type="button">2 Hafif kası</button><button type="button">3 Maksimum kası</button></div>
@@ -1085,6 +1096,9 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     var p = st.pat, hide = st.quiz && !st.quiz.done;
     ["gf", "gm", "gi", "ge", "rest", "ozel", "mup", "rek"].forEach(function (g) { mark(el("pat-" + g), function (q) { return q === p && !hide; }); });
     mark(el("seg-gain"), function (g) { return g === st.gain; });
+    el("g-val").textContent = st.gain + " µV"; el("s-val").textContent = st.sweep + " ms";
+    el("g-dn").disabled = st.gain === GAINS[0]; el("g-up").disabled = st.gain === GAINS[GAINS.length - 1];
+    el("s-dn").disabled = st.sweep === SWEEPS[0]; el("s-up").disabled = st.sweep === SWEEPS[SWEEPS.length - 1];
     mark(el("seg-sweep"), function (s) { return s === st.sweep; });
     mark(el("seg-speed"), function (s) { return s.v === st.speed; });
     el("btn-run").textContent = st.running ? "Dondur" : "Devam et";
@@ -1863,6 +1877,9 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   el("ws-up").addEventListener("click", function () { wsNew("up"); });
   el("ws-lo").addEventListener("click", function () { wsNew("lo"); });
   el("ws-exit").addEventListener("click", wsExit);
+  function stepScale(key, list, d) { var i = Math.max(0, Math.min(list.length - 1, list.indexOf(st[key]) + d)); if (list[i] !== st[key]) { st[key] = list[i]; syncUI(); } }
+  el("g-dn").addEventListener("click", function () { stepScale("gain", GAINS, -1); }); el("g-up").addEventListener("click", function () { stepScale("gain", GAINS, 1); });
+  el("s-dn").addEventListener("click", function () { stepScale("sweep", SWEEPS, -1); }); el("s-up").addEventListener("click", function () { stepScale("sweep", SWEEPS, 1); });
   Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.addEventListener("click", function () { setMode([1, 0, 2][k]); }); });
   Array.prototype.forEach.call(el("seg-pane").children, function (b, k) { b.addEventListener("click", function () { st.lab.pane = k ? "emg" : "ncs"; renderLab(); }); });
   el("ws-ncs").addEventListener("click", function () { if (st.ws) { st.ws.ncs = true; renderWs(); } });
