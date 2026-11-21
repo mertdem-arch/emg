@@ -155,6 +155,14 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 .ngr .tx { fill: rgba(244,234,210,.85); font: 500 8.5px var(--font-mono); }
 .ngr figcaption { font: 11.5px var(--font-mono); color: var(--muted); margin-top: 3px; }
 @media (max-width: 620px) { .wsn tr, .wsn td { display: block; } .wsn td:first-child { font-weight: 600; padding-bottom: 0; border-bottom: 0; } }
+.dal { max-width: 700px; margin: 10px 0 2px; overflow-x: auto; }
+.dal svg { display: block; }
+.dal text { font-family: var(--font-body); font-size: 14px; fill: var(--ink); }
+.dal text.th { font-weight: 600; } .dal text.ts { font-size: 12.5px; fill: var(--muted); } .dal text.rt { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+.dal .tr { stroke: var(--accent); } .dal .dm { fill: var(--accent); } .dal .sn { stroke: var(--muted); fill: none; } .dal .lm { stroke: var(--warn); }
+.dal-leg { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.dal-leg i { display: inline-block; width: 22px; height: 0; vertical-align: middle; margin-right: 6px; border-top: 2px solid var(--accent); }
+.dal-leg i.d-s { border-top: 2px dashed var(--muted); } .dal-leg i.d-l { border-top: 3px solid var(--warn); }
 .n-tab { margin-bottom: 8px; } .n-tab td, .n-tab th { font-family: var(--font-mono); font-size: 13.5px; } .n-tab small { color: var(--muted); font-weight: 400; }
 #n-vaka button.k-ok, #n-form button.k-ok { background: #3f8a54; border-color: #3f8a54; color: #fff; opacity: 1; }
 #n-vaka button.k-bad, #n-form button.k-bad { background: var(--warn); border-color: var(--warn); color: #fff; opacity: 1; }
@@ -343,6 +351,11 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     <div class="read"><div class="grp">Başvuru</div><h2>Miyotom tablosu</h2></div>
     <p class="note">● baskın kök, ○ katkı veren kök. Kaynaklar arasında fark vardır ve bireysel varyasyon sıktır; baskın kökler cerrahi olarak doğrulanmış tek kök lezyonu serilerine göre işaretlidir (Levin 1996, Tsao 2003). Kök bulucu ve atölye bu tabloyu kullanır.</p>
     <div class="tab-grid"><div id="tab-up"></div><div id="tab-lo"></div></div>
+    <div class="read"><h2>Sinir dal sırası</h2></div>
+    <p class="note">Her sinirin dalları gövdeden ayrıldıkları sırayla, proksimalden distale. Lezyon işaretinin üstünde kalan kaslar korunur, altındakiler tutulur. Ekstansör karpi radialis brevis dalının çıkış yeri ve ulnar derin dalın el içi sırası kişiden kişiye değişir; kök düzeyleri en sık verilen aralıklardır.</p>
+    <div class="seg" id="dal-seg" role="group" aria-label="Sinir seçimi"></div>
+    <div class="dal" id="dal-svg"></div>
+    <p class="note dal-leg"><span><i class="d-m"></i>motor dal</span><span><i class="d-s"></i>duysal dal</span><span><i class="d-l"></i>anatomik işaret, tuzak yeri</span></p>
     <div class="read"><h2>Derecelendirme anahtarı</h2></div>
     <p class="note">Yüklediğiniz bölüm ders notlarından ("gradeleme", "EMG1"). Simülatördeki dereceler ve ölçüm alıştırması bu tanımları kullanır.</p>
     <div class="tab-grid">
@@ -2173,7 +2186,49 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       ["Semitendinosus, semimembranosus", "Siyatik (tibial bölüm)", { L5: 1, S1: 0.5 }], ["Gluteus maksimus", "İnferior gluteal", { L5: 0.5, S1: 1, S2: 0.5 }], ["Biseps femoris kısa baş", "Siyatik (peroneal bölüm)", { S1: 1 }],
       ["Biseps femoris uzun baş", "Siyatik (tibial bölüm)", { S1: 1 }], ["Medial ve lateral gastroknemius", "Tibial", { S1: 1, S2: 0.5 }], ["Soleus", "Tibial", { S1: 1, S2: 1 }], ["Abduktor hallusis", "Tibial (medial plantar)", { S1: 1, S2: 1 }]] }
   };
+  // ---------- nerve branch order (reference tab)
+  var DAL = [
+    ["Median", [["n","Median sinir","C5–T1 · lateral ve medial kord"],["l","Kolda motor dal yok"],["l","Dirsek"],["m","Pronator teres","C6–C7"],["m","Fleksör karpi radialis","C6–C7"],["m","Palmaris longus","C7–T1"],["m","Fleksör dijitorum süperfisyalis","C7–T1"],["b","Anterior interosseöz sinir"],["m","Fleksör dijitorum profundus 2–3","C7–C8"],["m","Fleksör pollisis longus","C7–C8"],["m","Pronator kuadratus","C7–T1"],["e"],["s","Palmar kutanöz dal (tenar deri)"],["l","Karpal tünel"],["m","Abdüktör pollisis brevis","C8–T1"],["m","Opponens pollisis","C8–T1"],["m","Fleksör pollisis brevis, yüzeyel baş","C8–T1"],["m","1. ve 2. lumbrikaller","C8–T1"],["s","Dijital dallar (1–3. parmak, 4. parmağın yarısı)"]]],
+    ["Ulnar", [["n","Ulnar sinir","C8–T1 · medial kord"],["l","Kolda motor dal yok"],["l","Dirsek: ulnar oluk, kubital tünel"],["m","Fleksör karpi ulnaris","C7–T1"],["m","Fleksör dijitorum profundus 4–5","C8–T1"],["s","Palmar kutanöz dal (hipotenar deri)"],["s","Dorsal ulnar kutanöz dal (el sırtı ulnar yan)"],["l","Guyon kanalı"],["b","Yüzeyel dal"],["m","Palmaris brevis","C8–T1"],["s","Dijital dallar (5. parmak, 4. parmağın yarısı)"],["e"],["b","Derin motor dal"],["m","Abdüktör dijiti minimi","C8–T1"],["m","Opponens ve fleksör dijiti minimi","C8–T1"],["m","3. ve 4. lumbrikaller","C8–T1"],["m","Palmar ve dorsal interosseözler","C8–T1"],["m","Addüktör pollisis","C8–T1"],["m","Fleksör pollisis brevis, derin baş","C8–T1"],["m","1. dorsal interosseöz","C8–T1"],["e"]]],
+    ["Radial", [["n","Radial sinir","C5–T1 · posterior kord"],["l","Aksilla"],["m","Triseps (uzun, medial, lateral baş)","C6–C8"],["m","Ankoneus","C7–C8"],["s","Posterior kutanöz dallar (kol ve ön kol arka yüzü)"],["l","Spiral oluk"],["m","Brakiyoradialis","C5–C6"],["m","Ekstansör karpi radialis longus","C6–C7"],["l","Dirsek"],["m","Ekstansör karpi radialis brevis","C6–C7"],["s","Yüzeyel radial sinir (el sırtı radial yan)"],["b","Posterior interosseöz sinir"],["m","Supinatör","C6–C7"],["l","Supinatör kanalı (Frohse arkı)"],["m","Ekstansör dijitorum komünis","C7–C8"],["m","Ekstansör karpi ulnaris","C7–C8"],["m","Ekstansör dijiti minimi","C7–C8"],["m","Abdüktör pollisis longus","C7–C8"],["m","Ekstansör pollisis longus","C7–C8"],["m","Ekstansör pollisis brevis","C7–C8"],["m","Ekstansör indisis proprius","C7–C8"],["e"]]],
+    ["Omuz ve kol", [["n","Supraskapular sinir","C5–C6 · üst trunkus"],["l","Supraskapular çentik"],["m","Supraspinatus","C5–C6"],["l","Spinoglenoid çentik"],["m","İnfraspinatus","C5–C6"],["n","Aksiller sinir","C5–C6 · posterior kord"],["l","Kuadrilateral aralık"],["m","Teres minor","C5–C6"],["m","Deltoid","C5–C6"],["s","Üst lateral brakiyal kutanöz sinir (omuz yan yüzü)"],["n","Muskülokutanöz sinir","C5–C7 · lateral kord"],["m","Korakobrakiyalis","C6–C7"],["m","Biseps brakii","C5–C6"],["m","Brakiyalis","C5–C6"],["s","Lateral antebrakiyal kutanöz sinir (ön kol radial yan)"]]],
+    ["Femoral ve obturator", [["n","Femoral sinir","L2–L4 · lomber pleksus"],["m","İliakus (psoas doğrudan pleksustan)","L2–L3"],["l","İnguinal ligament"],["m","Pektineus","L2–L3"],["m","Sartorius","L2–L3"],["m","Rektus femoris","L2–L4"],["m","Vastus lateralis, intermedius, medialis","L2–L4"],["s","Ön femoral kutanöz dallar (uyluk ön yüzü)"],["s","Safen sinir (bacak ve ayak medial yüzü)"],["n","Obturator sinir","L2–L4 · lomber pleksus"],["l","Obturator kanal"],["m","Addüktör longus","L2–L4"],["m","Addüktör brevis","L2–L4"],["m","Grasilis","L2–L4"],["m","Addüktör magnus (siyatikle ortak)","L2–L4"],["s","Kutanöz dal (uyluk medial yüzü)"]]],
+    ["Siyatik ve tibial", [["n","Superior gluteal sinir","L4–S1"],["m","Gluteus medius","L4–S1"],["m","Gluteus minimus","L4–S1"],["m","Tensor fasya lata","L4–S1"],["n","İnferior gluteal sinir","L5–S2"],["m","Gluteus maksimus","L5–S2"],["n","Siyatik sinir","L4–S3 · sakral pleksus"],["l","Uyluk arka yüzü"],["m","Semitendinozus (tibial bölüm)","L5–S2"],["m","Semimembranozus (tibial bölüm)","L5–S2"],["m","Biseps femoris uzun baş (tibial bölüm)","L5–S2"],["m","Addüktör magnus, arka (tibial bölüm)","L4–S1"],["m","Biseps femoris kısa baş (peroneal bölüm)","L5–S1"],["l","Popliteal fossa: tibial ve ortak peroneale ayrılır"],["b","Tibial sinir"],["s","Medial sural kutanöz dal (sural sinire katılır)"],["m","Gastroknemius medial ve lateral baş","S1–S2"],["m","Soleus","S1–S2"],["m","Tibialis posterior","L5–S1"],["m","Fleksör dijitorum longus","L5–S2"],["m","Fleksör hallusis longus","L5–S2"],["l","Tarsal tünel"],["s","Kalkaneal dallar (topuk)"],["m","Abdüktör hallusis (medial plantar)","S1–S2"],["m","Fleksör dijitorum brevis (medial plantar)","S1–S2"],["m","Abdüktör dijiti kuinti pedis (lateral plantar)","S1–S2"],["m","Plantar interosseözler (lateral plantar)","S1–S2"],["e"]]],
+    ["Peroneal", [["n","Ortak peroneal sinir","L4–S1 · siyatiğin lateral bölümü"],["m","Biseps femoris kısa baş (dizin üstünde)","L5–S1"],["s","Lateral sural kutanöz dal (bacak üst yan yüzü)"],["l","Fibula başı"],["b","Yüzeyel peroneal sinir"],["m","Peroneus longus","L5–S1"],["m","Peroneus brevis","L5–S1"],["s","Kutanöz dal (bacak alt yan yüzü, ayak sırtı)"],["e"],["b","Derin peroneal sinir"],["m","Tibialis anterior","L4–L5"],["m","Ekstansör dijitorum longus","L5–S1"],["m","Ekstansör hallusis longus","L5–S1"],["m","Peroneus tertius","L5–S1"],["l","Ayak bileği"],["m","Ekstansör dijitorum brevis","L5–S1"],["s","Kutanöz dal (1. parmak aralığı)"],["e"]]]
+  ];
+  st.dal = 0;
+  window.addEventListener("resize", function () { if (!el("tab-card").hidden) renderDal(); });
+  function renderDal() {
+    var seg = el("dal-seg");
+    if (!seg.firstChild) DAL.forEach(function (n, i) { var b = document.createElement("button"); b.type = "button"; b.textContent = n[0]; b.addEventListener("click", function () { st.dal = i; renderDal(); }); seg.appendChild(b); });
+    Array.prototype.forEach.call(seg.children, function (b, i) { b.setAttribute("aria-pressed", i === st.dal ? "true" : "false"); });
+    var W = Math.max(460, Math.min(680, el("dal-svg").clientWidth || 680)), rows = DAL[st.dal][1], X0 = 22, X1 = 70, y = 0, s = "", lvl = 0, t0 = null, last0 = 0, t1 = 0, last1 = 0;
+    function closeSub() { if (lvl) { s += '<line class="tr" x1="' + X1 + '" y1="' + t1 + '" x2="' + X1 + '" y2="' + last1 + '" stroke-width="2"/>'; lvl = 0; } }
+    function closeTrunk() { closeSub(); if (t0 !== null) s += '<line class="tr" x1="' + X0 + '" y1="' + t0 + '" x2="' + X0 + '" y2="' + last0 + '" stroke-width="3" stroke-linecap="round"/>'; t0 = null; }
+    rows.forEach(function (r, i) {
+      var x = lvl ? X1 : X0;
+      if (r[0] === "e") { closeSub(); return; }
+      if (r[0] === "n") {
+        closeTrunk(); y += i ? 44 : 16;
+        s += '<text class="th" x="6" y="' + y + '" dominant-baseline="central">' + r[1] + '</text><text class="rt" x="' + (W - 6) + '" y="' + y + '" text-anchor="end" dominant-baseline="central">' + r[2] + '</text>';
+        t0 = y + 14; last0 = y + 14; return;
+      }
+      if (r[0] === "b") {
+        closeSub(); y += 28;
+        s += '<line class="tr" x1="' + X0 + '" y1="' + y + '" x2="' + X1 + '" y2="' + y + '" stroke-width="2"/><text class="th" x="' + (X1 + 12) + '" y="' + y + '" dominant-baseline="central">' + r[1] + '</text>';
+        last0 = y; t1 = y; last1 = y; lvl = 1; return;
+      }
+      y += 26;
+      if (r[0] === "m") s += '<line class="tr" x1="' + x + '" y1="' + y + '" x2="' + (x + 24) + '" y2="' + y + '" stroke-width="1.5"/><circle class="dm" cx="' + (x + 28) + '" cy="' + y + '" r="4"/><text x="' + (x + 40) + '" y="' + y + '" dominant-baseline="central">' + r[1] + '</text><text class="rt" x="' + (W - 6) + '" y="' + y + '" text-anchor="end" dominant-baseline="central">' + r[2] + '</text>';
+      else if (r[0] === "s") s += '<line class="sn" x1="' + x + '" y1="' + y + '" x2="' + (x + 24) + '" y2="' + y + '" stroke-width="1.5" stroke-dasharray="3 3"/><circle class="sn" cx="' + (x + 28) + '" cy="' + y + '" r="3.5" stroke-width="1.5"/><text class="ts" x="' + (x + 40) + '" y="' + y + '" dominant-baseline="central">' + r[1] + '</text>';
+      else s += '<line class="lm" x1="' + (x - 11) + '" y1="' + y + '" x2="' + (x + 11) + '" y2="' + y + '" stroke-width="3" stroke-linecap="round"/><text class="ts" x="' + (x + 40) + '" y="' + y + '" dominant-baseline="central">' + r[1] + '</text>';
+      if (lvl) last1 = y; else last0 = y;
+    });
+    closeTrunk();
+    el("dal-svg").innerHTML = '<svg width="' + W + '" height="' + (y + 18) + '" viewBox="0 0 ' + W + ' ' + (y + 18) + '" role="img" aria-label="' + DAL[st.dal][0] + ': dal sırası">' + s + '</svg>';
+  }
   function renderTab() {
+    renderDal();
     ["up", "lo"].forEach(function (k) {
       var T = MYO_TAB[k], host = el("tab-" + k); if (host.firstChild) return;
       function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
