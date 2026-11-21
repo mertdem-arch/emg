@@ -136,7 +136,41 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
 .myo tr:nth-child(even) td { background: color-mix(in srgb, var(--accent-soft) 35%, transparent); }
 .myo i { display: inline-block; width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--accent); vertical-align: middle; }
 .myo i.d { background: var(--accent); }
+.myo.key { margin-top: 14px; } .myo.key td { vertical-align: top; }
+.myo.key td.g { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; width: 84px; }
 .wscat { margin-top: 2px; }
+#kart-q { display: flex; flex-direction: column; gap: 10px; }
+#n-cv { aspect-ratio: 720 / 640; }
+.n-sl { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) 62px; gap: 6px 10px; align-items: center; font-size: 14px; }
+.n-out { display: flex; flex-direction: column; gap: 6px; }
+.n-chk { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 14px; }
+.n-chk li.ab, .n-tab td.ab, .n-tab span.ab { color: var(--warn); font-weight: 500; }
+#n-vaka { display: flex; flex-direction: column; gap: 10px; }
+.ngraf { display: flex; flex-wrap: wrap; gap: 8px 10px; margin: 7px 0 3px; }
+.ngr { margin: 0; flex: 1 1 250px; max-width: 380px; min-width: 0; }
+.ngr svg { display: block; width: 100%; height: auto; border-radius: 6px; }
+.ngr .bg { fill: #0c1822; } .ngr .gr { stroke: rgba(244,234,210,.13); stroke-width: 1; }
+.ngr .w { fill: none; stroke: #f4ead2; stroke-width: 1.4; stroke-linejoin: round; } .ngr .st { stroke: #f0a35a; stroke-width: 1.5; }
+.ngr .mk { stroke: #6ec5dd; stroke-width: 1.4; } .ngr .mk.dot { stroke-dasharray: 2 3; stroke-width: 1; }
+.ngr .tx { fill: rgba(244,234,210,.85); font: 500 8.5px var(--font-mono); }
+.ngr figcaption { font: 11.5px var(--font-mono); color: var(--muted); margin-top: 3px; }
+@media (max-width: 620px) { .wsn tr, .wsn td { display: block; } .wsn td:first-child { font-weight: 600; padding-bottom: 0; border-bottom: 0; } }
+.n-tab { margin-bottom: 8px; } .n-tab td, .n-tab th { font-family: var(--font-mono); font-size: 13.5px; } .n-tab small { color: var(--muted); font-weight: 400; }
+#n-vaka button.k-ok, #n-form button.k-ok { background: #3f8a54; border-color: #3f8a54; color: #fff; opacity: 1; }
+#n-vaka button.k-bad, #n-form button.k-bad { background: var(--warn); border-color: var(--warn); color: #fff; opacity: 1; }
+#n-vaka button.k-miss, #n-form button.k-miss { border: 2px dashed var(--warn); opacity: 1; }
+.olc-in { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 8px 10px; align-items: center; }
+.olc-in input { font: inherit; font-family: var(--font-mono); width: 110px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); color: var(--ink); }
+.olc-in .res { font-family: var(--font-mono); font-size: 13.5px; }
+.olc-in .res.ok { color: #2f7a45; } .olc-in .res.bad { color: var(--warn); }
+.kq { font-family: var(--font-display); font-weight: 600; font-size: 24px; line-height: 1.2; }
+#kart-q button.k-ok, #olc-form button.k-ok { background: #3f8a54; border-color: #3f8a54; color: #fff; opacity: 1; }
+#kart-q button.k-min, #olc-form button.k-min { border: 2px solid #3f8a54; opacity: 1; }
+#kart-q button.k-bad, #olc-form button.k-bad { background: var(--warn); border-color: var(--warn); color: #fff; opacity: 1; }
+#kart-q button.k-miss, #olc-form button.k-miss { border: 2px dashed var(--warn); opacity: 1; }
+.kural { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; }
+.kural summary { cursor: pointer; font-weight: 500; }
+.kural p { margin: 8px 0 0; font-size: 14.5px; }
 .lab-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 @media (max-width: 860px) { .lab-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (min-width: 861px) { .lab-side { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; } }
@@ -182,12 +216,170 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     <h1>EMG Laboratuvarı</h1>
     <p id="sim-intro">Eğitim simülatörü: trase gerçek cihazdaki gibi soldan sağa süpürür. Gerçekçi kayıtlarda birçok ünite birlikte ateşler; fibrilasyon ve MÜP dereceleri, maksimum kasıdaki interferans paternleri ve nörojen tutulumun evreleri karşılaştırılabilir; radikülopati atölyesinde gizli bir vakada kas kas iğne EMG yapılır; ayrıca 27 şematik patern vardır. Kazancı 100, 200 ve 500 µV/kare arasında değiştirip kareleri sayın. <a href="https://claude.ai/artifact/Kkmwnp7ge1g6Nf6KUUHW8y">Kurs dokümanı</a></p>
   </header>
-  <div class="row"><div class="seg" role="group" aria-label="Bölüm" id="seg-mode"><button type="button" aria-pressed="true">Laboratuvar: tahmin ve rapor</button><button type="button" aria-pressed="false">Eğitim: simülatör ve atölye</button><button type="button" aria-pressed="false">Miyotom tablosu</button></div></div>
+  <div class="row"><div class="seg" role="group" aria-label="Bölüm" id="seg-mode"><button type="button" aria-pressed="true">Laboratuvar: tahmin ve rapor</button><button type="button" aria-pressed="false">Eğitim: simülatör ve atölye</button><button type="button" aria-pressed="false">Başvuru tabloları</button><button type="button" aria-pressed="false">Miyotom kartları</button><button type="button" aria-pressed="false">Ölçüm alıştırması</button><button type="button" aria-pressed="false">Sinir iletimi</button></div></div>
+
+  <div class="card" id="ncs-card" hidden>
+    <div class="read"><div class="grp">Eğitim</div><h2>Sinir iletimi</h2></div>
+    <div class="row"><div class="seg" role="group" aria-label="Bölüm" id="seg-npane"><button type="button">Dalga formu</button><button type="button">Ölç ve yorumla</button><button type="button">Vakalar: GBS ve polinöropati</button><button type="button">Teknik ve ölçütler</button></div></div>
+    <div class="lab-grid" id="n-scope">
+      <div><div class="screen"><canvas id="n-cv" width="720" height="640" role="img" aria-label="Distal ve proksimal motor yanıt"></canvas>
+        <div class="ovl ovl-g" role="group" aria-label="Kazanç"><button id="ng-dn" type="button" aria-label="Kazanç: bir alt değer">−</button><span id="ng-val"></span><button id="ng-up" type="button" aria-label="Kazanç: bir üst değer">+</button></div>
+        <div class="ovl ovl-s" role="group" aria-label="Süpürme"><button id="ns-dn" type="button" aria-label="Süpürme: bir alt değer">−</button><span id="ns-val"></span><button id="ns-up" type="button" aria-label="Süpürme: bir üst değer">+</button></div>
+      </div>
+      <p class="note">Yanıt, her biri kendi hızında ileten 80 aksonun toplamı olarak hesaplanır; faz iptali, dispersiyon ve blok bu toplamdan kendiliğinden çıkar. Hasta kaydı değildir. Negatif yukarıdır.</p></div>
+      <div class="lab-side" id="n-form"></div>
+    </div>
+    <div id="n-vaka" hidden></div>
+    <div id="n-ref" hidden>
+      <div class="tab-grid">
+        <div>
+          <table class="myo key"><caption>Laboratuvar normalleri: motor</caption>
+            <tr><th>Sinir (kayıt)</th><th>Distal latans</th><th>Amplitüd</th><th>Hız</th><th>F</th></tr>
+            <tr><td>Median (APB)</td><td>3,8 ms altı</td><td>5 mV üstü</td><td>50 m/s üstü</td><td>31 ms ve altı</td></tr>
+            <tr><td>Ulnar (ADM)</td><td>3 ms altı</td><td>5 mV üstü</td><td>50 m/s üstü</td><td>32 ms ve altı</td></tr>
+            <tr><td>Tibial (AH)</td><td>5 ms altı</td><td>5 mV üstü</td><td>40 m/s üstü</td><td>56 ms ve altı</td></tr>
+            <tr><td>Peroneal (EDB)</td><td>5 ms altı</td><td>2 mV üstü</td><td>40 m/s üstü</td><td>56 ms ve altı</td></tr>
+            <tr><td>Peroneal (TA)</td><td></td><td>3 mV üstü</td><td></td><td></td></tr>
+            <tr><td>Radial (EİP)</td><td>3 ms altı</td><td>2 mV üstü</td><td>50 m/s üstü</td><td></td></tr>
+          </table>
+          <table class="myo key"><caption>Laboratuvar normalleri: duysal</caption>
+            <tr><th>Sinir (kayıt)</th><th>Amplitüd</th><th>Hız</th></tr>
+            <tr><td>Median (2. parmak)</td><td>10 µV üstü</td><td>50 m/s üstü</td></tr>
+            <tr><td>Median (avuç içi)</td><td>29 µV üstü</td><td></td></tr>
+            <tr><td>Ulnar (5. parmak)</td><td>9 µV üstü</td><td>50 m/s üstü</td></tr>
+            <tr><td>Sural</td><td>erişkin 10 µV üstü, yaşlı 6 µV üstü</td><td>40 m/s üstü</td></tr>
+            <tr><td>Radial (enfiye çukuru)</td><td>15 µV üstü</td><td>50 m/s üstü</td></tr>
+            <tr><td>Yüzeyel peroneal (lateral ayak bileği)</td><td>6 µV üstü</td><td>40 m/s üstü</td></tr>
+          </table>
+          <p class="note">Laboratuvarınızdaki karttan. Aynı kartta: SEP tibial T12 25 ms altı, P40 42 ms altı, T12–P40 21 ms altı; median N13 14,5 ms altı, N20 23 ms altı, N13–N20 7 ms altı; VEP P100 114 ms altı.</p>
+          <table class="myo key"><caption>Kayıt ve uyarım yerleri</caption>
+            <tr><th>Çalışma</th><th>Aktif elektrot</th><th>Uyarım</th></tr>
+            <tr><td>Median motor</td><td>APB kas göbeği</td><td>Bilek; antekübital fossa</td></tr>
+            <tr><td>Median duyu</td><td>2. parmak; ayrıca avuç içi (2.–3. parmak arası hiza)</td><td>Bilek (ortodromik çalışma da yapılır)</td></tr>
+            <tr><td>Ulnar motor</td><td>ADM kas göbeği</td><td>Bilek; dirsek altı; dirsek üstü</td></tr>
+            <tr><td>Ulnar duyu</td><td>5. parmak</td><td>Bilek</td></tr>
+            <tr><td>Radial motor</td><td>EİP kas göbeği</td><td>Ön kol; spiral oluğun altı</td></tr>
+            <tr><td>Radial duyu</td><td>Başparmak ekstansör tendonu üzerinde palpe edilen sinir</td><td>Ön kol distali</td></tr>
+            <tr><td>Medial ve lateral antebrakiyal</td><td>Ön kolun medial ya da lateral yüzü</td><td>Antekübital fossa</td></tr>
+            <tr><td>Peroneal motor</td><td>EDB kas göbeği (ya da tibialis anterior)</td><td>Ayak bileği önü; fibula başı; lateral popliteal çukur</td></tr>
+            <tr><td>Tibial motor</td><td>Abduktor hallusis</td><td>Medial malleol arkası; popliteal çukur</td></tr>
+            <tr><td>Sural duyu</td><td>Lateral malleol arkası</td><td>Baldır arka yüzü</td></tr>
+            <tr><td>Yüzeyel peroneal duyu</td><td>Lateral malleol ile tibialis anterior tendonu arası</td><td>Bacak lateral yüzü</td></tr>
+            <tr><td>Safen duyu</td><td>Medial malleol ile tibialis anterior tendonu arası</td><td>Tibia ile medial gastroknemius arası</td></tr>
+          </table>
+          <p class="note">Referans elektrot sessiz bir bölgeye (tendon), toprak elektrot aktif elektrot ile uyarıcı arasına konur. Katot her zaman aktif kayıt elektroduna bakar.</p>
+        </div>
+        <div>
+          <table class="myo key"><caption>Akson mu, miyelin mi</caption>
+            <tr><td class="g">Aksonal</td><td>Amplitüd düşük; hız normal ya da hafif yavaş, ama alt sınırın %75'inin altına inmez; distal latans üst sınırın %130'unu aşmaz; blok ve dispersiyon yok</td></tr>
+            <tr><td class="g">Demiyelinizan</td><td>Hız alt sınırın %75'inin altında, distal latans ve F latansı üst sınırın %130'unun üstünde. Kolda 35, bacakta 30 m/s altı kesin demiyelinizasyondur. Amplitüd çok düşükse sınırdaki yavaşlık akson kaybından da olabilir</td></tr>
+            <tr><td class="g">Herediter</td><td>Yavaşlama uniform; proksimal ve distal dalga biçimi aynı; blok ve dispersiyon yok</td></tr>
+            <tr><td class="g">Edinsel</td><td>Yavaşlama sinirden sinire ve segmentten segmente farklı; iletim bloğu ve temporal dispersiyon var; F latansı uzun</td></tr>
+          </table>
+          <table class="myo key"><caption>İletim bloğu ve temporal dispersiyon</caption>
+            <tr><td class="g">Ders notu</td><td>Proksimal BKAP distale göre %50 ve üzerinde düşerse motor iletim bloğu. Distal BKAP 1 mV altındaysa blok demek güçtür</td></tr>
+            <tr><td class="g">AAN 1991</td><td>Amplitüd ya da alanda %20 ve üstü düşüş: süre değişimi %15 altındaysa kısmi blok, üstündeyse olası blok ya da dispersiyon</td></tr>
+            <tr><td class="g">EAN/PNS 2021</td><td>Proksimal negatif tepe amplitüdünde %30 ve üstü düşüş (tibial hariç; distal amplitüd alt sınırın en az %20'si). Erb noktası–bilek arasında %50 gerekir. Dispersiyon: süre artışı %30 üstü (tibialde %100). Dirsekte ulnar ve dizde peroneal segment sayılmaz</td></tr>
+            <tr><td class="g">Sahte blok</td><td>Submaksimal proksimal uyarı; komşu sinirin uyarılması (50 mA üstü); anormal innervasyon (Martin-Gruber); vaskülitte erken dönem akson iskemisi</td></tr>
+          </table>
+          <table class="myo key"><caption>GBS ve KİDP ölçütleri (motor sinirler)</caption>
+            <tr><td class="g">AAN 1991</td><td>Dört ölçütten üçü: blok ya da dispersiyon (1 sinir); hız alt sınırın %80'inin altı (amplitüd düşükse %70) (2 sinir); distal latans üst sınırın %125'inin üstü (amplitüd düşükse %150) (2 sinir); F yok ya da %125'in üstü (2 sinir)</td></tr>
+            <tr><td class="g">Hadden 1998</td><td>İki sinirde şunlardan biri: hız alt sınırın %90'ının altı (amplitüd %50'nin altındaysa %85); distal latans %110'un üstü (amplitüd düşükse %120); proksimal/distal amplitüd oranı 0,5 altı (distal amplitüd en az %20); F latansı %120'nin üstü. Aksonal: bunların hiçbiri yok ve iki sinirde distal amplitüd %80'in altı</td></tr>
+            <tr><td class="g">Rajabally 2015</td><td>AIDP için iki sinirde: hız %70'in altı, distal latans %150'nin üstü, ya da F latansı %120'nin üstü. Ya da iki sinirde F kaybı ya da p/d oranı 0,7 altı (tibial hariç) ve başka bir sinirde ek parametre</td></tr>
+            <tr><td class="g">EAN/PNS 2021</td><td>KİDP için iki sinirde: distal latans %150 ve üstü; hız alt sınırın %30 altı; F latansı %120 ve üstü; iletim bloğu; anormal dispersiyon. Tek sinirde ise zayıf destek. Cilt ısısı avuçta 33, dış malleolde 30 °C olmalı</td></tr>
+          </table>
+          <table class="myo key"><caption>GBS'de zaman</caption>
+            <tr><td class="g">İlk günler</td><td>Rutin iletim normal olabilir. İlk bulgular F dalgasının uzaması ya da kaybı ve H refleksinin alınmaması. Duysal yanıtlar başta normaldir</td></tr>
+            <tr><td class="g">1–2. hafta</td><td>Distal latans uzar, blok ve dispersiyon belirir. Sural korunması: median ve ulnar duysal yanıt düşük, sural normal</td></tr>
+            <tr><td class="g">2–5. hafta</td><td>İkincil akson kaybıyla iğnede fibrilasyon başlar, 6–10. haftada en yüksek düzeye çıkar. Erken dönemde iğnede tek bulgu zayıf kasta seyrelmedir</td></tr>
+            <tr><td class="g">AMAN</td><td>Motor amplitüd düşük, latans ve hız normal, duysal yanıt normal</td></tr>
+            <tr><td class="g">AMSAN</td><td>Motor ve duysal yanıt düşük ya da yok; motor terminal latans ve hız normal; iğnede yaygın denervasyon</td></tr>
+          </table>
+          <table class="myo key"><caption>Teknik ve fizyolojik etkenler</caption>
+            <tr><td class="g">Isı</td><td>Soğukta hız düşer, latans uzar, amplitüd ve süre artar. 33 °C'ye ısıtın; ısıtılamıyorsa düzeltin: hız derece başına 1,5–2,5 m/s, latans 0,2 ms</td></tr>
+            <tr><td class="g">Yaş, boy</td><td>Bebekte 25–30 m/s, 3–5 yaşta erişkin değeri; 60 yaştan sonra onyılda 1 m/s azalır. Duysal amplitüd yaşla düşer. Uzun boyluda iletim daha yavaştır</td></tr>
+            <tr><td class="g">Uyarı</td><td>0,1–0,2 ms süre, 20–50 mA, supramaksimal. Submaksimal uyarı normal siniri aksonal lezyon, blok ya da yavaşlama gibi gösterir</td></tr>
+            <tr><td class="g">Katot</td><td>Aktif elektroda bakmalı. Ters polaritede latans uzar; anot altındaki hiperpolarizasyon iletiyi durdurabilir (anodal blok)</td></tr>
+            <tr><td class="g">Filtre</td><td>Motor 10 Hz–10 kHz, duysal 20 Hz–2 kHz</td></tr>
+            <tr><td class="g">Tuzak</td><td>Dirsekte ulnar nöropati (AANEM): dirsek segmentinde hız 50 m/s altı, önkola göre 10 m/s ve üstü fark, ya da dirsekte negatif tepe amplitüdünde %20'den fazla düşüş</td></tr>
+          </table>
+          <p class="note">Kaynaklar: bölüm ders notlarınız ("Sinir iletimini etkileyen faktörler", "Rutin sinir iletim çalışmaları"); Preston ve Shapiro 2013; Hadden 1998; Rajabally 2015; Van den Bergh 2021 (EAN/PNS); Pugdahl 2020. Sayılar özet içindir; rapor için özgün metne bakın.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="olc-card" hidden>
+    <div class="read"><div class="grp">Alıştırma</div><h2>MÜP ölçümü</h2></div>
+    <p class="note">Dondurulmuş tek bir MÜP gelir ve laboratuvardaki gibi 200 µV/karede açılır. Kareleri sayarak amplitüdü, süreyi ve faz sayısını ölçün; amplitüd derecesini ve süre sınıfını verin. Kazancı ve süpürmeyi ekranın üstündeki düğmelerle değiştirebilirsiniz; doğru ölçek seçmek alıştırmanın parçasıdır.</p>
+    <div class="lab-grid">
+      <div><div class="screen"><canvas id="olc-cv" width="720" height="720" role="img" aria-label="Ölçülecek motor ünite potansiyeli"></canvas>
+        <div class="ovl ovl-g" role="group" aria-label="Kazanç"><button id="og-dn" type="button" aria-label="Kazanç: bir alt değer">−</button><span id="og-val"></span><button id="og-up" type="button" aria-label="Kazanç: bir üst değer">+</button></div>
+        <div class="ovl ovl-s" role="group" aria-label="Süpürme"><button id="os-dn" type="button" aria-label="Süpürme: bir alt değer">−</button><span id="os-val"></span><button id="os-up" type="button" aria-label="Süpürme: bir üst değer">+</button></div>
+      </div></div>
+      <div class="lab-side" id="olc-form"></div>
+    </div>
+  </div>
+
+  <div class="card" id="kart-card" hidden>
+    <div class="read"><div class="grp">Ezber</div><h2>Miyotom kartları</h2></div>
+    <div class="row">
+      <div class="seg" role="group" aria-label="Yön" id="seg-kdir"><button type="button">Kastan köke</button><button type="button">Kökten kasa</button></div>
+      <div class="seg" role="group" aria-label="Ekstremite" id="seg-klimb"><button type="button">Üst</button><button type="button">Alt</button><button type="button">İkisi</button></div>
+      <button id="kart-reset" type="button">İlerlemeyi sıfırla</button>
+    </div>
+    <div id="kart-q" aria-live="polite"></div>
+    <div class="note" id="kart-stat"></div>
+    <details class="kural"><summary>Akılda tutma kuralları</summary>
+      <p><b>Refleksleri say: 1-2, 3-4, 5-6, 7-8.</b> S1–2 Aşil, L3–4 patella, C5–6 biseps ve brakiyoradiyalis, C7–8 triseps.</p>
+      <p><b>Aşağı indikçe kök de iner.</b> Kol: omuz C5, dirsek fleksiyonu C5–C6, dirsek ekstansiyonu C7, parmak ekstansiyonu C7–C8, el içi C8–T1. Bacak: kalça fleksiyonu L2–L3, diz ekstansiyonu L3–L4, ayak bileği dorsifleksiyonu L4–L5, plantar fleksiyon S1–S2. L5 ayağı kaldırır ve çevirir, S1 iter.</p>
+      <p><b>Her kök için üç sinirden üç kas.</b> C5: romboid, infraspinatus, deltoid. C6: biseps, brakiyoradiyalis, pronator teres. C7: triseps, FKR, EDK. C8: EİP, FPL, 1. DİO. T1: APB, 1. DİO. L2–L4: iliopsoas, adduktor, kuadriseps. L5: tibialis anterior, tibialis posterior, gluteus medius. S1: medial gastroknemius, biseps femoris kısa baş, gluteus maksimus.</p>
+      <p><b>İki köprü kas.</b> Pronator teres (C6–C7) tutulmuşsa C5 değil. Tibialis posterior (L5, tibial) tutulmuşsa düşük ayak peroneal sinirden değil.</p>
+    </details>
+    <p class="note">Yanlış bildiğiniz kartlar daha sık gelir. İlerleme yalnız bu cihazda saklanır. Yanıt anahtarı Miyotom tablosu sekmesindeki tablodur; katkı veren (○) kökü işaretlemek yanlış sayılmaz.</p>
+  </div>
 
   <div class="card" id="tab-card" hidden>
     <div class="read"><div class="grp">Başvuru</div><h2>Miyotom tablosu</h2></div>
     <p class="note">● baskın kök, ○ katkı veren kök. Kaynaklar arasında fark vardır ve bireysel varyasyon sıktır; baskın kökler cerrahi olarak doğrulanmış tek kök lezyonu serilerine göre işaretlidir (Levin 1996, Tsao 2003). Kök bulucu ve atölye bu tabloyu kullanır.</p>
     <div class="tab-grid"><div id="tab-up"></div><div id="tab-lo"></div></div>
+    <div class="read"><h2>Derecelendirme anahtarı</h2></div>
+    <p class="note">Yüklediğiniz bölüm ders notlarından ("gradeleme", "EMG1"). Simülatördeki dereceler ve ölçüm alıştırması bu tanımları kullanır.</p>
+    <div class="tab-grid">
+      <div>
+        <table class="myo key"><caption>Fibrilasyon ve pozitif keskin dalga</caption>
+          <tr><td class="g">0</td><td>Yok</td></tr>
+          <tr><td class="g">1+</td><td>En az 2 alanda, 2–3 saniyeden uzun süren tekli potansiyel dizisi</td></tr>
+          <tr><td class="g">2+</td><td>3 ya da daha fazla alanda orta sayıda potansiyel</td></tr>
+          <tr><td class="g">3+</td><td>Tüm kas alanında çok sayıda</td></tr>
+          <tr><td class="g">4+</td><td>Potansiyeller tam interferans paterni oluşturur</td></tr>
+        </table>
+        <p class="note">Kök lezyonunda paraspinalde 7–10 gün, distal kasta 6 hafta sonra çıkar. Soğuk ve iskemiyle azalabilir. İstirahat ayarı: 50–100 µV/kare, 5–10 ms/kare. İnsersiyon aktivitesi 300 ms'den uzunsa artmıştır. Son plak dışında 3 saniyeden uzun süren spontan aktivite anormaldir.</p>
+        <table class="myo key"><caption>Fasikülasyon</caption>
+          <tr><td class="g">0</td><td>Yok (yok demek için en az 2 dakika bekleyin)</td></tr>
+          <tr><td class="g">1+</td><td>Dakikada 1–10</td></tr>
+          <tr><td class="g">2+</td><td>Dakikada 11–25</td></tr>
+          <tr><td class="g">3+</td><td>Dakikada 26–50</td></tr>
+          <tr><td class="g">4+</td><td>Dakikada 50'den fazla</td></tr>
+        </table>
+        <p class="note">Düzensiz, genellikle 1–2 Hz'in altında ateşler. İğneyi yerleştirip sabit tutarak izlenir. "EMG1" notunda alan sayısına dayalı ikinci bir ölçek de var (1+: 2 alanda dakikada 2–10; 2+: birçok alanda 10–15; 3+: tüm alanlarda).</p>
+      </div>
+      <div>
+        <table class="myo key"><caption>MÜP amplitüdü</caption>
+          <tr><td class="g">Azalmış</td><td>Ünitelerin çoğu distal kasta 200 µV, proksimal kasta 100 µV altında</td></tr>
+          <tr><td class="g">+1</td><td>1–2 mV: 200 µV/karede ekranı doldurur (distal kaslarda 2 mV'a yakın normal ünite olabilir)</td></tr>
+          <tr><td class="g">+2</td><td>2–5 mV: 200 µV/karede ekrandan taşar, 500 µV/karede taşmaz</td></tr>
+          <tr><td class="g">+3</td><td>5–10 mV: 500 µV/karede taşar, 1 mV/karede taşmaz</td></tr>
+          <tr><td class="g">+4</td><td>10 mV üstü: 1 mV/karede taşar ya da ekranı tam doldurur. Nadirdir; polio gibi kronik ön boynuz hastalığı gerekir</td></tr>
+        </table>
+        <table class="myo key"><caption>Süre, faz, rekrutman</caption>
+          <tr><td class="g">Süre</td><td>Normal 5–15 ms. 10 ms/karede 1,5 kareden uzun: artmış; yarım kareden kısa: azalmış. Yaşla ve soğukla uzar. Yüksek duyarlılıkta (100 µV/kare) ölçün; 1 mV/karede baştaki ve sondaki yavaş bileşenler seçilmez ve süre kısa ölçülür</td></tr>
+          <tr><td class="g">Faz</td><td>Taban çizgisi geçişi + 1. 4'ten fazlası polifazik. Normal kasta MÜP'lerin %5–10'u, deltoidde %25'i polifazik olabilir</td></tr>
+          <tr><td class="g">Turn</td><td>Taban çizgisini geçmeyen yön değişimi; 5'ten fazlası anormal. 4'ten fazla faz, 5'ten fazla turn ya da uydu potansiyeli olan MÜP komplekstir</td></tr>
+          <tr><td class="g">Rekrutman</td><td>20 ms/karede ekran 200 ms'dir: aynı MÜP ekranda bir kez görünüyorsa 5 Hz, iki kez 10 Hz, üç kez 15 Hz. Normalde 10 Hz'de ikinci ünite katılır; katılmıyor ve ilk ünite ekranda ikiden fazla görünüyorsa rekrutman azalmıştır</td></tr>
+        </table>
+      </div>
+    </div>
   </div>
 
   <div class="card" id="lab-card" hidden>
@@ -265,8 +457,12 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       <div class="card" id="ws-card" hidden>
         <div class="read"><div class="grp">Radikülopati atölyesi</div><h2 id="ws-title"></h2></div>
         <p id="ws-vig" style="margin:0"></p>
-        <div class="row"><button id="ws-ncs" type="button">Sinir iletimi sonucunu göster</button></div>
-        <p class="note" id="ws-ncs-out" hidden></p>
+        <fieldset><legend>1 Sinir iletimi: yapmak istediğiniz çalışmaya dokunun</legend>
+          <div class="pats" id="ws-nbtn"></div>
+          <div class="tablewrap" id="ws-ntab"></div>
+          <p class="note" id="ws-ncs-out" hidden></p>
+        </fieldset>
+        <div class="label">2 İğne EMG: şekilden kas seçin</div>
         <div class="ws-fig" id="ws-fig"></div>
         <div id="ws-cur"></div>
         <fieldset><legend>Tanınız</legend><div id="ws-dx" style="display:flex;flex-direction:column;gap:6px"></div></fieldset>
@@ -511,23 +707,24 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   var GRP_NAME = { gf: "Gerçekçi kayıt: istirahat", gm: "Gerçekçi kayıt: istemli kası", gi: "Gerçekçi kayıt: maksimum kası", ge: "Gerçekçi kayıt: evreleme (aynı konum, üç adım)", rest: "İstirahat", ozel: "İstirahat: özel boşalım", mup: "Şematik tek MÜP", rek: "Artan kası" };
 
   // ---------- realistic graded scenes ----------
-  var FIB_DEF = ["0: süregen potansiyel yok", "+1: en az iki bölgede süregen tek tek potansiyeller", "+2: üç veya daha fazla bölgede orta sayıda",
-                 "+3: tüm bölgelerde çok sayıda", "+4: tüm bölgelerde taban çizgisini dolduran"];
-  var MUP_DEF = ["Normal: 0,3–1,5 mV, 8–12 ms; en hızlı ünite 12–15 Hz'i geçmeden yenisi eklenir",
-                 "+1 çok hafif: MÜP'lerin üçte biri 1,8–2,6 mV, 13–16 ms; en hızlı ünite ≈ 15 Hz",
-                 "+2 hafif: dört MÜP'ten üçü 2,4–4 mV, 15–19 ms; 3–4 ünite, ≈ 20 Hz",
-                 "+3 orta: hepsi 3,5–6 mV, 18–24 ms; 2 ünite, ≈ 25 Hz",
-                 "+4 ağır: dev MÜP 7–11 mV, 24–30 ms; tek ünite, 25–30 Hz"];
+  // Grade definitions follow the user's department lecture notes ("gradeleme", "EMG1").
+  var FIB_DEF = ["0: yok", "+1: en az 2 alanda, 2–3 saniyeden uzun süren tekli potansiyel dizisi", "+2: 3 ya da daha fazla alanda orta sayıda potansiyel",
+                 "+3: tüm kas alanında çok sayıda potansiyel", "+4: potansiyeller tam interferans paterni oluşturur"];
+  var MUP_DEF = ["Normal: 1 mV altı (distal kaslarda 2 mV'a yakın normal ünite olabilir); süre 5–15 ms",
+                 "+1: 1–2 mV; 200'lük karede ekranı doldurur",
+                 "+2: 2–5 mV; 200'lükte ekrandan taşar, 500'lükte sığar",
+                 "+3: 5–10 mV; 500'lükte taşar, 1 mV'lukta sığar",
+                 "+4: 10 mV üstü; 1 mV'lukta ekranı doldurur ya da taşar (nadir: polio gibi kronik ön boynuz hastalığı)"];
   var FIB_GOR = ["Hiçbir konumda süregen potansiyel yok. İğne oynatılınca yalnız kısa insersiyon patlaması olur.",
                  "Konumların yaklaşık yarısında bir-iki lif düzenli ateşler; diğer konumlar sessizdir.",
                  "Konumların çoğunda birkaç lif birlikte ateşler; aralarında taban çizgisi rahatça seçilir.",
                  "Her konumda çok sayıda lif ateşler; taban çizgisi yer yer görünür.",
                  "Her konumda potansiyeller üst üste biner ve taban çizgisini tamamen doldurur."];
-  var MUP_GOR = ["Kuvvet arttıkça küçükten büyüğe yeni üniteler eklenir. Keskin, orta ve künt (uzak) üniteler birlikte görünür.",
-                 "Çoğu ünite normal; arada bir-iki hafif büyük ve uzun MÜP var. Seyrelme belirsizdir.",
-                 "Ünitelerin yarıdan fazlası iri ve uzun. Kuvvet artınca yeni ünite gelmekte gecikir, eldekiler hızlanır.",
-                 "Yalnız iki iri ünite kalmıştır; kuvvet arttıkça yenisi gelmez, hızları 25 Hz'e çıkar.",
-                 "Tek bir dev ünite tek başına ve çok hızlı ateşler: tek ünite paterni."];
+  var MUP_GOR = ["Kuvvet arttıkça küçükten büyüğe yeni üniteler eklenir. Keskin, orta ve künt (uzak) üniteler birlikte görünür; hiçbiri 1 mV'u geçmez.",
+                 "Çoğu ünite normal; arada bir-iki MÜP 1–2 mV. 200'lük karede bu MÜP'ler ekranı yukarıdan aşağı doldurur ama taşmaz.",
+                 "Ünitelerin yarıdan fazlası 2–5 mV. 200'lükte ekrandan taşarlar; kazancı 500'e alınca sığarlar. Yeni ünite gelmekte gecikir.",
+                 "Kalan iki ünite 5–10 mV. 500'lükte de taşarlar; 1 mV'lukta sığarlar. Kuvvet arttıkça yenisi gelmez, eldekiler hızlanır.",
+                 "Tek bir dev ünite 10 mV'un üstünde: 1 mV'lukta bile ekranı doldurur. Tek başına ve çok hızlı ateşler."];
   var REAL = [];
   [0, 1, 2, 3, 4].forEach(function (g) {
     REAL.push({ id: "gf" + g, grp: "gf", ad: "Fibrilasyon / PKD " + (g ? "+" + g : "0"), btn: g ? "+" + g : "0", real: { kind: "fib", g: g }, units: [], noise: 0.003,
@@ -537,15 +734,15 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   });
   [0, 1, 2, 3, 4].forEach(function (g) {
     REAL.push({ id: "gm" + g, grp: "gm", ad: g ? "Nörojen MÜP +" + g : "Normal kas", btn: g ? "+" + g : "Normal", real: { kind: "mup", g: g }, units: [], noise: 0.005,
-      rec: { gain: [200, 500, 500, 1000, 2000][g], sweep: 10, trig: true }, gor: MUP_GOR[g],
+      rec: { gain: [200, 200, 500, 1000, 2000][g], sweep: 10, trig: true }, gor: MUP_GOR[g],
       dinle: g < 2 ? "Farklı tonda vuruşların karışımı; keskin üniteler çıtırtılı, uzaktakiler boğuk." : "Az sayıda, tok ve hızlı vuruş.",
-      anlam: "Yalnız keskin (iğneye yakın) üniteleri ölçün; künt olanların amplitüdü de süresi de yanıltır. Dereceyi tek MÜP değil, birkaç konumda görülen MÜP'lerin çoğunluğu ve rekrutman birlikte belirler." });
+      anlam: "Derece amplitüdle verilir ve kazanç basamaklarıyla bulunur: 200'lükte başlayın, MÜP ekrandan taşıyorsa 500'e, yine taşıyorsa 1 mV'a çıkın; ilk sığdığı basamak dereceyi verir. Yalnız keskin (iğneye yakın) üniteleri değerlendirin; künt olanların amplitüdü de süresi de yanıltır." });
   });
   // Interference pattern at maximal effort. surv = motor units left out of a pool of 30.
-  var IP_DEF = ["Tam: taban çizgisi kapalı, tek MÜP seçilmez; zarf 2–4 mV",
-                "Hafif seyrelme: taban çizgisi yer yer görünür, bazı MÜP'ler seçilir; zarf normal veya yüksek",
-                "Belirgin seyrelme: MÜP'ler tek tek seçilir; az sayıda iri ünite 25–30 Hz",
-                "Tek ünite (çit paterni): tek ünite, aralarında taban çizgisi; 30 Hz ve üstü",
+  var IP_DEF = ["Tam (interferans): taban çizgisi kapalı, tek MÜP seçilmez; zarf 2–4 mV",
+                "Hafif seyrelme (miks patern): taban çizgisi yer yer görünür, bazı MÜP'ler seçilir; zarf normal veya yüksek",
+                "Belirgin seyrelme (tek osilasyon–miks): MÜP'ler tek tek seçilir; az sayıda iri ünite 25–30 Hz",
+                "Tek ünite (tek osilasyon, çit paterni): tek ünite, aralarında taban çizgisi; 30 Hz ve üstü",
                 "Miyopatik: düşük kuvvette bile tam; zarf düşük (1 mV altı)",
                 "Yetersiz efor veya santral: seyrelmiş ama üniteler yavaş (15 Hz altı) ve düzensiz; MÜP boyutu normal"];
   var IP_CFG = [
@@ -800,10 +997,10 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       var enl = pick.indexOf(i) >= 0;
       var amp, dur, poly;
       if (enl) {
-        var A = [[1.8, 2.6], [2.4, 4.0], [3.5, 6.0], [7, 11]][g - 1], D = [[13, 16], [15, 19], [18, 24], [24, 30]][g - 1];
+        var A = [[1.15, 1.9], [2.3, 4.7], [5.4, 9.4], [10.6, 14]][g - 1], D = [[12, 15], [15, 19], [18, 24], [24, 30]][g - 1];
         amp = A[0] + (A[1] - A[0]) * Math.random(); dur = D[0] + (D[1] - D[0]) * Math.random(); poly = Math.random() < 0.35;
-      } else { amp = Math.min(1.5, (0.55 + 1.0 * th) * (0.75 + 0.55 * Math.random())); dur = 8 + 4 * Math.random(); poly = Math.random() < 0.1; }
-      list.push({ th: th, enl: enl, amp: amp, dur: dur, poly: poly, cls: poor ? ri(1, 2) : (Math.random() < 0.3 ? 0 : ri(1, 2)) });
+      } else { amp = Math.min(0.95, (0.45 + 0.7 * th) * (0.75 + 0.55 * Math.random())); dur = 8 + 4 * Math.random(); poly = Math.random() < 0.1; }
+      list.push({ th: th, enl: enl, amp: amp, dur: dur, poly: poly, cls: enl ? 0 : poor ? ri(1, 2) : (Math.random() < 0.3 ? 0 : ri(1, 2)) });   // enlarged units are shown at full size, so the grade is readable
     }
     if (!poor) list[ri(0, Math.min(3, nS) - 1)].cls = 0;      // at least one sharp unit among the first recruited
     list.forEach(function (q) {
@@ -812,7 +1009,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       else if (q.poly) { if (q.dur < 16) { tpl = "polyCore"; nom = 14; } else { tpl = "chronicB"; nom = 18; } }
       else { tpl = ["normal", "normalB", "normalC"][ri(0, 2)]; nom = tpl === "normalC" ? 8 : 9; }
       var blur = [0, 0.3 + 0.2 * Math.random(), 0.7 + 0.6 * Math.random()][q.cls];
-      var df = [0.85 + 0.15 * Math.random(), 0.4 + 0.3 * Math.random(), 0.08 + 0.2 * Math.random()][q.cls];
+      var df = q.enl ? 1 : [0.85 + 0.15 * Math.random(), 0.4 + 0.3 * Math.random(), 0.08 + 0.2 * Math.random()][q.cls];
       var tbl = variant(tpl, q.dur / nom, blur), m = measure(tbl);
       units.push({ mode: "vol", s: tbl, a: q.amp * df, th: q.th, rmax: 20 + 2.5 * g, cv: 0.09 + 0.04 * Math.random(), cvA: 0.05,
                    cls: q.cls, dur: m.dur, ph: m.ph, enl: q.enl, next: simT + 150 + Math.random() * 150 });
@@ -1062,7 +1259,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       add("div", "Taban çizgisi: " + (fr < 0.08 ? "kapalı" : fr < 0.35 ? "yer yer açık" : "çoğunlukla açık") + " (sürenin yaklaşık %" + Math.round(fr * 100) + " kadarı boş)");
       add("div", "Zarf: yaklaşık " + fmt(env, 1) + " mV = " + fmt(env * 1000 / st.gain, 1) + " kare");
       add("div", "Ateşleyen ünite: " + act + " / " + units.length + "  ·  en hızlı ünite: " + (fast ? fmt(fast, 0) + " Hz" : "yok"));
-      add("div", "Okuma sırası: efor maksimum mu → taban çizgisi kapalı mı → zarf kaç kare → seçilen ünite kaç Hz. Kararsız kalırsanız süpürmeyi 10–20 ms/kareye alın: taban çizgisi görünüyorsa tam değildir. Hız için ekranı dondurun: aynı MÜP 100 ms'lik bir karede kaç kez geçiyorsa, 10 katı Hz'dir.", "note");
+      add("div", "Okuma sırası: efor maksimum mu → taban çizgisi kapalı mı → zarf kaç kare → seçilen ünite kaç Hz. Kararsız kalırsanız süpürmeyi 10–20 ms/kareye alın: taban çizgisi görünüyorsa tam değildir. Hız için ekranı dondurun: aynı MÜP 100 ms'lik bir karede kaç kez geçiyorsa, 10 katı Hz'dir. Hafif kasıda 20 ms/kare kullanın: ekran 200 ms olur; aynı MÜP ekranda bir kez görünüyorsa 5 Hz, iki kez 10 Hz, üç kez 15 Hz'dir.", "note");
       return;
     }
     if (p.real.kind === "fib") {
@@ -1143,7 +1340,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     }
     if (p.real) {
       ({ fib: FIB_DEF, mup: MUP_DEF, ip: IP_DEF, evre: EVRE_DEF }[p.real.kind]).forEach(function (t, g) { line((g === p.real.g && !hide ? "▸ " : "  ") + t, g === p.real.g && !hide ? "on" : "off"); });
-      if (p.real.kind === "mup") line("Bu kazançta 2 mV = " + fmt(2000 / st.gain, 1) + " kare, 5 mV = " + fmt(5000 / st.gain, 1) + " kare");
+      if (p.real.kind === "mup") line("Ekran 10 karedir: bu kazançta ekranın tamamı " + fmt(st.gain / 100, 1) + " mV. 1 mV = " + fmt(1000 / st.gain, 1) + " kare, 2 mV = " + fmt(2000 / st.gain, 1) + " kare, 5 mV = " + fmt(5000 / st.gain, 1) + " kare");
       if (p.real.kind === "evre") line("Fibrilasyon amplitüdü yaş verir: ilk 2 ayda ortalama 0,6 mV, 1 yıldan sonra 100 µV'u geçmez (Kraft 1990)");
       if (p.real.kind === "ip") line("Bu kazançta normal zarf (2–4 mV) = " + fmt(2000 / st.gain, 1) + "–" + fmt(4000 / st.gain, 1) + " kare");
     } else {
@@ -1376,10 +1573,132 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     });
     if (les.als && nAls < 6) { wsNew(limb); return; }
     var side = Math.random() < 0.5 ? "sağ" : "sol";
-    st.ws = { limb: limb, les: les, sg: sg, mixed: mixed, old: old, find: find, cur: null, calls: {}, order: [], dx: null, dsg: null, done: false, ncs: false,
+    st.ws = { limb: limb, les: les, sg: sg, mixed: mixed, old: old, find: find, cur: null, calls: {}, order: [], dx: null, dsg: null, done: false, ncs: false, nres: wsNcsGen(limb, les, sg, find), ndone: [],
               vig: ri(31, 68) + " yaşında " + (Math.random() < 0.5 ? "kadın" : "erkek") + " hasta. " + (les.sure || WS_SURE[sg === null ? ri(0, 1) : mixed ? 0 : sg]()) + (les.bil ? " " : ", " + side + " tarafta ") +
                    les.yak + " yakınması var. " + (mixed ? "Yıllar önce aynı " + (limb === "up" ? "kolda" : "bacakta") + " benzer bir atak geçirmiş. " : "") + "Muayene: " + les.mua + "." };
     setPattern(WS_PAT, false, null);
+  }
+  // Nerve conduction in the workshop: every study has a result, drawn from the same lesion as the needle findings.
+  var WS_NCS = { up: [["m_med", "Median motor (APB)"], ["m_uln", "Ulnar motor (ADM)"], ["m_rad", "Radial motor (EİP)"], ["med1", "Median duyu (başparmak)"], ["med2", "Median duyu (2. parmak)"],
+                      ["uln5", "Ulnar duyu (5. parmak)"], ["rad", "Radial duyu"], ["lak", "Lateral antebrakiyal"], ["mak", "Medial antebrakiyal"], ["c_s", "Karşı kol: median duyu"]],
+                 lo: [["m_per", "Peroneal motor (EDB)"], ["m_tib", "Tibial motor (AH)"], ["h", "H refleksi"], ["sur", "Sural duyu"], ["sp", "Yüzeyel peroneal duyu"], ["saf", "Safen duyu"], ["c_s", "Karşı bacak: sural duyu"]] };
+  var WS_SNAP_LOW = { UT: ["lak", "med1"], LT: ["uln5", "mak"], ULN: ["uln5"], RAD: ["rad"], MED: ["med1", "med2"], LSP: ["sur", "sp"], SCI: ["sur", "sp"], PER: ["sp"], FEM: ["saf"] };
+  var WS_SNAP_ROOT = { C5: ["lak"], C6: ["lak", "med1"], C7: ["med2", "rad"], C8: ["uln5"], T1: ["mak"], L2: ["saf"], L3: ["saf"], L4: ["saf"], L5: ["sp"], S1: ["sur"] };
+  function wsNcsKey(w) {
+    var les = w.les, a = [];
+    if (les.parts) les.parts.forEach(function (p) { p.root.forEach(function (r) { (WS_SNAP_ROOT[r] || []).forEach(function (id) { if (a.indexOf(id) < 0) a.push(id); }); }); });
+    else if (WS_SNAP_LOW[les.id]) a = WS_SNAP_LOW[les.id].slice();
+    else if (les.id === "PNP") a = w.limb === "up" ? ["med2", "uln5", "c_s"] : ["sur", "sp", "c_s"];
+    else if (les.als) a = w.limb === "up" ? ["med2", "uln5"] : ["sur", "sp"];
+    if (les.id === "ULN") a.push("m_uln"); if (les.id === "PER") a.push("m_per"); if (les.id === "RAD") a.push("m_rad");
+    if (w.limb === "lo" && les.parts && les.parts.some(function (p) { return p.root.indexOf("S1") >= 0; })) a.push("h");
+    return a;
+  }
+  function wsNcsGen(limb, les, sg, find) {
+    var u = function (a, b) { return a + (b - a) * Math.random(); }, R = {}, pnp = les.id === "PNP", low = pnp ? [] : (WS_SNAP_LOW[les.id] || []);
+    function sev(id) { var f = find[id]; return !f || f.mup === "myo" || !wsAbn(f) ? 0 : f.nS <= 4 ? 1 : 0.5; }
+    function fac(id) { var v = sev(id), f = v === 1 ? u(0.22, 0.58) : v ? u(0.6, 0.85) : 1; return sg === 3 ? Math.min(1, f * 1.4) : f; }
+    function n1(x) { return fmt(x, 1); }
+    function motor(key, ref, base, fct, o) {
+      var dl = u(base.dl[0], base.dl[1]) * (pnp ? u(1.05, 1.2) : 1), a = u(base.a[0], base.a[1]) * fct, cv = u(base.cv[0], base.cv[1]) * (pnp ? u(0.84, 0.94) : 1) * (o.cvF || 1), f = base.f ? u(base.f[0], base.f[1]) * (pnp ? u(1.05, 1.18) : fct < 0.6 ? u(1.0, 1.1) : 1) : null;
+      var row = [["distal latans " + n1(dl) + " ms", dl >= ref.dl], ["amplitüd " + o.s1 + " " + n1(a) + " mV", a <= ref.amp]], a2 = a * u(0.92, 0.97) * (o.tibDrop ? u(0.8, 0.92) : 1), a3;
+      if (o.s3) { row.push([o.s2 + " " + n1(a2) + " mV", false]); a3 = a2 * u(0.93, 0.98) * (o.blk || 1); row.push([o.s3 + " " + n1(a3) + " mV", a3 / a2 < 0.8]); }
+      else { a2 = a2 * (o.blk || 1); row.push([o.s2 + " " + n1(a2) + " mV", a2 / a < 0.7]); }
+      row.push(["hız " + Math.round(cv) + " m/s", cv <= ref.cv]);
+      if (o.x) { var cx = o.xcv || u(base.cv[0] - 2, base.cv[1]); row.push([o.x + " " + Math.round(cx) + " m/s", cx < ref.cv || cv - cx >= 10]); }
+      if (base.f) row.push(fct < 0.15 ? ["F yok", true] : ["F " + n1(f) + " ms", f > ref.f]);
+      var blk = (o.blk || 1) < 1, l2 = dl + o.d[0] / cv, tr = [[o.s1, dl, a, 1], [o.s2, l2, a2, o.s3 ? 1.04 : blk ? 1.22 : 1.06]];
+      if (o.s3) tr.push([o.s3, l2 + o.d[1] / cx, a3, blk ? 1.25 : 1.08]);
+      row.g = { t: "m", tr: tr, T: limb === "up" ? 20 : 30, dn: limb === "up" ? 5 : 5.6, f: base.f ? { lat: fct < 0.15 ? null : f, T: limb === "up" ? 50 : 100, pers: fct < 0.6 ? 0.4 : pnp ? 0.5 : 0.8, dl: dl } : null };
+      R[key] = row;
+    }
+    function snap(key, base, lim, side, d, vlim) {
+      var a = u(base[0], base[1]), other = a * u(0.85, 1.15), f = low.indexOf(key) >= 0 ? (Math.random() < 0.4 ? 0 : u(0.12, 0.42)) : pnp ? (limb === "lo" ? 0 : u(0.15, 0.5)) : 1;
+      if (sg === 3 && f < 1 && f > 0) f = Math.min(0.6, f * 1.3);
+      a *= f;
+      if (pnp) { other *= limb === "lo" ? 0 : u(0.15, 0.5); if (lim && a > lim) a = lim * u(0.4, 0.95); }   // length-dependent: both sides, below the lab limit
+      var bad = pnp ? true : lim ? a <= lim : a < 0.5 * other;
+      function sv(x) { return x < 0.5 ? "yanıt yok" : Math.round(x) + " µV"; }
+      var v0 = limb === "up" ? u(53, 62) : u(43, 51), v = v0 * (pnp ? u(0.82, 0.93) : f < 1 ? u(0.92, 1) : 1), vo = v0 * u(0.97, 1.03) * (pnp ? u(0.82, 0.93) : 1);
+      var row = [[sv(a), bad]]; if (a >= 0.5) row.push(["hız " + Math.round(v) + " m/s", vlim ? v <= vlim : false]);
+      if (side) row.push(["karşı taraf " + sv(other), pnp]);
+      row.g = { t: "s", tr: [[side ? "Bu taraf" : "", a >= 0.5 ? d / v : null, a]].concat(side ? [["Karşı taraf", other >= 0.5 ? d / vo : null, other]] : []) };
+      R[key] = row;
+    }
+    if (limb === "up") {
+      motor("m_med", N_REF.med, { dl: [2.9, 3.5], a: [7, 12], cv: [53, 60], f: [25, 29] }, fac("apb"), { d: [220], s1: "bilek", s2: "dirsek", cvF: les.id === "MED" ? u(0.76, 0.86) : 1 });
+      motor("m_uln", N_REF.uln, { dl: [2.2, 2.8], a: [8, 12], cv: [54, 62], f: [25, 30] }, fac("fdi"), { d: [210, 100], s1: "bilek", s2: "dirsek altı", s3: "dirsek üstü", x: "dirsek segmenti", blk: les.id === "ULN" ? u(0.45, 0.72) : 1, xcv: les.id === "ULN" ? u(32, 43) : null });
+      motor("m_rad", { dl: 3, amp: 2, cv: 50 }, { dl: [2.0, 2.6], a: [3, 6], cv: [55, 65] }, fac("eip"), { d: [230], s1: "önkol", s2: "spiral oluk üstü", blk: les.id === "RAD" ? u(0.3, 0.6) : 1 });
+      snap("med1", [15, 30], null, true, 100); snap("med2", [18, 40], 10, false, 130, 50); snap("uln5", [14, 30], 9, false, 110, 50); snap("rad", [20, 40], 15, false, 100, 50); snap("lak", [12, 25], null, true, 120); snap("mak", [8, 18], null, true, 120);
+      var c = pnp ? u(3, 9.5) : u(18, 40), cvc = u(53, 62) * (pnp ? u(0.82, 0.93) : 1); R.c_s = [[Math.round(c) + " µV", c <= 10], ["hız " + Math.round(cvc) + " m/s", cvc <= 50]]; R.c_s.g = { t: "s", tr: [["", 130 / cvc, c]] };
+    } else {
+      motor("m_per", N_REF.per, { dl: [3.5, 4.6], a: [3, 7], cv: [43, 50], f: [44, 52] }, fac("ehl"), { d: [300, 100], s1: "ayak bileği", s2: "fibula başı altı", s3: "fibula başı üstü", x: "fibula başı segmenti", blk: les.id === "PER" ? u(0.3, 0.6) : 1, xcv: les.id === "PER" ? u(26, 36) : null });
+      motor("m_tib", N_REF.tib, { dl: [3.5, 4.6], a: [8, 16], cv: [42, 50], f: [45, 53] }, fac("mg"), { d: [390], s1: "ayak bileği", s2: "popliteal", tibDrop: true });
+      var s1 = !!(les.parts && les.parts.some(function (p) { return p.root.indexOf("S1") >= 0; })), hAbs = s1 || pnp || les.id === "LSP" || les.id === "SCI" || (les.als && Math.random() < 0.5);
+      var hl = u(28, 32); R.h = hAbs ? [["alınamıyor", true]] : [["alınıyor, latans " + n1(hl) + " ms", false]]; R.h.g = { t: "h", lat: hAbs ? null : hl, amp: u(1.4, 3.6), m: u(0.25, 0.6) };
+      snap("sur", [12, 25], 10, false, 140, 40); snap("sp", [8, 18], 6, false, 120, 40); snap("saf", [4, 9], null, true, 140);
+      var c2 = pnp ? 0 : u(12, 25), cv2 = u(43, 51); R.c_s = [[c2 ? Math.round(c2) + " µV" : "yanıt yok", c2 <= 10]].concat(c2 ? [["hız " + Math.round(cv2) + " m/s", false]] : []); R.c_s.g = { t: "s", tr: [["", c2 ? 140 / cv2 : null, c2]] };
+    }
+    return R;
+  }
+  // Traces for a workshop conduction study, drawn once per study (random detail must not change on re-render).
+  function wsNcsSvg(G) {
+    var W = 300, D = 30, u = function (a, b) { return a + (b - a) * Math.random(); };
+    function cap1(t) { return t.charAt(0).toLocaleUpperCase("tr") + t.slice(1); }
+    function wave(x, A, dn, k) {                                   // negative (upward) phase A, then a shallower positive phase
+      if (x <= 0) return 0; var dp = dn * k, y;
+      if (x < dn) return A * Math.sin(Math.PI * x / dn) * (1 - Math.exp(-x / (dn * 0.06)));
+      y = (x - dn) / dp; return y >= 1 ? 0 : -0.6 * A * Math.sin(Math.PI * y) * Math.pow(1 - y, 0.6);
+    }
+    function path(fn, T, base, n) { var d = "", i; for (i = 0; i <= n; i++) d += (i ? "L" : "M") + (W * i / n).toFixed(1) + " " + (base - fn(T * i / n)).toFixed(1); return '<path class="w" d="' + d + '"/>'; }
+    function gain(mx, opts) { for (var i = 0; i < opts.length; i++) if (mx / opts[i] <= 2) return opts[i]; return opts[opts.length - 1]; }
+    function frame(H, inner, cap) {
+      var s = '<figure class="ngr"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + cap + '"><rect class="bg" width="' + W + '" height="' + H + '"/>', i;
+      for (i = 1; i < 10; i++) s += '<line class="gr" x1="' + i * D + '" y1="0" x2="' + i * D + '" y2="' + H + '"/>';
+      for (i = 15; i < H; i += 15) s += '<line class="gr" x1="0" y1="' + i + '" x2="' + W + '" y2="' + i + '"/>';
+      return s + inner + '</svg><figcaption>' + cap + '</figcaption></figure>';
+    }
+    function stim(base) { return '<line class="st" x1="1" y1="' + (base - 7) + '" x2="1" y2="' + (base + 7) + '"/>'; }
+    function mark(t, T, base) { var x = (t / T * W).toFixed(1); return '<line class="mk" x1="' + x + '" y1="' + (base + 3) + '" x2="' + x + '" y2="' + (base + 10) + '"/>'; }
+    function txt(s, y) { return '<text class="tx" x="' + (W - 5) + '" y="' + y + '" text-anchor="end">' + s + '</text>'; }
+    var out = "", inner = "", g, mx = 0;
+    if (G.t === "m") {
+      G.tr.forEach(function (r) { if (r[2] > mx) mx = r[2]; }); g = gain(mx, [0.2, 0.5, 1, 2, 5, 10]);
+      G.tr.forEach(function (r, i) {
+        var base = i * 60 + 45;
+        inner += stim(base) + path(function (t) { return wave(t - r[1], r[2] / g * 15, G.dn * r[3], 1.5); }, G.T, base, 240) + mark(r[1], G.T, base) +
+                 txt(cap1(r[0]) + " · " + fmt(r[1], 1) + " ms · " + fmt(r[2], 1) + " mV", i * 60 + 11);
+      });
+      out += frame(G.tr.length * 60, inner, "Motor yanıt · " + G.T / 10 + " ms/kare · " + fmt(g, g < 1 ? 1 : 0) + " mV/kare");
+      if (G.f) {
+        var F = G.f, n = 7, first = ri(0, n - 1), i2; inner = "";
+        for (i2 = 0; i2 < n; i2++) (function (i) {
+          var base = i * 15 + 19, on = F.lat != null && (i === first || Math.random() < F.pers), lat = on ? (i === first ? F.lat : F.lat + u(0.3, F.T / 20)) : 0, A = u(5, 12), dur = u(F.T * 0.09, F.T * 0.15), nl = ri(2, 3);
+          inner += path(function (t) {
+            var v = Math.max(-6, Math.min(11, wave(t - F.dl, 60, G.dn, 1.5))), x = t - lat;       // direct response clipped at this gain
+            if (on && x > 0 && x < dur) v += A * Math.sin(Math.PI * nl * x / dur) * Math.sin(Math.PI * x / dur);
+            return v + u(-0.5, 0.5);
+          }, F.T, base, 170);
+        })(i2);
+        if (F.lat != null) { var xf = (F.lat / F.T * W).toFixed(1); inner += '<line class="mk dot" x1="' + xf + '" y1="4" x2="' + xf + '" y2="' + (n * 15 + 11) + '"/>'; }
+        inner += txt(F.lat != null ? "en kısa F " + fmt(F.lat, 1) + " ms" : "F yanıtı yok", 11);
+        out += frame(n * 15 + 15, inner, "F yanıtları · " + F.T / 10 + " ms/kare · 200 µV/kare");
+      }
+    } else if (G.t === "s") {
+      G.tr.forEach(function (r) { if (r[2] > mx) mx = r[2]; }); g = gain(mx, [5, 10, 20, 50]);
+      G.tr.forEach(function (r, i) {
+        var base = i * 60 + 45, nz = 0.7 / g * 15;
+        inner += stim(base) + path(function (t) { return (r[1] ? wave(t - r[1], r[2] / g * 15, 1.5, 1.3) : 0) + (t < 0.6 ? 5 * Math.exp(-t / 0.15) : 0) + u(-nz, nz); }, 10, base, 200) + (r[1] ? mark(r[1], 10, base) : "") +
+                 txt((r[0] ? r[0] + " · " : "") + (r[1] ? fmt(r[1], 1) + " ms · " + Math.round(r[2]) + " µV" : "yanıt yok"), i * 60 + 11);
+      });
+      out += frame(G.tr.length * 60, inner, "Duysal yanıt · 1 ms/kare · " + g + " µV/kare");
+    } else {
+      g = gain(G.lat ? G.amp : G.m, [0.2, 0.5, 1, 2]);
+      inner = stim(60) + path(function (t) { return wave(t - 4.5, G.m / g * 15, 4.5, 1.4) + (G.lat ? wave(t - G.lat, G.amp / g * 15, 5.5, 1.4) : 0) + u(-0.3, 0.3); }, 50, 60, 240) +
+              (G.lat ? mark(G.lat, 50, 60) : "") + txt(G.lat ? "M · H " + fmt(G.lat, 1) + " ms" : "M var · H alınamıyor", 11);
+      out += frame(75, inner, "H refleksi (soleus) · 5 ms/kare · " + fmt(g, g < 1 ? 1 : 0) + " mV/kare");
+    }
+    return out;
   }
   function wsLes(id) { return WS_LES[st.ws.limb].filter(function (q) { return q.id === id; })[0]; }
   function wsMus(id) { return WS_MUS[st.ws.limb].filter(function (m) { return m.id === id; })[0]; }
@@ -1396,8 +1715,23 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     var w = st.ws, mus = WS_MUS[w.limb], fig = WS_FIG[w.limb], h, host;
     el("ws-title").textContent = (w.limb === "up" ? "Üst" : "Alt") + " ekstremite vakası";
     el("ws-vig").textContent = w.vig;
-    el("ws-ncs").hidden = w.ncs || w.done; el("ws-ncs-out").hidden = !(w.ncs || w.done);
-    el("ws-ncs-out").textContent = "Sinir iletimi: " + w.les.ncs;
+    el("ws-ncs-out").hidden = !w.done; el("ws-ncs-out").textContent = "Özet: " + w.les.ncs;
+    var nb = el("ws-nbtn"), nt = el("ws-ntab"); nb.textContent = ""; nt.textContent = "";
+    WS_NCS[w.limb].forEach(function (q) {
+      var b = document.createElement("button"); b.type = "button"; b.textContent = q[1]; b.setAttribute("aria-pressed", w.ndone.indexOf(q[0]) >= 0 ? "true" : "false");
+      b.addEventListener("click", function () { if (w.ndone.indexOf(q[0]) < 0) { w.ndone.push(q[0]); renderWs(); } }); nb.appendChild(b);
+    });
+    var shown = w.done ? WS_NCS[w.limb].map(function (q) { return q[0]; }) : w.ndone;
+    if (shown.length) {
+      var ntb = document.createElement("table"); ntb.className = "myo n-tab wsn"; nt.appendChild(ntb);
+      shown.forEach(function (id) {
+        var q = WS_NCS[w.limb].filter(function (x) { return x[0] === id; })[0], tr = document.createElement("tr"), td = document.createElement("td"), td2 = document.createElement("td");
+        td.textContent = q[1] + (w.done && w.ndone.indexOf(id) < 0 ? " (yapılmadı)" : ""); if (w.done && w.ndone.indexOf(id) < 0) tr.className = "dull";
+        w.nres[id].forEach(function (c, i) { var sp = document.createElement("span"); sp.textContent = c[0]; if (c[1]) sp.className = "ab"; if (i) td2.appendChild(document.createTextNode("  ·  ")); td2.appendChild(sp); });
+        if (w.ndone.indexOf(id) >= 0 && w.nres[id].g) { var gd = document.createElement("div"); gd.className = "ngraf"; w.ng = w.ng || {}; if (!w.ng[id]) w.ng[id] = wsNcsSvg(w.nres[id].g); gd.innerHTML = w.ng[id]; td2.appendChild(gd); }
+        tr.appendChild(td); tr.appendChild(td2); ntb.appendChild(tr);
+      });
+    }
     // figure with needle points
     h = '<svg viewBox="' + fig.vb + '" role="group" aria-label="İğne noktaları">' + fig.body;
     mus.forEach(function (m) {
@@ -1462,7 +1796,9 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
     var li = add(host, "ul", null, "wsli");
     add(li, "li", w.order.length + " kasa baktınız. Taramada biri paraspinal olmak üzere 5–7 kas çoğu vakada yeter; şüpheli kökü doğrulamak için 1–2 kas eklenir.");
     add(li, "li", "Paraspinal: " + (w.order.indexOf(para.id) >= 0 ? "baktınız" : "bakmadınız") + "; bu vakada " + (wsAbn(w.find[para.id]) ? "anormal." + (w.les.myo ? "" : " Bu bulgu lezyonu pleksusun proksimaline yerleştirir.") : "normal." + (w.les.parts ? " Normal paraspinal radikülopatiyi dışlamaz." : "")));
-    add(li, "li", "Sinir iletimi sonucuna " + (w.ncs ? "baktınız." : "bakmadınız.") + " Radikülopati ve ön boynuzda SNAP korunur; pleksus, sinir ve polinöropatide düşer.");
+    var key = wsNcsKey(w), did = key.filter(function (id) { return w.ndone.indexOf(id) >= 0; });
+    add(li, "li", w.ndone.length + " sinir iletimi çalışması yaptınız. " + (key.length ? "Bu vakada ayırt edici olanlar: " + key.map(function (id) { return WS_NCS[w.limb].filter(function (x) { return x[0] === id; })[0][1]; }).join(", ") + " (" + did.length + " tanesini yaptınız). " : "") +
+      "Radikülopati ve ön boynuzda duysal yanıt korunur; pleksus, sinir ve polinöropatide düşer.");
     if (w.les.parts) add(li, "li", "Radikülopati için aynı kökten, farklı periferik sinirlerden en az iki anormal kas gerekir. Anormal " + abn.length + " kasın " + seenAbn.length + " tanesine baktınız; bunlar " + Object.keys(nerves).length + " ayrı sinirden.");
     if (w.les.cat === "s") add(li, "li", "Tek sinire ya da pleksusa uyan patern gördüğünüzde aynı kökten, başka sinirden bir kasa ve paraspinale bakmadan karar vermeyin.");
     var missed = Object.keys(w.calls).filter(function (id) { return (w.calls[id] === "A") !== wsAbn(w.find[id]); });
@@ -1530,24 +1866,24 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   var LAB_NCS = {
     up: [
       { id: "med1", t: "s", ad: "Median SNAP (başparmak)", rap: "median (başparmak)", g: "Duysal yanıtlar (SNAP)" },
-      { id: "med2", t: "s", ad: "Median SNAP (2.–3. parmak)", rap: "median (2.–3. parmak)", g: "Duysal yanıtlar (SNAP)" },
-      { id: "uln5", t: "s", ad: "Ulnar SNAP (5. parmak)", rap: "ulnar", g: "Duysal yanıtlar (SNAP)" },
-      { id: "rad", t: "s", ad: "Radial yüzeyel SNAP", rap: "radial", g: "Duysal yanıtlar (SNAP)" },
+      { id: "med2", t: "s", ad: "Median SNAP (2.–3. parmak; normal 10 µV üstü)", rap: "median (2.–3. parmak)", g: "Duysal yanıtlar (SNAP)" },
+      { id: "uln5", t: "s", ad: "Ulnar SNAP (5. parmak; normal 9 µV üstü)", rap: "ulnar", g: "Duysal yanıtlar (SNAP)" },
+      { id: "rad", t: "s", ad: "Radial yüzeyel SNAP (normal 15 µV üstü)", rap: "radial", g: "Duysal yanıtlar (SNAP)" },
       { id: "lak", t: "s", ad: "Lateral antebrakiyal kutanöz", rap: "lateral antebrakiyal kutanöz", g: "Duysal yanıtlar (SNAP)" },
       { id: "mak", t: "s", ad: "Medial antebrakiyal kutanöz", rap: "medial antebrakiyal kutanöz", g: "Duysal yanıtlar (SNAP)" },
-      { id: "cmed", t: "m", ad: "Median motor yanıt (APB)", rap: "median", g: "Motor yanıtlar (BKAP)" },
-      { id: "culn", t: "m", ad: "Ulnar motor yanıt (ADM)", rap: "ulnar", g: "Motor yanıtlar (BKAP)" },
+      { id: "cmed", t: "m", ad: "Median motor yanıt (APB; normal 5 mV üstü)", rap: "median", g: "Motor yanıtlar (BKAP)" },
+      { id: "culn", t: "m", ad: "Ulnar motor yanıt (ADM; normal 5 mV üstü)", rap: "ulnar", g: "Motor yanıtlar (BKAP)" },
       { id: "fuln", t: "f", ad: "Ulnar: dirsekte blok ya da yavaşlama", rap: "dirsek segmentinde ulnar motor iletim bloğu ya da yavaşlaması", g: "Fokal iletim bulgusu" },
       { id: "fmed", t: "f", ad: "Median: bilekte distal latans uzun", rap: "bilekte median distal latans uzaması", g: "Fokal iletim bulgusu" },
       { id: "frad", t: "f", ad: "Radial: spiral olukta blok", rap: "spiral olukta radial motor iletim bloğu", g: "Fokal iletim bulgusu" },
       { id: "bil", t: "b", ad: "Karşı kolda ya da bacaklarda da duysal yanıtlar düşük", g: "Yaygınlık" }
     ],
     lo: [
-      { id: "sur", t: "s", ad: "Sural SNAP", rap: "sural", g: "Duysal yanıtlar (SNAP)" },
-      { id: "sp", t: "s", ad: "Yüzeyel peroneal SNAP", rap: "yüzeyel peroneal", g: "Duysal yanıtlar (SNAP)" },
+      { id: "sur", t: "s", ad: "Sural SNAP (normal 10 µV üstü, yaşlıda 6)", rap: "sural", g: "Duysal yanıtlar (SNAP)" },
+      { id: "sp", t: "s", ad: "Yüzeyel peroneal SNAP (normal 6 µV üstü)", rap: "yüzeyel peroneal", g: "Duysal yanıtlar (SNAP)" },
       { id: "saf", t: "s", ad: "Safen SNAP", rap: "safen", g: "Duysal yanıtlar (SNAP)" },
-      { id: "cper", t: "m", ad: "Peroneal motor yanıt (EDB)", rap: "peroneal", g: "Motor yanıtlar (BKAP)" },
-      { id: "ctib", t: "m", ad: "Tibial motor yanıt (AH)", rap: "tibial", g: "Motor yanıtlar (BKAP)" },
+      { id: "cper", t: "m", ad: "Peroneal motor yanıt (EDB; normal 2 mV üstü)", rap: "peroneal", g: "Motor yanıtlar (BKAP)" },
+      { id: "ctib", t: "m", ad: "Tibial motor yanıt (AH; normal 5 mV üstü)", rap: "tibial", g: "Motor yanıtlar (BKAP)" },
       { id: "href", t: "h", ad: "H refleksi (soleus)", rap: "H refleksi", g: "Geç yanıt" },
       { id: "fper", t: "f", ad: "Peroneal: fibula başında blok ya da yavaşlama", rap: "fibula başında peroneal motor iletim bloğu ya da yavaşlaması", g: "Fokal iletim bulgusu" },
       { id: "bil", t: "b", ad: "Karşı bacakta ya da kollarda da duysal yanıtlar düşük", g: "Yaygınlık" }
@@ -1561,7 +1897,7 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   // low. snapN: expected preserved. foc: the focal conduction finding that points at this nerve. h: H reflex runs through it.
   var LAB_LES = {
     up: [
-      { t: "p", ad: "Üst trunkus pleksopatisi", w: { sup: 1, inf: 1, del: 1, bic: 1, brd: 1, pt: 0.5, fcr: 0.5, ecrl: 0.5 }, snap: ["lak", "med1"], snapN: ["uln5", "mak"] },
+      { t: "p", ad: "Üst trunkus pleksopatisi", w: { sup: 1, inf: 1, del: 1, bic: 1, brd: 1, pt: 0.5, fcr: 0.5, ecrl: 0.5, tri: 0.5 }, snap: ["lak", "med1"], snapN: ["uln5", "mak"] },
       { t: "p", ad: "Orta trunkus pleksopatisi", w: { tri: 1, anc: 1, edc: 1, pt: 1, fcr: 1, ecrl: 0.5, eip: 0.5 }, snap: ["med2"], snapN: ["uln5", "lak"] },
       { t: "p", ad: "Alt trunkus pleksopatisi", w: { fdi: 1, adm: 1, apb: 1, fpl: 1, fcu: 1, eip: 1, edc: 0.5 }, snap: ["uln5", "mak"], snapN: ["med1", "lak"] },
       { t: "p", ad: "Lateral kord pleksopatisi", w: { bic: 1, pt: 1, fcr: 1 }, snap: ["lak", "med1", "med2"], snapN: ["uln5", "rad"] },
@@ -1849,13 +2185,506 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
       });
     });
   }
+  // ---------- myotome flashcards: wrong answers come back more often ----------
+  var K_HINT = { C5: "Romboid yalnız C5", C6: "C5 paterni + pronator teres", C7: "7 = triseps", C8: "üç sinirin en distal kasları", T1: "APB = T1",
+                 L2: "uyluğun önü ve içi", L3: "uyluğun önü ve içi", L4: "uyluğun önü ve içi", L5: "kalçanın yanından başparmağa", S1: "bacağın arkası", S2: "soleus ve ayak içi" };
+  st.kart = { dir: "mk", limb: "all", cur: null, sel: {}, nerve: null, done: false, n: 0, ok: 0, w: {} };
+  try { st.kart.w = JSON.parse(localStorage.getItem("emg-kart-v1") || "{}") || {}; } catch (e) { st.kart.w = {}; }
+  function kSave() { try { localStorage.setItem("emg-kart-v1", JSON.stringify(st.kart.w)); } catch (e) {} }
+  function kNerve(row) { return row[1].replace(/ \(.*/, "").replace(/,.*/, ""); }
+  function kPool() {
+    var K = st.kart, out = [];
+    ["up", "lo"].forEach(function (l) {
+      if (K.limb !== "all" && K.limb !== l) return;
+      if (K.dir === "mk") MYO_TAB[l].rows.forEach(function (r, i) { out.push({ id: l + ":" + i, limb: l, row: r }); });
+      else MYO_TAB[l].roots.forEach(function (r) { out.push({ id: "R:" + r, limb: l, root: r }); });
+    });
+    return out;
+  }
+  function kNext() {
+    var K = st.kart, pool = kPool().filter(function (c) { return !K.cur || c.id !== K.cur.id; }), tot = 0, x;
+    pool.forEach(function (c) { tot += K.w[c.id] || 1; });
+    x = Math.random() * tot;
+    for (var i = 0; i < pool.length; i++) { x -= K.w[pool[i].id] || 1; if (x <= 0) { K.cur = pool[i]; break; } }
+    if (!K.cur || pool.indexOf(K.cur) < 0) K.cur = pool[pool.length - 1];
+    K.sel = {}; K.nerve = null; K.done = false; renderKart();
+  }
+  function kGrade() {
+    var K = st.kart, c = K.cur, T = MYO_TAB[c.limb], ok = true;
+    if (K.dir === "mk") {
+      T.roots.forEach(function (r) { var w = c.row[2][r] || 0; if ((w === 1 && !K.sel[r]) || (!w && K.sel[r])) ok = false; });
+      if (K.nerve !== kNerve(c.row)) ok = false;
+    } else T.rows.forEach(function (row, i) { var w = row[2][c.root] || 0; if ((w === 1 && !K.sel[i]) || (!w && K.sel[i])) ok = false; });
+    K.done = true; K.right = ok; K.n++; if (ok) K.ok++;
+    K.w[c.id] = ok ? Math.max(0.25, (K.w[c.id] || 1) * 0.5) : Math.min(8, (K.w[c.id] || 1) * 2 + 1);
+    kSave(); renderKart();
+  }
+  function renderKart() {
+    var K = st.kart, host = el("kart-q");
+    Array.prototype.forEach.call(el("seg-kdir").children, function (b, i) { b.setAttribute("aria-pressed", (i === 0) === (K.dir === "mk") ? "true" : "false"); });
+    Array.prototype.forEach.call(el("seg-klimb").children, function (b, i) { b.setAttribute("aria-pressed", ["up", "lo", "all"][i] === K.limb ? "true" : "false"); });
+    if (!K.cur) { kNext(); return; }
+    var c = K.cur, T = MYO_TAB[c.limb];
+    function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+    function tog(parent, txt, on, fn, w) {
+      var b = add(parent, "button", txt); b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false"); b.disabled = K.done; b.addEventListener("click", fn);
+      if (K.done && w != null) b.className = w === 1 ? (on ? "k-ok" : "k-miss") : w ? "k-min" : on ? "k-bad" : "";
+      return b;
+    }
+    host.textContent = "";
+    if (K.dir === "mk") {
+      add(host, "div", c.row[0], "kq");
+      add(host, "div", "Baskın kök ya da kökler", "label");
+      var pr = add(host, "div", null, "pats");
+      T.roots.forEach(function (r) { tog(pr, r, !!K.sel[r], function () { K.sel[r] = !K.sel[r]; renderKart(); }, c.row[2][r] || 0); });
+      add(host, "div", "Sinir", "label");
+      var pn = add(host, "div", null, "pats"), seen = {};
+      T.rows.forEach(function (row) { var n = kNerve(row); if (seen[n]) return; seen[n] = 1; tog(pn, n, K.nerve === n, function () { K.nerve = n; renderKart(); }, K.done ? (n === kNerve(c.row) ? 1 : 0) : null); });
+    } else {
+      add(host, "div", c.root + ": baskın olduğu kaslar", "kq");
+      add(host, "div", "Bu kökün baskın (●) olduğu bütün kasları seçin", "label");
+      var pm = add(host, "div", null, "pats");
+      T.rows.forEach(function (row, i) { tog(pm, row[0], !!K.sel[i], function () { K.sel[i] = !K.sel[i]; renderKart(); }, row[2][c.root] || 0); });
+    }
+    var act = add(host, "div", null, "row");
+    if (!K.done) {
+      var go = add(act, "button", "Yanıtla", "primary"); go.type = "button"; go.addEventListener("click", kGrade);
+      go.disabled = K.dir === "mk" ? !(Object.keys(K.sel).some(function (k) { return K.sel[k]; }) && K.nerve) : !Object.keys(K.sel).some(function (k) { return K.sel[k]; });
+    } else {
+      add(host, "div", K.right ? "Doğru." : "Yanlış.", "verdict" + (K.right ? "" : " bad"));
+      if (K.dir === "mk") {
+        var main = T.roots.filter(function (r) { return c.row[2][r] === 1; }), minor = T.roots.filter(function (r) { return c.row[2][r] === 0.5; });
+        add(host, "div", "● " + main.join(" ") + (minor.length ? "   ○ " + minor.join(" ") : "") + "   ·   " + c.row[1]);
+        add(host, "div", "Çapa: " + main.map(function (r) { return r + ": " + K_HINT[r]; }).filter(function (t, i, a) { return a.indexOf(t) === i; }).join("; ") + ".", "note");
+      } else {
+        add(host, "div", "Dolu yeşil: baskın ve seçtiniz. Kesikli çerçeve: baskın ama kaçırdınız. Yeşil çerçeve: katkı veren (○). Turuncu: bu kökten beslenmiyor.", "note");
+        add(host, "div", "Çapa: " + K_HINT[c.root] + ".", "note");
+      }
+      var nx = add(act, "button", "Sonraki kart", "primary"); nx.type = "button"; nx.addEventListener("click", kNext);
+    }
+    var hard = kPool().filter(function (q) { return (K.w[q.id] || 1) > 1; }).sort(function (a, b) { return K.w[b.id] - K.w[a.id]; }).slice(0, 4)
+                      .map(function (q) { return q.row ? q.row[0].split(",")[0] : q.root; });
+    el("kart-stat").textContent = "Bu oturum: " + K.n + " kart, " + K.ok + " doğru." + (hard.length ? "  En çok zorlandıklarınız: " + hard.join(", ") + "." : "");
+  }
+  // ---------- measuring drill: one frozen motor unit potential, read off the grid ----------
+  var O_GAINS = [50, 100, 200, 500, 1000, 2000], O_SWEEPS = [5, 10, 20];
+  var O_TYPES = [{ t: ["normal", "normalB", "normalC"], a: [0.3, 1.9], s: [0.9, 1.3], b: [0, 0.35] }, { t: ["chronic", "chronicB"], a: [2.2, 13], s: [0.85, 1.2], b: [0, 0.2] },
+                 { t: ["poly", "polyCore"], a: [0.5, 1.9], s: [0.85, 1.05], b: [0, 0.2] }, { t: ["myo", "myoB"], a: [0.08, 0.42], s: [0.9, 1.5], b: [0, 0.1] }];
+  var O_AG = [["dn", "Azalmış"], ["n", "Normal"], ["1", "+1"], ["2", "+2"], ["3", "+3"], ["4", "+4"]], O_DG = [["k", "Kısa"], ["n", "Normal"], ["u", "Uzun"]];
+  function oGrade(amp) { return amp < 0.2 ? "dn" : amp < 1 ? "n" : amp < 2 ? "1" : amp < 5 ? "2" : amp < 10 ? "3" : "4"; }
+  st.olc = { cur: null, gain: 500, sweep: 10, aTxt: "", dTxt: "", ph: null, ag: null, dg: null, done: false, n: 0, ok: 0 };
+  // Onset, offset, extremes and counted phases of a table, by the same rules as measure().
+  function oMeasure(a) {
+    var n = a.length, i, lo = -1, hi = -1, o = { peaks: [], iMax: 0, iMin: 0 };
+    for (i = 0; i < n; i++) { if (Math.abs(a[i]) > 0.04) { if (lo < 0) lo = i; hi = i; } if (a[i] > a[o.iMax]) o.iMax = i; if (a[i] < a[o.iMin]) o.iMin = i; }
+    var sgn = 0, peak = 0, pi = lo, last = 0;
+    function close() { if (peak >= 0.08 && sgn !== last) { o.peaks.push(pi); last = sgn; } }
+    for (i = lo; i <= hi; i++) {
+      var sg = a[i] > 0 ? 1 : -1;
+      if (sg !== sgn) { close(); sgn = sg; peak = 0; }
+      if (Math.abs(a[i]) > peak) { peak = Math.abs(a[i]); pi = i; }
+    }
+    close();
+    o.lo = lo; o.hi = hi; o.dur = (hi - lo) * T_STEP; o.ph = o.peaks.length;
+    return o;
+  }
+  function oNew() {
+    var O = st.olc, c, tries = 0;
+    do {
+      var ty = O_TYPES[ri(0, O_TYPES.length - 1)], tab = variant(ty.t[ri(0, ty.t.length - 1)], ty.s[0] + (ty.s[1] - ty.s[0]) * Math.random(), ty.b[0] + (ty.b[1] - ty.b[0]) * Math.random());
+      var m = oMeasure(tab), amp = ty.a[0] * Math.pow(ty.a[1] / ty.a[0], Math.random());
+      c = { tab: tab, m: m, amp: amp, dur: m.dur, ph: m.ph };
+      c.ag = oGrade(amp); c.dg = c.dur < 5 ? "k" : c.dur > 15 ? "u" : "n";
+      c.edge = [0.2, 1, 2, 5, 10].some(function (x) { return Math.abs(amp - x) < 0.08 * x; }) || Math.abs(c.dur - 15) < 1.2 || Math.abs(c.dur - 5) < 0.7 || c.dur > 38 || c.ph < 1 || c.ph > 8;
+    } while (c.edge && ++tries < 60);
+    c.noise = new Float32Array(720);
+    for (var i = 0; i < 720; i++) c.noise[i] = (Math.random() + Math.random() + Math.random() - 1.5) * 0.008;
+    O.gain = 200; O.sweep = 10; O.cur = c; O.aTxt = ""; O.dTxt = ""; O.ph = null; O.ag = null; O.dg = null; O.done = false;   // every unit starts at 200 µV/kare, as in the lab
+    renderOlc();
+  }
+  function oDraw() {
+    var O = st.olc, c = O.cur, cv = el("olc-cv"), g = cv.getContext("2d"), W = 720, H = 720, D = 72, i;
+    g.fillStyle = "#0c1822"; g.fillRect(0, 0, W, H);
+    for (i = 1; i < 10; i++) {
+      g.strokeStyle = i === 5 ? "rgba(244,234,210,.34)" : "rgba(244,234,210,.13)"; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(i * D + 0.5, 0); g.lineTo(i * D + 0.5, H); g.moveTo(0, i * D + 0.5); g.lineTo(W, i * D + 0.5); g.stroke();
+    }
+    if (!c) return;
+    var win = 10 * O.sweep, tOn = T_MIN + c.m.lo * T_STEP;
+    function X(t) { return ((t - tOn) / win + 0.25) * W; }
+    function Y(v) { return H / 2 - v * 1000 / O.gain * D; }
+    g.strokeStyle = "#f4ead2"; g.lineWidth = 2.2; g.lineJoin = "round"; g.beginPath();
+    for (i = 0; i < W; i++) { var t = tOn + (i / W - 0.25) * win, y = Y(c.amp * shapeAt(c.tab, t) + c.noise[i]); if (i) g.lineTo(i, y); else g.moveTo(i, y); }
+    g.stroke();
+    g.fillStyle = "rgba(244,234,210,.6)"; g.font = "14px ui-monospace, monospace"; g.fillText(O.gain + " µV/kare  ·  " + O.sweep + " ms/kare", 12, H - 12);
+    if (!O.done) return;
+    // the answer drawn on the trace: extremes, onset and offset, and the counted phases
+    var tA = T_MIN + c.m.iMax * T_STEP, tB = T_MIN + c.m.iMin * T_STEP, yA = Y(c.amp * c.tab[c.m.iMax]), yB = Y(c.amp * c.tab[c.m.iMin]), x0 = X(tOn), x1 = X(T_MIN + c.m.hi * T_STEP);
+    g.setLineDash([7, 5]); g.lineWidth = 1.6;
+    g.strokeStyle = "#f0a35a"; g.beginPath(); g.moveTo(0, yA); g.lineTo(W, yA); g.moveTo(0, yB); g.lineTo(W, yB); g.stroke();
+    g.strokeStyle = "#4fb3d1"; g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0, H); g.moveTo(x1, 0); g.lineTo(x1, H); g.stroke();
+    g.setLineDash([]);
+    g.font = "600 15px ui-monospace, monospace"; g.fillStyle = "#f0a35a"; g.fillText(fmt(c.amp, 2) + " mV = " + fmt(c.amp * 1000 / O.gain, 1) + " kare", W - 232, Math.max(64, yA - 8));
+    g.fillStyle = "#4fb3d1"; g.fillText(fmt(c.dur, 1) + " ms = " + fmt(c.dur / O.sweep, 1) + " kare", Math.min(W - 190, x0 + 6), H - 40);
+    g.fillStyle = "#f4ead2"; g.font = "600 17px ui-monospace, monospace"; g.textAlign = "center";
+    c.m.peaks.forEach(function (pi, k) { var v = c.amp * c.tab[pi], px = X(T_MIN + pi * T_STEP), py = Y(v) + (v > 0 ? -10 : 22); g.fillText(String(k + 1), Math.max(10, Math.min(W - 10, px)), Math.max(60, Math.min(H - 60, py))); });
+    g.textAlign = "left";
+  }
+  function oNum(t) { var v = parseFloat(String(t).replace(",", ".")); return isFinite(v) ? v : null; }
+  function renderOlc() {
+    var O = st.olc; if (!O.cur) { oNew(); return; }
+    var c = O.cur, host = el("olc-form");
+    el("og-val").textContent = O.gain + " µV"; el("os-val").textContent = O.sweep + " ms";
+    el("og-dn").disabled = O.gain === O_GAINS[0]; el("og-up").disabled = O.gain === O_GAINS[O_GAINS.length - 1];
+    el("os-dn").disabled = O.sweep === O_SWEEPS[0]; el("os-up").disabled = O.sweep === O_SWEEPS[O_SWEEPS.length - 1];
+    oDraw();
+    function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+    function btn(parent, txt, on, fn) { var b = add(parent, "button", txt); b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false"); b.disabled = O.done; b.addEventListener("click", fn); return b; }
+    host.textContent = "";
+    add(host, "div", "1 kare = " + O.gain + " µV ve " + O.sweep + " ms", "note");
+    var a = oNum(O.aTxt), d = oNum(O.dTxt), okA = a !== null && Math.abs(a - c.amp) <= 0.2 * c.amp, okD = d !== null && Math.abs(d - c.dur) <= Math.max(2, 0.2 * c.dur), okP = O.ph === c.ph, okX = O.ag === c.ag && O.dg === c.dg;
+    var grid = add(host, "div", null, "olc-in");
+    function field(label, key, unit, ok, truth) {
+      add(grid, "label", label).htmlFor = "olc-" + key;
+      var w = add(grid, "div", null, "row"), inp = add(w, "input"); inp.id = "olc-" + key; inp.type = "text"; inp.inputMode = "decimal"; inp.autocomplete = "off"; inp.value = O[key + "Txt"]; inp.disabled = O.done;
+      inp.addEventListener("input", function () { O[key + "Txt"] = inp.value; el("olc-go").disabled = !(oNum(O.aTxt) !== null && oNum(O.dTxt) !== null && O.ph && O.ag && O.dg); });
+      add(w, "span", unit, "note");
+      if (O.done) add(w, "span", (ok ? "✓ " : "✕ ") + truth, "res " + (ok ? "ok" : "bad"));
+    }
+    field("Amplitüd (tepeden tepeye)", "a", "mV", okA, "doğrusu " + fmt(c.amp, 2) + " mV");
+    field("Süre", "d", "ms", okD, "doğrusu " + fmt(c.dur, 1) + " ms");
+    add(host, "div", "Faz sayısı", "label");
+    var pp = add(host, "div", null, "pats");
+    [1, 2, 3, 4, 5, 6, 7, 8].forEach(function (k) { var b = btn(pp, String(k), O.ph === k, function () { O.ph = k; renderOlc(); }); if (O.done && k === c.ph) b.className = O.ph === k ? "k-ok" : "k-miss"; else if (O.done && O.ph === k) b.className = "k-bad"; });
+    function pick(label, list, key) {
+      add(host, "div", label, "label");
+      var pr = add(host, "div", null, "pats");
+      list.forEach(function (q) { var b = btn(pr, q[1], O[key] === q[0], function () { O[key] = q[0]; renderOlc(); }); if (O.done && q[0] === c[key]) b.className = O[key] === q[0] ? "k-ok" : "k-miss"; else if (O.done && O[key] === q[0]) b.className = "k-bad"; });
+    }
+    pick("Amplitüd derecesi", O_AG, "ag"); pick("Süre", O_DG, "dg");
+    var act = add(host, "div", null, "row");
+    if (!O.done) {
+      var go = add(act, "button", "Yanıtla", "primary"); go.type = "button"; go.id = "olc-go"; go.disabled = !(a !== null && d !== null && O.ph && O.ag && O.dg);
+      go.addEventListener("click", function () { var all = okA && okD && okP && okX; O.done = true; O.n++; if (all) O.ok++; renderOlc(); });
+    } else {
+      var nx = add(act, "button", "Yeni MÜP", "primary"); nx.type = "button"; nx.addEventListener("click", oNew);
+      add(host, "div", okA && okD && okP && okX ? "Hepsi doğru." : "Ekrandaki işaretlerle karşılaştırın.", "verdict" + (okA && okD && okP && okX ? "" : " bad"));
+      var sq = function (g) { var k = c.amp * 1000 / g; return g + "'lükte " + fmt(k, 1) + " kare (" + (k > 10 ? "taşar" : k >= 5 ? "ekranı doldurur" : "sığar") + ")"; };
+      add(host, "div", "Kazanç basamakları: " + sq(200) + ", " + sq(500) + ", " + sq(1000) + ". Derece: " + O_AG.filter(function (q) { return q[0] === c.ag; })[0][1] + ".");
+      add(host, "div", "Turuncu çizgiler en üst ve en alt tepeyi, mavi çizgiler başlangıç ve bitişi, rakamlar sayılan fazları gösterir. Faz sayısı = taban çizgisi geçişi + 1; 4'ten fazlası polifazidir" + (c.ph > 4 ? " (bu MÜP polifazik)." : "."), "note");
+    }
+    add(host, "div", "Kabul aralığı: amplitüd ±%20, süre ±%20 (en az ±2 ms), faz tam. Derece: 0,2 mV altı azalmış, 1 mV altı normal, 1–2 mV +1, 2–5 mV +2, 5–10 mV +3, 10 mV üstü +4. Süre: 5 ms altı kısa, 15 ms üstü uzun. Süreyi yüksek duyarlılıkta ölçün: düşük kazançta baştaki ve sondaki yavaş bileşenler taban çizgisi gibi görünür ve süre kısa ölçülür.", "note");
+    add(host, "div", "Bu oturum: " + O.n + " MÜP, " + O.ok + " tam doğru.", "note");
+  }
+  // ---------- nerve conduction: a compound muscle action potential built from single axons ----------
+  // Normal limits are the user's own laboratory card. Criteria: department notes (AAN 1991, 50% block), Hadden 1998,
+  // Rajabally 2015, EAN/PNS 2021, Preston & Shapiro 2013 (75% / 130% rule).
+  var N_REF = { med: { ad: "Median (APB)", dl: 3.8, amp: 5, cv: 50, f: 31 }, uln: { ad: "Ulnar (ADM)", dl: 3.0, amp: 5, cv: 50, f: 32 },
+                per: { ad: "Peroneal (EDB)", dl: 5.0, amp: 2, cv: 40, f: 56 }, tib: { ad: "Tibial (AH)", dl: 5.0, amp: 5, cv: 40, f: 56 } };
+  var N_SREF = { med: { ad: "Median (2. parmak)", amp: 10 }, uln: { ad: "Ulnar (5. parmak)", amp: 9 }, sur: { ad: "Sural", amp: 10 } };
+  var N_SEG = 220, N_AX = 80, N_DT = 0.05, N_LEN = 1400;                 // forearm segment (mm), axons, sample step (ms), samples
+  var N_PRE = [
+    { id: "norm", ad: "Normal", P: {}, not: "Distal ve proksimal yanıt neredeyse aynıdır: amplitüd çok az düşer, süre çok az uzar. Bunun nedeni hızlı ve yavaş liflerin yol uzadıkça birbirinden ayrılmasıdır (fizyolojik temporal dispersiyon)." },
+    { id: "ax", ad: "Akson kaybı", P: { loss: 0.72 }, not: "Amplitüd iki uyarım yerinde de aynı oranda düşer; dalga biçimi korunur. Kalan lifler normal iletir: hız ve latans normal ya da en hızlı liflerin kaybına bağlı hafif yavaştır, ama asla demiyelinizan aralığa inmez (hız normalin alt sınırının %75'inden düşük olmaz)." },
+    { id: "uni", ad: "Herediter: uniform yavaşlama", P: { unif: 0.58 }, not: "Bütün lifler aynı oranda yavaşlar. Hız demiyelinizan aralıktadır, distal latans uzundur, ama proksimal ve distal dalga biçimi birbirine benzer: iletim bloğu ve temporal dispersiyon yoktur. Charcot-Marie-Tooth tip 1 tipik örnektir." },
+    { id: "td", ad: "Edinsel: temporal dispersiyon", P: { seg: 0.78, block: 0.12, dist: 0.2 }, not: "Lifler farklı derecede yavaşladığı için proksimal yanıt yayılır: süre uzar, amplitüd faz iptaliyle düşer. Amplitüd düşüşü bu yüzden tek başına blok demek değildir; alan ve süreye birlikte bakılır. Dispersiyon güç kaybı yapmaz." },
+    { id: "cb", ad: "Edinsel: iletim bloğu", P: { block: 0.68, seg: 0.1 }, not: "Aksonlar sağlamdır ama uyarı bir segmenti geçemez. Proksimal yanıt distale göre %50 ve üzerinde düşer, süre belirgin uzamaz. Güç kaybının doğrudan nedenidir ve edinsel immün demiyelinizan nöropatinin en değerli bulgusudur. Distal yanıt 1 mV altındaysa blok demek güçtür." },
+    { id: "dist", ad: "Distal demiyelinizasyon", P: { dist: 0.9 }, not: "Yavaşlama en distal segmenttedir: distal latans normalin üst sınırının %130'unu aşar, distal yanıtın kendisi yayılır, önkol hızı normaldir. Erken GBS'de ve bilekteki tuzak nöropatide görülür; ayrımı diğer sinirler yapar." },
+    { id: "aidp", ad: "Erken GBS: yalnız F dalgası", P: { prox: 0.75 }, not: "İlk günlerde lezyon köklerde ve en distal uçlardadır; rutin segment normal görünür. F dalgası uzar ya da kaybolur, H refleksi alınmaz. Normal rutin iletim erken GBS'yi dışlamaz; birkaç gün sonra yineleyin." },
+    { id: "sub", ad: "Teknik: submaksimal proksimal uyarı", P: { stim: 0.55 }, not: "Proksimalde uyarı supramaksimal değilse bir kısım lif uyarılmaz ve yanıt düşer: sahte iletim bloğu. Blok demeden önce proksimalde şiddeti artırın. Tersine, aşırı şiddet komşu siniri uyarır ve bloğu gizleyebilir." },
+    { id: "cold", ad: "Teknik: soğuk ekstremite", P: { T: 26 }, not: "Soğukta hız düşer, latans uzar, ama amplitüd ve süre artar. Demiyelinizasyonda amplitüd artmaz. Cilt ısısı 33 °C altındaysa ısıtın; ısıtılamıyorsa düzeltin: hız derece başına 1,5–2,5 m/s, latans 0,2 ms." }
+  ];
+  var N_SL = [["loss", "Akson kaybı", 0, 95, "%"], ["unif", "Uniform yavaşlama", 0, 65, "%"], ["seg", "Segment demiyelinizasyonu", 0, 100, ""], ["block", "İletim bloğu", 0, 90, "%"],
+              ["dist", "Distal demiyelinizasyon", 0, 100, ""], ["prox", "Proksimal (kök) demiyelinizasyon", 0, 100, ""], ["stim", "Proksimal uyarı şiddeti", 40, 100, "%"], ["T", "Cilt ısısı", 22, 34, " °C"]];
+  var N_GAINS = [0.2, 0.5, 1, 2, 5], N_SWEEPS = [2, 3, 5, 10];
+  var N_CLS = [["norm", "Normal"], ["ax", "Akson kaybı"], ["uni", "Uniform demiyelinizasyon"], ["td", "Edinsel: temporal dispersiyon"], ["cb", "Edinsel: iletim bloğu"], ["dist", "Distal demiyelinizasyon"]];
+  st.ncs = { pane: "lab", P: {}, pre: "norm", seed: 7, gain: 5, sweep: 3, D: null, Q: null };
+
+  function nRand(seed) { var s = seed % 2147483647; return function () { s = s * 16807 % 2147483647; return (s - 1) / 2147483646; }; }
+  function nUnit(t) { if (t < -1 || t > 22) return 0; var a = (t - 3.4) / 1.2, b = (t - 8.2) / 2.5; return Math.exp(-0.5 * a * a) - 0.55 * Math.exp(-0.5 * b * b); }
+  function nParams(P) { return { loss: P.loss || 0, unif: P.unif || 0, seg: P.seg || 0, block: P.block || 0, dist: P.dist || 0, prox: P.prox || 0, stim: P.stim == null ? 1 : P.stim, T: P.T == null ? 33 : P.T }; }
+  // Distal and proximal responses of one motor nerve, and the minimal F latency.
+  function nSim(P0, seed) {
+    var P = nParams(P0), r = nRand(seed), k = 1 - P.unif, dT = Math.max(0, 33 - P.T), wide = 1 + 0.03 * dT, sc = 9.6 / N_AX * (1 + 0.025 * dT);
+    var yd = new Float32Array(N_LEN), yp = new Float32Array(N_LEN), fMin = Infinity, i, j, nD = 0, nP = 0;
+    for (i = 0; i < N_AX; i++) {
+      var v0 = 48 + 12 * r(), term = 1.8, w = 0.6 + 0.8 * r(), rl = r(), rb = r(), rs = r(), rd = r(), rg = r(), rp = r();
+      var v = Math.max(8, k * (54 + (v0 - 54) * k) - 2 * dT);                       // uniform slowing keeps the fibres together
+      var td = term / k + 70 / (v + 2 * dT) + 0.2 * dT + P.dist * (2.4 + 5 * Math.pow(rd, 1.5));
+      var tp = td + N_SEG / v + P.seg * (2 + 13 * Math.pow(rg, 1.4));
+      if (rl < P.loss) continue;
+      nD++;
+      for (j = 0; j < N_LEN; j++) yd[j] += sc * w * nUnit((j * N_DT - td) / wide);
+      if (rb < P.block || rs > P.stim) continue;
+      nP++;
+      for (j = 0; j < N_LEN; j++) yp[j] += sc * w * nUnit((j * N_DT - tp) / wide);
+      var vp = v * (1 - 0.55 * P.prox), tf = td + 2 * (tp - td) + 2 * (460 / vp + P.prox * 9 * rp) + 1;
+      if (tf < fMin) fMin = tf;
+    }
+    var fAbs = !nP || P.prox > 0.9 || P.block > 0.85 || nD < N_AX * 0.06;
+    return { d: nMeas(yd), p: nMeas(yp), yd: yd, yp: yp, f: fAbs ? null : fMin };
+  }
+  function nMeas(y) {
+    var pk = 0, ip = 0, i, lo = -1, hi = -1, area = 0;
+    for (i = 0; i < N_LEN; i++) if (y[i] > pk) { pk = y[i]; ip = i; }
+    if (pk < 0.05) return { ok: false, amp: 0 };
+    var thr = Math.max(0.025 * pk, 0.02);
+    for (i = 0; i < N_LEN; i++) if (y[i] > thr) { if (lo < 0) lo = i; hi = i; area += y[i] * N_DT; }
+    return { ok: true, amp: pk, lat: lo * N_DT, end: hi * N_DT, dur: (hi - lo) * N_DT, pk: ip * N_DT, area: area };
+  }
+  function nDerive(S) {
+    var o = { dl: S.d.ok ? S.d.lat : null, ampD: S.d.amp, ampP: S.p.amp, f: S.f, ok: S.d.ok };
+    if (S.d.ok && S.p.ok) { o.cv = N_SEG / (S.p.lat - S.d.lat); o.drop = 1 - S.p.amp / S.d.amp; o.td = S.p.dur / S.d.dur - 1; o.aDrop = 1 - S.p.area / S.d.area; }
+    else if (S.d.ok) { o.cv = null; o.drop = 1; o.td = 0; o.aDrop = 1; }
+    return o;
+  }
+  // One label for the pair of responses, by the same thresholds the user is taught.
+  function nClass(o) {
+    var R = N_REF.med;
+    if (!o.ok) return "none";
+    if (o.cv == null) return "cb";
+    if (o.td > 0.3) return "td";
+    if (o.drop >= 0.5) return "cb";
+    if (o.drop >= 0.3) return "pcb";
+    if (o.cv < 0.75 * R.cv) return "uni";
+    if (o.dl > 1.3 * R.dl) return "dist";
+    if (o.ampD < R.amp) return "ax";
+    if (o.dl >= R.dl || o.cv <= R.cv) return "mild";
+    return "norm";
+  }
+  function nDraw(S, mark) {
+    var N = st.ncs, cv = el("n-cv"), g = cv.getContext("2d"), W = 720, H = 640, D = 72, i, rows = [[S.yd, S.d, "Distal uyarım (bilek)", 230], [S.yp, S.p, "Proksimal uyarım (dirsek)", 520]];
+    g.fillStyle = "#0c1822"; g.fillRect(0, 0, W, H);
+    g.lineWidth = 1; g.strokeStyle = "rgba(244,234,210,.13)";
+    for (i = 1; i < 10; i++) { g.beginPath(); g.moveTo(i * D + 0.5, 0); g.lineTo(i * D + 0.5, H); g.stroke(); }
+    for (i = 0; i < 9; i++) { g.beginPath(); g.moveTo(0, 20 + i * 70 + 0.5); g.lineTo(W, 20 + i * 70 + 0.5); g.stroke(); }
+    function X(t) { return t / N.sweep * D; }
+    rows.forEach(function (rw) {
+      var y = rw[0], base = rw[3];
+      g.strokeStyle = "rgba(244,234,210,.3)"; g.beginPath(); g.moveTo(0, base + 0.5); g.lineTo(W, base + 0.5); g.stroke();
+      g.strokeStyle = "#f4ead2"; g.lineWidth = 2.2; g.lineJoin = "round"; g.beginPath();
+      for (i = 0; i < W; i++) { var t = i / D * N.sweep, k = Math.min(N_LEN - 1, Math.round(t / N_DT)), v = t / N_DT < N_LEN ? y[k] : 0, py = base - v / N.gain * 70; if (i) g.lineTo(i, py); else g.moveTo(i, py); }
+      g.stroke(); g.lineWidth = 1;
+      g.fillStyle = "rgba(244,234,210,.75)"; g.font = "600 14px ui-monospace, monospace"; g.fillText(rw[2], 12, base - 150);
+      g.strokeStyle = "#f0a35a"; g.beginPath(); g.moveTo(0.5, base - 14); g.lineTo(0.5, base + 14); g.stroke();      // stimulus
+      if (mark && rw[1].ok) {
+        var m = rw[1], xa = X(m.lat), xb = X(m.end), yp = base - m.amp / N.gain * 70;
+        g.setLineDash([6, 5]); g.strokeStyle = "#4fb3d1"; g.beginPath(); g.moveTo(xa, base - 170); g.lineTo(xa, base + 70); g.moveTo(xb, base - 30); g.lineTo(xb, base + 70); g.stroke();
+        g.strokeStyle = "#f0a35a"; g.beginPath(); g.moveTo(Math.max(0, xa - 30), yp); g.lineTo(Math.min(W, xb + 60), yp); g.stroke(); g.setLineDash([]);
+        g.fillStyle = "#4fb3d1"; g.font = "600 14px ui-monospace, monospace"; g.fillText(fmt(m.lat, 1) + " ms", Math.min(W - 70, xa + 5), base + 66);
+        g.fillStyle = "#f0a35a"; g.fillText(fmt(m.amp, 1) + " mV", Math.min(W - 80, xb + 8), Math.max(base - 205, yp - 6));
+        g.fillStyle = "rgba(244,234,210,.8)"; g.fillText("süre " + fmt(m.dur, 1) + " ms", Math.min(W - 130, xb + 8), base + 44);
+      }
+    });
+    g.fillStyle = "rgba(244,234,210,.6)"; g.font = "14px ui-monospace, monospace"; g.fillText(N.gain + " mV/kare  ·  " + N.sweep + " ms/kare  ·  mesafe " + N_SEG + " mm", 12, H - 12);
+  }
+  function nGain(a) { return N_GAINS.filter(function (g) { return a / g <= 3; })[0] || 5; }
+  function nPct(x) { return "%" + Math.round(x * 100); }
+  function nChecks(o) {
+    var R = N_REF.med, a = [];
+    function c(ok, txt) { a.push([ok, txt]); }
+    if (!o.ok) { c(false, "Distal yanıt alınamıyor."); return a; }
+    c(o.dl < R.dl, "Distal latans " + fmt(o.dl, 1) + " ms (normal " + fmt(R.dl, 1) + " altı)" + (o.dl > 1.3 * R.dl ? ": üst sınırın %130'unu aşıyor, demiyelinizan aralık" : ""));
+    c(o.ampD > R.amp, "Distal amplitüd " + fmt(o.ampD, 1) + " mV (normal " + R.amp + " üstü)");
+    if (o.cv != null) c(o.cv > R.cv, "Önkol hızı " + fmt(o.cv, 0) + " m/s (normal " + R.cv + " üstü)" + (o.cv < 0.75 * R.cv ? ": alt sınırın %75'inin altında, demiyelinizan aralık" : o.cv <= R.cv ? ": yavaş ama aksonal kayıpla da uyumlu aralıkta" : ""));
+    else c(false, "Proksimal yanıt alınamıyor: hız hesaplanamaz.");
+    if (o.cv != null) {
+      c(o.drop < 0.3, "Proksimal amplitüd düşüşü " + nPct(Math.max(0, o.drop)) + (o.drop >= 0.5 ? ": %50 ve üstü, iletim bloğu (ders notu ölçütü)" : o.drop >= 0.3 ? ": %30 ve üstü, EAN/PNS 2021 blok ölçütü" : o.drop >= 0.2 ? ": %20–30, AAN 1991'e göre süre değişimi %15 altındaysa kısmi blok" : ": fizyolojik sınırda"));
+      c(o.td <= 0.3, "Proksimal süre artışı " + nPct(Math.max(0, o.td)) + (o.td > 0.3 ? ": %30 üstü, anormal temporal dispersiyon" : o.td > 0.15 ? ": %15–30, olası dispersiyon (AAN 1991)" : ""));
+    }
+    c(o.f != null && o.f <= R.f, o.f == null ? "F dalgası alınamıyor" : "F dalgası en kısa latans " + fmt(o.f, 1) + " ms (normal " + R.f + " ve altı)" + (o.f > 1.2 * R.f ? ": üst sınırın %120'sini aşıyor" : ""));
+    return a;
+  }
+  var N_VERD = { norm: "Normal.", ax: "Aksonal kayıp paterni: amplitüd düşük, hız ve latans demiyelinizan aralıkta değil, blok ve dispersiyon yok.",
+    uni: "Uniform demiyelinizasyon paterni: hız demiyelinizan aralıkta, dalga biçimi korunmuş. Herediter nöropati düşündürür.",
+    td: "Edinsel demiyelinizasyon: anormal temporal dispersiyon. Amplitüd düşüşünün ne kadarının blok olduğunu alan ve süreyle birlikte değerlendirin.",
+    cb: "İletim bloğu: proksimal amplitüd %50 ve üzerinde düşmüş, süre belirgin uzamamış. Önce proksimal uyarının supramaksimal olduğundan emin olun.",
+    dist: "Distal demiyelinizasyon paterni: distal latans demiyelinizan aralıkta, önkol hızı korunmuş.",
+    pcb: "Olası iletim bloğu: proksimal amplitüd %30–50 düşmüş. EAN/PNS 2021 ölçütünü karşılar, ders notundaki %50 ölçütünü karşılamaz. Proksimal uyarı supramaksimal mi, komşu sinir uyarılıyor mu, anormal innervasyon var mı kontrol edin.",
+    mild: "Sınırda yavaşlama. Önce cilt ısısını ölçün; soğukta hız düşer, latans uzar, amplitüd ve süre artar.", none: "Yanıt alınamıyor." };
+
+  // ---- cases: a full study table, graded by published criteria
+  var N_OPT = [["norm", "Normal"], ["aidp", "AIDP"], ["aman", "AMAN"], ["amsan", "AMSAN"], ["ax", "Kronik aksonal polinöropati"], ["cmt", "Herediter uniform demiyelinizan (CMT1)"], ["cidp", "KİDP"]];
+  var N_CASE = [
+    { dx: "norm", vig: "Bir haftadır ellerde ve ayaklarda uyuşma. Kas gücü tam, refleksler alınıyor.", not: "Bütün değerler laboratuvar sınırları içinde. Normal iletim ince lif nöropatisini ve ilk günlerdeki GBS'yi dışlamaz." },
+    { dx: "aidp", k: "e", vig: "5 gündür bacaklardan başlayıp kollara çıkan güçsüzlük. Refleksler alınmıyor. İki hafta önce üst solunum yolu enfeksiyonu.", not: "Erken AIDP: rutin hız ve amplitüd neredeyse normal, tek belirgin bulgu F dalgalarının uzaması ya da kaybı. Median ve ulnar duysal yanıt düşükken suralin korunması (sural korunması) aksonal polinöropatide beklenmez ve bu klinikte AIDP lehinedir. Birkaç gün sonra yineleyin." },
+    { dx: "aidp", k: "l", vig: "17 gündür ilerleyen dört ekstremite güçsüzlüğü, arefleksi ve bel ağrısı.", not: "Yerleşik AIDP: distal latanslar uzun, hızlar yavaş, proksimal amplitüd düşüşü ve F dalga anormalliği var. İğnede fibrilasyon ikincil akson kaybıyla 2–5. haftada başlar." },
+    { dx: "aman", vig: "8 gündür hızla ilerleyen saf motor güçsüzlük. Duyu muayenesi normal. Öncesinde ishal.", not: "AMAN: motor amplitüdler düşük, distal latans ve hız normal, duysal yanıtlar normal. Ders notunuzdaki tanımla: aksonlar sağlam olsa da ileti bir segmenti geçemeyebilir (geri dönüşümlü iletim yetersizliği); bu yüzden seri inceleme gerekir." },
+    { dx: "amsan", vig: "10 gündür ağır güçsüzlük ve belirgin duyu kaybı. Arefleksi.", not: "AMSAN: motor ve duysal yanıtlar düşük ya da alınamıyor; motor terminal latans ve iletim hızı normal. İğnede yaygın denervasyon potansiyelleri gelişir." },
+    { dx: "ax", vig: "3 yıldır ayaklarda yanma ve uyuşma. 15 yıllık diyabet. Aşil refleksleri alınmıyor.", not: "Uzunluğa bağlı aksonal polinöropati: bulgular bacakta, sural yanıt yok, hızlar hafif yavaş ama demiyelinizan aralıkta değil, blok yok. Kollar normale yakın." },
+    { dx: "cmt", vig: "Çocukluktan beri pes kavus ve yavaş ilerleyen distal güçsüzlük. Babasında benzer yakınma.", not: "Herediter uniform demiyelinizasyon: bütün sinirlerde hız aynı derecede ve çok yavaş, distal latanslar uzun, proksimal amplitüd düşüşü yok. Yavaşlamanın sinirden sinire aynı olması edinselden ayırır." },
+    { dx: "cidp", vig: "5 aydır ilerleyen proksimal ve distal güçsüzlük, arefleksi ve duyu kaybı.", not: "KİDP: yavaşlama sinirden sinire farklı, proksimal amplitüd düşüşü ve F dalga uzaması var. Tanı için EAN/PNS 2021 motor ölçütleri iki sinirde aranır; süre 8 haftayı geçmiştir." }
+  ];
+  function nMakeCase() {
+    var C = N_CASE[ri(0, N_CASE.length - 1)], o = { C: C, m: {}, s: {} }, u = function (a, b) { return a + (b - a) * Math.random(); };
+    ["med", "uln", "per", "tib"].forEach(function (id, ix) {
+      var R = N_REF[id], leg = ix > 1, q = { dl: u(0.7, 0.9), amp: u(1.3, 2.1), rat: u(0.9, 0.97), cv: u(1.08, 1.2), f: u(0.8, 0.93) };
+      if (C.dx === "aidp" && C.k === "e") { q.dl = u(0.95, 1.3); q.cv = u(0.94, 1.08); q.amp = u(0.9, 1.6); q.rat = ix === 0 ? u(0.55, 0.68) : u(0.8, 0.95); q.f = ix === 3 || ix === 1 ? null : u(1.28, 1.6); }
+      if (C.dx === "aidp" && C.k === "l") { q.dl = u(1.35, 2.2); q.cv = u(0.55, 0.85); q.amp = u(0.4, 1.1); q.rat = ix % 2 ? u(0.25, 0.48) : u(0.55, 0.85); q.f = ix === 2 ? null : u(1.3, 1.75); }
+      if (C.dx === "aman" || C.dx === "amsan") { q.dl = u(0.78, 1.03); q.cv = u(0.95, 1.12); q.amp = ix === 0 ? u(0.5, 0.75) : u(0.06, 0.5); q.rat = u(0.86, 0.97); q.f = q.amp < 0.25 ? null : u(0.85, 1.0); }
+      if (C.dx === "ax") { q.dl = leg ? u(0.92, 1.12) : u(0.75, 0.95); q.cv = leg ? u(0.91, 0.98) : u(0.98, 1.12); q.amp = leg ? (ix === 2 ? u(0.1, 0.5) : u(0.3, 0.75)) : u(1.0, 1.6); q.f = leg ? u(1.0, 1.14) : u(0.85, 0.97); }
+      if (C.dx === "cmt") { var cvv = u(20, 26); q.cv = cvv / R.cv; q.dl = u(1.8, 2.4); q.amp = leg ? u(0.3, 0.7) : u(0.5, 0.95); q.rat = u(0.86, 0.95); q.f = leg ? null : u(1.8, 2.2); }
+      if (C.dx === "cidp") { q.dl = u(1.1, 1.75); q.cv = [u(0.5, 0.62), u(0.72, 0.9), u(0.55, 0.7), u(0.62, 0.85)][ix]; q.amp = u(0.5, 1.2); q.rat = ix === 0 || ix === 2 ? u(0.3, 0.55) : u(0.6, 0.9); q.f = u(1.3, 1.7); }
+      var aD = q.amp * R.amp;
+      o.m[id] = { dl: q.dl * R.dl, ampD: aD, ampP: aD * q.rat, cv: q.cv * R.cv, f: q.f == null ? null : q.f * R.f };
+    });
+    ["med", "uln", "sur"].forEach(function (id) {
+      var R = N_SREF[id], a = u(1.5, 3);
+      if (C.dx === "aidp") a = id === "sur" ? u(1.1, 1.9) : (Math.random() < 0.4 ? 0 : u(0.3, 0.8));
+      if (C.dx === "amsan") a = Math.random() < 0.5 ? 0 : u(0.1, 0.4);
+      if (C.dx === "ax") a = id === "sur" ? 0 : u(0.7, 1.2);
+      if (C.dx === "cmt") a = 0;
+      if (C.dx === "cidp") a = Math.random() < 0.5 ? 0 : u(0.2, 0.7);
+      o.s[id] = a * R.amp;
+    });
+    return o;
+  }
+  function nCriteria(o) {
+    var ids = ["med", "uln", "per", "tib"], N = ids.map(function (id) {
+      var R = N_REF[id], m = o.m[id];
+      return { id: id, ad: R.ad, pDL: m.dl / R.dl, pCV: m.cv / R.cv, pA: m.ampD / R.amp, rat: m.ampP / m.ampD, pF: m.f == null ? null : m.f / R.f };
+    }), out = {};
+    function cnt(fn) { return N.filter(fn).length; }
+    // Hadden 1998
+    var hF = function (n) { var a = []; if (n.pCV < (n.pA < 0.5 ? 0.85 : 0.9)) a.push("hız"); if (n.pDL > (n.pA < 1 ? 1.2 : 1.1)) a.push("distal latans"); if (n.rat < 0.5 && n.pA >= 0.2) a.push("p/d oranı"); if (n.pF != null && n.pF > 1.2) a.push("F"); return a; };
+    var hN = N.filter(function (n) { return hF(n).length; }), low = cnt(function (n) { return n.pA < 0.8; });
+    out.hadden = hN.length >= 2 ? "Primer demiyelinizan" : (hN.length === 0 || (hN.length === 1 && hN[0].pA < 0.1)) && low >= 2 ? "Primer aksonal" :
+      cnt(function (n) { return n.pDL <= 1 && n.pCV >= 1 && n.pA >= 1 && n.rat > 0.5 && n.pF != null && n.pF <= 1; }) === 4 ? "Normal" : "Belirsiz";
+    out.haddenWhy = hN.map(function (n) { return n.ad.split(" ")[0] + ": " + hF(n).join(", "); });
+    // Rajabally 2015
+    var rA = function (n) { return n.pCV < 0.7 || n.pDL > 1.5 || (n.pF != null && n.pF > (n.pA < 0.5 ? 1.5 : 1.2)); }, rFa = function (n) { return n.pF == null && n.pA >= 0.2; }, rR = function (n) { return n.id !== "tib" && n.rat < 0.7; };
+    var nA = cnt(rA), nFa = cnt(rFa), nR = cnt(rR);
+    var aidp = nA >= 2 || (nFa >= 2 && N.some(function (n) { return !rFa(n) && (rA(n) || rR(n)); })) || (nR >= 2 && N.some(function (n) { return !rR(n) && (rA(n) || rFa(n)); }));
+    var axon = !aidp && nA === 0 && (low >= 2 || nFa >= 2 || nR >= 2 || ((nFa >= 1 || nR >= 1) && low >= 1));
+    out.raj = aidp ? "Demiyelinizan" : axon ? "Aksonal" : (nA + nFa + nR + low === 0 ? "Normal" : "Belirsiz");
+    out.rajWhy = "demiyelinizan parametreli sinir " + nA + ", F'si alınamayan sinir " + nFa + ", p/d oranı 0,7 altı sinir " + nR + ", amplitüdü düşük sinir " + low;
+    // EAN/PNS 2021, motor criteria (a) to (e)
+    var e = [];
+    if (cnt(function (n) { return n.pDL >= 1.5; }) >= 2) e.push("distal latans %150 ve üstü (2 sinir)");
+    if (cnt(function (n) { return n.pCV <= 0.7; }) >= 2) e.push("hız alt sınırın %30 altında (2 sinir)");
+    if (cnt(function (n) { return n.pF != null && n.pF >= (n.pA < 0.8 ? 1.5 : 1.2); }) >= 2) e.push("F latansı uzun (2 sinir)");
+    if (cnt(function (n) { return n.id !== "tib" && n.rat <= 0.7 && n.pA >= 0.2; }) >= 2) e.push("iletim bloğu %30 ve üstü (2 sinir)");
+    out.ean = e;
+    out.N = N;
+    return out;
+  }
+  function renderNcs() {
+    var N = st.ncs, form = el("n-form");
+    Array.prototype.forEach.call(el("seg-npane").children, function (b, i) { b.setAttribute("aria-pressed", ["lab", "olc", "vaka", "ref"][i] === N.pane ? "true" : "false"); });
+    el("n-scope").hidden = N.pane !== "lab" && N.pane !== "olc"; el("n-ref").hidden = N.pane !== "ref"; el("n-vaka").hidden = N.pane !== "vaka";
+    function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+    function btn(parent, txt, on, fn, dis) { var b = add(parent, "button", txt); b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false"); b.disabled = !!dis; b.addEventListener("click", fn); return b; }
+    el("ng-val").textContent = N.gain + " mV"; el("ns-val").textContent = N.sweep + " ms";
+    el("ng-dn").disabled = N.gain === N_GAINS[0]; el("ng-up").disabled = N.gain === N_GAINS[N_GAINS.length - 1];
+    el("ns-dn").disabled = N.sweep === N_SWEEPS[0]; el("ns-up").disabled = N.sweep === N_SWEEPS[N_SWEEPS.length - 1];
+    if (N.pane === "lab") {
+      var S = nSim(N.P, N.seed), o = nDerive(S); nDraw(S, true);
+      form.textContent = "";
+      add(form, "div", "Hazır durumlar", "label");
+      var pp = add(form, "div", null, "pats");
+      N_PRE.forEach(function (q) { btn(pp, q.ad, N.pre === q.id, function () { N.pre = q.id; N.P = JSON.parse(JSON.stringify(q.P)); N.gain = nGain(nDerive(nSim(N.P, N.seed)).ampD); N.sweep = q.id === "uni" || q.id === "td" ? 5 : 3; renderNcs(); }); });
+      var pre = N_PRE.filter(function (q) { return q.id === N.pre; })[0];
+      if (pre) add(form, "div", pre.not);
+      add(form, "div", "Kendiniz deneyin", "label");
+      var P = nParams(N.P), sg = add(form, "div", null, "n-sl");
+      N_SL.forEach(function (q) {
+        var id = "nsl-" + q[0], cur = q[0] === "T" ? P.T : q[0] === "stim" ? Math.round(P.stim * 100) : Math.round(P[q[0]] * 100);
+        var lb = add(sg, "label", q[1]); lb.htmlFor = id;
+        var r = add(sg, "input"); r.type = "range"; r.id = id; r.min = q[2]; r.max = q[3]; r.value = cur;
+        var vv = add(sg, "span", cur + q[4], "note");
+        r.addEventListener("input", function () { N.P[q[0]] = q[0] === "T" ? Number(r.value) : Number(r.value) / 100; N.pre = null; vv.textContent = r.value + q[4]; nLive(); });
+      });
+      var out = add(form, "div", null, "n-out"); out.id = "n-out";
+      nOut(out, o);
+    } else if (N.pane === "olc") {
+      if (!N.D) nNewDrill();
+      var D = N.D; nDraw(D.S, D.done);
+      form.textContent = "";
+      add(form, "div", "Median motor, APB kayıt. Bilek–dirsek mesafesi " + N_SEG + " mm. Latansları ve amplitüdleri kareleri sayarak ölçün, hızı hesaplayın: hız = mesafe / (proksimal latans − distal latans). 1 kare = " + N.gain + " mV ve " + N.sweep + " ms.", "note");
+      var gr = add(form, "div", null, "olc-in"), T = D.o, okAll = true;
+      [["dl", "Distal latans", "ms", T.dl, 0.4], ["ad", "Distal amplitüd", "mV", T.ampD, Math.max(0.3, 0.15 * T.ampD)], ["pl", "Proksimal latans", "ms", D.S.p.ok ? D.S.p.lat : null, 0.5],
+       ["ap", "Proksimal amplitüd", "mV", T.ampP, Math.max(0.3, 0.15 * T.ampP)], ["cv", "İletim hızı", "m/s", T.cv, 4]].forEach(function (q) {
+        add(gr, "label", q[1]).htmlFor = "nq-" + q[0];
+        var w = add(gr, "div", null, "row"), inp = add(w, "input"); inp.id = "nq-" + q[0]; inp.type = "text"; inp.inputMode = "decimal"; inp.autocomplete = "off"; inp.value = D.txt[q[0]] || ""; inp.disabled = D.done;
+        inp.addEventListener("input", function () { D.txt[q[0]] = inp.value; });
+        add(w, "span", q[2], "note");
+        if (D.done) { var v = oNum(D.txt[q[0]]), ok = q[3] == null ? true : v !== null && Math.abs(v - q[3]) <= q[4]; if (!ok) okAll = false; add(w, "span", (ok ? "✓ " : "✕ ") + (q[3] == null ? "yanıt yok" : "doğrusu " + fmt(q[3], q[0] === "cv" ? 0 : 1) + " " + q[2]), "res " + (ok ? "ok" : "bad")); }
+      });
+      add(form, "div", "Yorum", "label");
+      var pc = add(form, "div", null, "pats");
+      N_CLS.forEach(function (q) { var b = btn(pc, q[1], D.ans === q[0], function () { D.ans = q[0]; renderNcs(); }, D.done); if (D.done && q[0] === D.cls) b.className = D.ans === q[0] ? "k-ok" : "k-miss"; else if (D.done && D.ans === q[0]) b.className = "k-bad"; });
+      var act = add(form, "div", null, "row");
+      if (!D.done) { var go = add(act, "button", "Yanıtla", "primary"); go.type = "button"; go.disabled = !D.ans; go.addEventListener("click", function () { D.done = true; renderNcs(); }); }
+      else {
+        var nx = add(act, "button", "Yeni kayıt", "primary"); nx.type = "button"; nx.addEventListener("click", function () { nNewDrill(); renderNcs(); });
+        add(form, "div", D.ans === D.cls ? "Yorum doğru." : "Yorum yanlış.", "verdict" + (D.ans === D.cls ? "" : " bad"));
+        var oo = add(form, "div", null, "n-out"); nOut(oo, T);
+      }
+      add(form, "div", "Kabul aralığı: latans ±0,4–0,5 ms, amplitüd ±%15, hız ±4 m/s.", "note");
+    } else if (N.pane === "vaka") {
+      if (!N.Q) N.Q = { c: nMakeCase(), ans: null, done: false };
+      var Q = N.Q, c = Q.c, host = el("n-vaka"); host.textContent = "";
+      add(host, "p", c.C.vig).style.margin = "0";
+      var tw = add(host, "div", null, "tablewrap"), tb = add(tw, "table", null, "myo n-tab"), tr = add(tb, "tr");
+      ["Motor sinir", "Distal latans (ms)", "Distal amp. (mV)", "Proks. amp. (mV)", "Hız (m/s)", "F (ms)"].forEach(function (t) { add(tr, "th", t); });
+      ["med", "uln", "per", "tib"].forEach(function (id) {
+        var R = N_REF[id], m = c.m[id]; tr = add(tb, "tr"); add(tr, "td", R.ad);
+        function cell(v, bad, dec, pct) { var td = add(tr, "td", v == null ? "yok" : fmt(v, dec), bad ? "ab" : ""); if (Q.done && pct != null) add(td, "small", " " + nPct(pct)); }
+        cell(m.dl, m.dl >= R.dl, 1, m.dl / R.dl); cell(m.ampD, m.ampD <= R.amp, 1, m.ampD / R.amp); cell(m.ampP, m.ampP / m.ampD < 0.7, 1, m.ampP / m.ampD); cell(m.cv, m.cv <= R.cv, 0, m.cv / R.cv); cell(m.f, m.f == null || m.f > R.f, 1, m.f == null ? null : m.f / R.f);
+      });
+      tb = add(tw, "table", null, "myo n-tab"); tr = add(tb, "tr"); ["Duysal sinir", "Amplitüd (µV)"].forEach(function (t) { add(tr, "th", t); });
+      ["med", "uln", "sur"].forEach(function (id) { var R = N_SREF[id], a = c.s[id]; tr = add(tb, "tr"); add(tr, "td", R.ad); add(tr, "td", a ? fmt(a, 0) : "yok", a <= R.amp ? "ab" : ""); });
+      add(host, "div", "Turuncu: laboratuvar sınırının dışında. Proksimal amplitüdde turuncu, distale oranın 0,7 altında olduğunu gösterir. Yanıttan sonra her değerin yanında sınırın yüzdesi çıkar (latans ve F için üst sınırın, hız ve amplitüd için alt sınırın yüzdesi; proksimal amplitüd için proksimal/distal oranı).", "note");
+      add(host, "div", "Tanınız", "label");
+      var po = add(host, "div", null, "pats");
+      N_OPT.forEach(function (q) { var b = btn(po, q[1], Q.ans === q[0], function () { Q.ans = q[0]; renderNcs(); }, Q.done); if (Q.done && q[0] === c.C.dx) b.className = Q.ans === q[0] ? "k-ok" : "k-miss"; else if (Q.done && Q.ans === q[0]) b.className = "k-bad"; });
+      var ac = add(host, "div", null, "row");
+      if (!Q.done) { var g2 = add(ac, "button", "Yanıtla", "primary"); g2.type = "button"; g2.disabled = !Q.ans; g2.addEventListener("click", function () { Q.done = true; renderNcs(); }); }
+      else {
+        var n2 = add(ac, "button", "Yeni vaka", "primary"); n2.type = "button"; n2.addEventListener("click", function () { N.Q = null; renderNcs(); });
+        add(host, "div", Q.ans === c.C.dx ? "Doğru." : "Yanlış. Doğrusu: " + N_OPT.filter(function (q) { return q[0] === c.C.dx; })[0][1] + ".", "verdict" + (Q.ans === c.C.dx ? "" : " bad"));
+        add(host, "div", c.C.not);
+        var K = nCriteria(c), dl = add(host, "dl");
+        add(dl, "dt", "Hadden 1998"); add(dl, "dd", K.hadden + (K.haddenWhy.length ? " (" + K.haddenWhy.join("; ") + ")" : ""));
+        add(dl, "dt", "Rajabally 2015"); add(dl, "dd", K.raj + " (" + K.rajWhy + ")");
+        add(dl, "dt", "EAN/PNS 2021 motor"); add(dl, "dd", K.ean.length ? "Demiyelinizasyonu güçlü destekler: " + K.ean.join("; ") : "İki sinirde karşılanan ölçüt yok");
+        add(host, "div", "Ölçüt setleri aynı tabloya farklı sonuç verebilir: Hadden daha duyarlı, Rajabally demiyelinizasyon için daha katıdır ve tek incelemede aksonal alt tipi daha iyi yakalar. EAN/PNS ölçütleri KİDP içindir; akut tabloda yalnız karşılaştırma için gösterilir. Süre ölçütü (temporal dispersiyon) bu tabloda yoktur.", "note");
+      }
+    }
+  }
+  function nOut(out, o) {
+    out.textContent = "";
+    function add(parent, tag, txt, cls) { var d = document.createElement(tag); if (txt != null) d.textContent = txt; if (cls) d.className = cls; parent.appendChild(d); return d; }
+    var cls = nClass(o), fBad = o.ok && (o.f == null || o.f > N_REF.med.f);
+    add(out, "div", cls === "norm" && fBad ? "Rutin segment normal, F dalgası anormal: lezyon incelenen segmentin proksimalinde (kök, pleksus). Erken GBS'de tipik bulgudur." : N_VERD[cls], "verdict" + (cls === "norm" && !fBad ? "" : " bad"));
+    var ul = add(out, "ul", null, "n-chk");
+    nChecks(o).forEach(function (q) { add(ul, "li", (q[0] ? "✓ " : "✕ ") + q[1], q[0] ? "" : "ab"); });
+  }
+  function nLive() { var N = st.ncs, S = nSim(N.P, N.seed); nDraw(S, true); var o = el("n-out"); if (o) nOut(o, nDerive(S)); }
+  function nNewDrill() {
+    var N = st.ncs, u = function (a, b) { return a + (b - a) * Math.random(); }, D, tries = 0;
+    do {
+      var cls = N_CLS[ri(0, N_CLS.length - 1)][0], P = {};
+      if (cls === "ax") P.loss = u(0.55, 0.88);
+      if (cls === "uni") P.unif = u(0.45, 0.62);
+      if (cls === "td") { P.seg = u(0.6, 0.95); P.block = u(0, 0.25); P.dist = u(0, 0.3); }
+      if (cls === "cb") { P.block = u(0.58, 0.82); P.seg = u(0, 0.12); }
+      if (cls === "dist") P.dist = u(0.75, 1);
+      if (cls !== "ax" && cls !== "norm" && Math.random() < 0.3) P.loss = u(0.1, 0.3);
+      var seed = ri(1, 99999), S = nSim(P, seed), o = nDerive(S);
+      D = { S: S, o: o, cls: cls, real: nClass(o), txt: {}, ans: null, done: false };
+    } while (D.real !== D.cls && ++tries < 80);
+    D.cls = D.real;
+    N.gain = nGain(D.o.ampD); N.sweep = D.S.p.ok && D.S.p.end > 28 ? 5 : 3;
+    N.D = D;
+  }
   function setMode(k) {                                        // 0 simulator, 1 root finder, 2 myotome table
     var was = st.lab.mode || 0; st.lab.mode = k; st.lab.on = k === 1;
     if (!was && k) { st.lab.was = st.running; st.running = false; } else if (was && !k && st.lab.was) st.running = true;
-    el("sim-grid").hidden = k !== 0; el("lab-card").hidden = k !== 1; el("tab-card").hidden = k !== 2;
-    Array.prototype.forEach.call(el("seg-mode").children, function (b, i) { b.setAttribute("aria-pressed", [1, 0, 2][i] === k ? "true" : "false"); });
+    el("sim-grid").hidden = k !== 0; el("lab-card").hidden = k !== 1; el("tab-card").hidden = k !== 2; el("kart-card").hidden = k !== 3; el("olc-card").hidden = k !== 4; el("ncs-card").hidden = k !== 5;
+    Array.prototype.forEach.call(el("seg-mode").children, function (b, i) { b.setAttribute("aria-pressed", [1, 0, 2, 3, 4, 5][i] === k ? "true" : "false"); });
     el("sim-intro").hidden = k !== 0;
-    if (k === 1) renderLab(); else if (k === 2) renderTab(); else syncUI();
+    if (k === 1) renderLab(); else if (k === 2) renderTab(); else if (k === 3) renderKart(); else if (k === 4) renderOlc(); else if (k === 5) renderNcs(); else syncUI();
   }
 
   function startQuiz(grp) {
@@ -1880,9 +2709,19 @@ input[type="range"] { accent-color: var(--accent); width: 130px; }
   function stepScale(key, list, d) { var i = Math.max(0, Math.min(list.length - 1, list.indexOf(st[key]) + d)); if (list[i] !== st[key]) { st[key] = list[i]; syncUI(); } }
   el("g-dn").addEventListener("click", function () { stepScale("gain", GAINS, -1); }); el("g-up").addEventListener("click", function () { stepScale("gain", GAINS, 1); });
   el("s-dn").addEventListener("click", function () { stepScale("sweep", SWEEPS, -1); }); el("s-up").addEventListener("click", function () { stepScale("sweep", SWEEPS, 1); });
-  Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.addEventListener("click", function () { setMode([1, 0, 2][k]); }); });
+  Array.prototype.forEach.call(el("seg-mode").children, function (b, k) { b.addEventListener("click", function () { setMode([1, 0, 2, 3, 4, 5][k]); }); });
+  Array.prototype.forEach.call(el("seg-npane").children, function (b, k) { b.addEventListener("click", function () { st.ncs.pane = ["lab", "olc", "vaka", "ref"][k]; renderNcs(); }); });
+  function nStep(key, list, d) { var N = st.ncs, i = Math.max(0, Math.min(list.length - 1, list.indexOf(N[key]) + d)); N[key] = list[i]; renderNcs(); }
+  el("ng-dn").addEventListener("click", function () { nStep("gain", N_GAINS, -1); }); el("ng-up").addEventListener("click", function () { nStep("gain", N_GAINS, 1); });
+  el("ns-dn").addEventListener("click", function () { nStep("sweep", N_SWEEPS, -1); }); el("ns-up").addEventListener("click", function () { nStep("sweep", N_SWEEPS, 1); });
+  function oStep(key, list, d) { var O = st.olc, i = Math.max(0, Math.min(list.length - 1, list.indexOf(O[key]) + d)); O[key] = list[i]; renderOlc(); }
+  el("og-dn").addEventListener("click", function () { oStep("gain", O_GAINS, -1); }); el("og-up").addEventListener("click", function () { oStep("gain", O_GAINS, 1); });
+  el("os-dn").addEventListener("click", function () { oStep("sweep", O_SWEEPS, -1); }); el("os-up").addEventListener("click", function () { oStep("sweep", O_SWEEPS, 1); });
+  Array.prototype.forEach.call(el("seg-kdir").children, function (b, k) { b.addEventListener("click", function () { st.kart.dir = k ? "km" : "mk"; st.kart.cur = null; renderKart(); }); });
+  Array.prototype.forEach.call(el("seg-klimb").children, function (b, k) { b.addEventListener("click", function () { st.kart.limb = ["up", "lo", "all"][k]; st.kart.cur = null; renderKart(); }); });
+  el("kart-reset").addEventListener("click", function () { st.kart.w = {}; st.kart.n = 0; st.kart.ok = 0; kSave(); st.kart.cur = null; renderKart(); });
   Array.prototype.forEach.call(el("seg-pane").children, function (b, k) { b.addEventListener("click", function () { st.lab.pane = k ? "emg" : "ncs"; renderLab(); }); });
-  el("ws-ncs").addEventListener("click", function () { if (st.ws) { st.ws.ncs = true; renderWs(); } });
+
   Array.prototype.forEach.call(el("seg-limb").children, function (b, k) { b.addEventListener("click", function () { st.lab.limb = k ? "lo" : "up"; renderLab(); }); });
   el("lab-clear").addEventListener("click", function () { st.lab[st.lab.limb] = {}; st.lab[st.lab.limb + "N"] = {}; st.lab.info = null; el("lab-copied").textContent = ""; renderLab(); });
   el("lab-copy").addEventListener("click", function () {

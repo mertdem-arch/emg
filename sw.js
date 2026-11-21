@@ -1,6 +1,6 @@
 // Offline support: the page and its icons are cached on first visit; fonts are cached when first fetched.
 // Raise VERSION whenever index.html changes so installed copies pick up the update.
-var VERSION = "emg-sim-v5";
+var VERSION = "emg-sim-v10";
 var CORE = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
